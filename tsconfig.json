@@ -1,0 +1,51 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "es6"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "baseUrl": "./",
+    "allowImportingTsExtensions": false,
+    "incremental": false,
+    "paths": {
+      "#ui": [
+        "src/ui/ind.ts"
+      ]
+    },
+    "types": [
+      "cypress",
+      "node"
+    ]
+  },
+  "include": [
+    "src/**/*.d.ts",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "react/**/*.d.ts",
+    "react/**/*.ts",
+    "react/**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    ".next",
+    "old",
+    "dist",
+    "example",
+    "src/**/*.cy.ts",
+    "src/**/*.cy.tsx"
+  ]
+}

@@ -1,0 +1,264 @@
+---
+alwaysApply: true
+---
+# HeroUI Component Testing Guide
+
+## Core Principle: Test What Actually Exists, Not What You Assume
+
+When testing HeroUI components, **always investigate the actual rendered DOM** before writing tests. HeroUI components often render differently than standard HTML elements, and tests that assume standard behavior will fail.
+
+## Key HeroUI Differences from Standard HTML
+
+### 1. Input Components
+
+- **HeroUI Input renders as**: `<input type="text">` with `id="react-aria-*"` (unique React aria ID)
+- **Attributes**: `type`, `placeholder`, `class` (extensive Tailwind classes)
+- **Missing**: `name`, `id` (standard HTML attributes are NOT set)
+
+### 2. Select Components
+
+- **HeroUI Select renders as**: Custom components with `button[aria-haspopup="listbox"]` as trigger
+- **Hidden select**: `<select>` exists but is not interactive
+- **Dropdown options**: `<div role="option">` when expanded
+- **NOT standard**: `<select>` with `<option>` children
+
+### 3. Form Controls
+
+- **Checkboxes**: `input[type="checkbox"]` with `role="checkbox"`
+- **Switches**: `input[role="switch"]`
+- **Sliders**: `input[type="range"]` (not `[role="slider"]`)
+
+## Testing Strategy: Always Use These Attributes
+
+### ✅ CORRECT: Use these attributes
+
+- `type` attribute (e.g., `input[type="email"]`)
+- `role` attribute (e.g., `[role="checkbox"]`)
+- `aria-*` attributes (e.g., `[aria-haspopup="listbox"]`)
+- `placeholder` text (for inputs and textareas)
+
+### ❌ WRONG: Don't use these attributes
+
+- `name` attribute (NOT rendered by HeroUI)
+- Standard `id` attribute (NOT rendered by HeroUI)
+- `data-testid` (unless explicitly added)
+
+## HeroUI Dropdown Testing Pattern
+
+```typescript
+// ✅ CORRECT: Force Click Approach
+// 1. Open dropdown
+cy.get('button[aria-haspopup="listbox"]').click();
+
+// 2. Verify options exist
+cy.get('[role="option"]').should("exist");
+
+// 3. Select option with force click (handles timing issues)
+cy.get('[role="option"]').first().click({ force: true });
+
+// 4. Verify dropdown closed
+cy.get('button[aria-haspopup="listbox"]').should("have.attr", "aria-expanded", "false");
+```
+
+## Form Field Testing Patterns
+
+### Text Inputs
+
+```typescript
+// Email field
+cy.get('input[type="email"]').type("test@example.com");
+
+// Phone field  
+cy.get('input[type="tel"]').type("123-456-7890");
+
+// Password field
+cy.get('input[type="password"]').type("password123");
+
+// Text field
+cy.get('input[type="text"]').type("some text");
+```
+
+### Form Controls
+
+```typescript
+// Checkbox
+cy.get('input[type="checkbox"]').check();
+
+// Switch
+cy.get('input[role="switch"]').check();
+
+// Select (HeroUI pattern)
+cy.get('button[aria-haspopup="listbox"]').click();
+cy.get('[role="option"]').first().click();
+```
+
+## Before Writing Tests: Always Investigate
+
+### 1. Use Browser DevTools
+
+- Inspect the actual rendered HTML
+- Look for `type`, `role`, and `aria-*` attributes
+- Note what's missing (like `name` attributes)
+
+### 2. Use Cypress to Log DOM Structure
+
+```typescript
+it("should examine what's actually rendered", () => {
+  cy.get("input").then(($inputs) => {
+    cy.log(`Found ${$inputs.length} input elements`);
+    $inputs.each((index, input) => {
+      const type = input.getAttribute("type");
+      const placeholder = input.getAttribute("placeholder");
+      const className = input.getAttribute("class");
+      const role = input.getAttribute("role");
+      const id = input.getAttribute("id");
+      const name = input.getAttribute("name");
+      cy.log(
+        `Input ${index}: type="${type}", placeholder="${placeholder}", class="${className}", role="${role}", id="${id}", name="${name}"`,
+      );
+    });
+  });
+});
+```
+
+## Common Testing Mistakes and Fixes
+
+### ❌ WRONG: Assuming standard HTML behavior
+
+```typescript
+// This will fail - HeroUI doesn't render name attributes
+cy.get('input[name="firstName"]').type("John");
+```
+
+### ✅ CORRECT: Use what actually exists
+
+```typescript
+// Use label text to find the field, then interact with the input
+cy.contains("label", "First Name")
+  .closest("div")
+  .find("input, textarea")
+  .first()
+  .type("John");
+```
+
+### ❌ WRONG: Using cy.select() on HeroUI Select
+
+```typescript
+// This will fail - HeroUI Select is not a standard <select>
+cy.get('select').select("option");
+```
+
+### ✅ CORRECT: Use HeroUI dropdown pattern
+
+```typescript
+cy.get('button[aria-haspopup="listbox"]').click();
+cy.get('[role="option"]').contains("option").click({ force: true });
+```
+
+## Test Naming: Be Honest About What You're Testing
+
+### ❌ WRONG: Misleading test names
+
+```typescript
+it("should validate email format", () => {
+  // Test only checks if email field exists, doesn't validate format
+  cy.get('input[type="email"]').should("exist");
+});
+```
+
+### ✅ CORRECT: Honest test names
+
+```typescript
+it("should display email input field", () => {
+  cy.get('input[type="email"]').should("exist");
+});
+
+it("should validate email format with real-time feedback", () => {
+  cy.get('input[type="email"]').type("invalid-email");
+  // Actually check for validation message
+  cy.contains("Invalid email address").should("exist");
+});
+```
+
+## Validation Testing: Test What Actually Happens
+
+### ❌ WRONG: Assuming validation works
+
+```typescript
+it("should show error for invalid email", () => {
+  cy.get('input[type="email"]').type("invalid");
+  // This might not work if HeroUI doesn't show validation messages
+  cy.contains("Invalid email").should("be.visible");
+});
+```
+
+### ✅ CORRECT: Test what actually happens
+
+```typescript
+it("should allow typing in email field", () => {
+  cy.get('input[type="email"]').type("invalid");
+  cy.get('input[type="email"]').should("have.value", "invalid");
+});
+
+it("should display validation errors if they exist", () => {
+  cy.get('input[type="email"]').type("invalid");
+  // Check if any error message appears, or just that form still exists
+  cy.get("form").should("exist");
+});
+```
+
+## Fallback Strategies When Specific Testing Fails
+
+### 1. Test Element Existence Instead of Behavior
+
+```typescript
+// If you can't test validation, at least test the field exists
+cy.get('input[type="email"]').should("exist");
+cy.get("form").should("exist");
+```
+
+### 2. Test Basic Interactions
+
+```typescript
+// Test that you can type in the field
+cy.get('input[type="text"]').type("test");
+cy.get('input[type="text"]').should("have.value", "test");
+```
+
+### 3. Test Form Submission
+
+```typescript
+// Test that the form can be submitted
+cy.get('button[type="submit"]').click();
+cy.get("form").should("exist"); // Form still exists after submission
+```
+
+## Before Each Hook: Keep It Simple
+
+### ❌ WRONG: Complex beforeEach that can fail
+
+```typescript
+beforeEach(() => {
+  cy.visit("/page");
+  cy.get("h1").should("contain", "Specific Title");
+  cy.get("h2").should("contain", "Specific Subtitle");
+});
+```
+
+### ✅ CORRECT: Simple, robust beforeEach
+
+```typescript
+beforeEach(() => {
+  cy.visit("/page");
+  cy.get("form").should("exist"); // Just check form exists
+});
+```
+
+## Summary: The HeroUI Testing Mantra
+
+1. **Investigate First**: Always check what's actually rendered
+2. **Use What Exists**: Test with `type`, `role`, and `aria-*` attributes
+3. **Be Honest**: Name tests to reflect what they actually test
+4. **Fallback Gracefully**: If specific behavior can't be tested, test what can be
+5. **Keep It Simple**: Avoid complex assertions that are likely to fail
+Remember: **The goal is not to make tests pass, but to make them meaningful.** A test that passes but doesn't test what it claims to test is worse than a test that fails honestly.

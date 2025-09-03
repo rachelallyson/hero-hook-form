@@ -1,0 +1,54 @@
+# Source files (not needed in distribution)
+src/
+react/
+# Keep the built react entrypoint
+!dist/react/
+
+# Test files
+*.cy.ts
+*.cy.tsx
+cypress/
+**/*.cy.ts
+**/*.cy.tsx
+
+# Example app
+example/
+
+# Build and development files
+vite.config.ts
+tsconfig.json
+tsconfig.react.json
+eslint.config.mjs
+
+# Development dependencies and configs
+node_modules/
+package-lock.json
+.npmrc
+
+# Screenshots and test artifacts
+cypress/screenshots/
+*.png
+*.jpg
+*.jpeg
+*.gif
+
+# IDE and OS files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# Documentation (keep only main README)
+docs/
+
+# Git files
+.git/
+.gitignore

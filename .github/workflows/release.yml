@@ -1,0 +1,149 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 1.0.0)'
+        required: true
+        type: string
+      release_type:
+        description: 'Type of release'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build package
+        run: npm run build
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Lint code
+        run: npm run lint
+
+      - name: Bump version
+        id: version
+        run: |
+          if [ "${{ github.event.inputs.version }}" != "" ]; then
+            echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            npm version ${{ github.event.inputs.release_type }} --no-git-tag-version
+            echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Update CHANGELOG
+        run: |
+          # This is a placeholder - you might want to use conventional-changelog
+          echo "## [${{ steps.version.outputs.version }}] - $(date +%Y-%m-%d)" >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          echo "### Added" >> CHANGELOG.md
+          echo "- [List new features]" >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          echo "### Changed" >> CHANGELOG.md
+          echo "- [List changes]" >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          echo "### Fixed" >> CHANGELOG.md
+          echo "- [List bug fixes]" >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add package.json package-lock.json CHANGELOG.md
+          git commit -m "chore: release version ${{ steps.version.outputs.version }}"
+
+      - name: Create tag
+        run: git tag v${{ steps.version.outputs.version }}
+
+      - name: Push changes
+        run: |
+          git push origin main
+          git push origin v${{ steps.version.outputs.version }}
+
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          release_name: Release v${{ steps.version.outputs.version }}
+          body: |
+            ## What's New in v${{ steps.version.outputs.version }}
+            
+            ### ✨ New Features
+            - [List new features]
+            
+            ### 🔧 Improvements
+            - [List improvements]
+            
+            ### 🐛 Bug Fixes
+            - [List bug fixes]
+            
+            ### 📚 Documentation
+            - [List documentation updates]
+            
+            ## Installation
+            
+            ```bash
+            npm install @rachelallyson/hero-hook-form@${{ steps.version.outputs.version }}
+            ```
+            
+            ## Breaking Changes
+            
+            [List any breaking changes or note "No breaking changes"]
+            
+            ## Migration Guide
+            
+            [Migration steps if needed or note "No migration required"]
+            
+            ## Full Changelog
+            
+            See [CHANGELOG.md](CHANGELOG.md) for complete details.
+            
+            ## Support
+            
+            - 📖 [Documentation](https://github.com/rachelallyson/hero-hook-form/tree/main/docs)
+            - 💬 [GitHub Discussions](https://github.com/rachelallyson/hero-hook-form/discussions)
+            - 🐛 [Report Issues](https://github.com/rachelallyson/hero-hook-form/issues)
+          draft: false
+          prerelease: false
+
+      - name: Publish to NPM
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Notify success
+        run: |
+          echo "🎉 Successfully released version ${{ steps.version.outputs.version }}!"
+          echo "📦 Published to NPM"
+          echo "🏷️ Created GitHub release"
+          echo "📝 Updated CHANGELOG"

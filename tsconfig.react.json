@@ -1,0 +1,16 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "paths": {
+            "#ui": [
+                "src/ui/react.ts"
+            ]
+        }
+    },
+    "include": [
+        "react/**/*.d.ts",
+        "react/**/*.ts",
+        "react/**/*.tsx",
+        "src/types.ts"
+    ]
+}
