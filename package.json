@@ -32,19 +32,17 @@
   "license": "ISC",
   "sideEffects": false,
   "type": "module",
-  "main": "./dist/index.cjs",
+  "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "import": "./dist/index.js"
     },
     "./react": {
       "types": "./dist/react/index.d.ts",
-      "import": "./dist/react/index.js",
-      "require": "./dist/react/index.cjs"
+      "import": "./dist/react/index.js"
     }
   },
   "files": [
@@ -57,8 +55,8 @@
     "node": ">=18.0.0"
   },
   "scripts": {
-    "build": "tsup src/index.ts --format esm,cjs --dts --clean && tsup src/index.ts --format esm,cjs --dts --env.NODE_ENV=production --tsconfig tsconfig.react.json --out-dir dist/react",
-    "dev:build": "tsup src/index.ts --format esm,cjs --dts --watch",
+    "build": "tsup src/index.ts --format esm --dts --clean && tsup src/index.ts --format esm --dts --env.NODE_ENV=production --tsconfig tsconfig.react.json --out-dir dist/react",
+    "dev:build": "tsup src/index.ts --format esm --dts --watch",
     "lint": "eslint src",
     "typecheck": "tsc --noEmit",
     "cy:open": "cypress open --component",
@@ -72,14 +70,16 @@
     "@eslint/js": "^9.34.0",
     "@heroui/button": "^2.2.25",
     "@heroui/checkbox": "^2.3.25",
+    "@heroui/date-input": "^2.3.25",
+    "@heroui/date-picker": "^2.3.26",
     "@heroui/input": "^2.4.26",
     "@heroui/radio": "^2.3.25",
     "@heroui/react": "^2.8.3",
     "@heroui/select": "^2.4.26",
+    "@heroui/slider": "^2.4.22",
     "@heroui/spinner": "^2.2.22",
     "@heroui/switch": "^2.2.23",
-    "@hookform/resolvers": "^5.2.1",
-    "@kuzu-media/eslint-config-nextjs": "^0.0.20",
+    "@heroui/system": "^2.2.25",
     "@types/node": "^24.3.0",
     "@types/react": "^19.1.12",
     "@types/react-dom": "^19.1.9",
@@ -87,7 +87,7 @@
     "cypress": "^15.1.0",
     "cypress-terminal-report": "^7.2.1",
     "eslint": "^9.34.0",
-    "graphql": "^16.11.0",
+    "jsdom": "^26.1.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-hook-form": "^7.62.0",
@@ -100,12 +100,16 @@
   "peerDependencies": {
     "@heroui/button": ">=2 <3",
     "@heroui/checkbox": ">=2 <3",
+    "@heroui/date-input": ">=2 <3",
+    "@heroui/date-picker": ">=2 <3",
     "@heroui/input": ">=2 <3",
     "@heroui/radio": ">=2 <3",
     "@heroui/react": ">=2 <3",
     "@heroui/select": ">=2 <3",
+    "@heroui/slider": ">=2 <3",
     "@heroui/spinner": ">=2 <3",
     "@heroui/switch": ">=2 <3",
+    "@heroui/system": ">=2 <3",
     "react": ">=18.2.0 <20",
     "react-dom": ">=18.2.0 <20",
     "react-hook-form": ">=7 <8",
@@ -116,6 +120,12 @@
       "optional": true
     },
     "@heroui/checkbox": {
+      "optional": true
+    },
+    "@heroui/date-input": {
+      "optional": true
+    },
+    "@heroui/date-picker": {
       "optional": true
     },
     "@heroui/input": {
@@ -130,19 +140,18 @@
     "@heroui/select": {
       "optional": true
     },
+    "@heroui/slider": {
+      "optional": true
+    },
     "@heroui/spinner": {
       "optional": true
     },
     "@heroui/switch": {
       "optional": true
+    },
+    "@heroui/system": {
+      "optional": true
     }
   },
-  "dependencies": {
-    "@tailwindcss/postcss": "^4.1.12",
-    "framer-motion": "^12.23.12",
-    "jsdom": "^26.1.0",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.12",
-    "zod": ">=4"
-  }
+  "dependencies": {}
 }

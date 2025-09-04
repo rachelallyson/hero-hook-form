@@ -15,6 +15,8 @@ export * from "./providers/FormProvider.js";
 export * from "./submit/SubmitButton.js";
 export * from "./types.js";
 export * from "./utils/applyServerErrors.js";
+export * from "./utils/testing.js";
+export * from "./utils/validation.js";
 
 // Zod integration (optional - requires zod and @hookform/resolvers to be installed)
 export * from "./components/ZodForm.js";

@@ -1,10 +1,12 @@
 import type { ComponentProps } from "react";
 import type {
   Control,
+  FieldErrors,
   FieldValues,
   Path,
   RegisterOptions,
   UseFormProps,
+  UseFormReturn,
 } from "react-hook-form";
 
 import type {
@@ -41,10 +43,18 @@ export interface BaseFormFieldConfig<TFieldValues extends FieldValues> {
   className?: string;
   isDisabled?: boolean;
   rules?: RegisterOptions<TFieldValues, Path<TFieldValues>>;
+
   // For conditional rendering
   condition?: (values: Partial<TFieldValues>) => boolean;
+  dependsOn?: Path<TFieldValues>;
+  dependsOnValue?: unknown;
+
   // For grouping related fields
   group?: string;
+
+  // Accessibility enhancements
+  ariaLabel?: string;
+  ariaDescribedBy?: string;
 }
 
 // String-based field configs
@@ -135,6 +145,19 @@ export interface FileFieldConfig<TFieldValues extends FieldValues>
   accept?: string;
 }
 
+// Custom field config for advanced use cases
+export interface CustomFieldConfig<TFieldValues extends FieldValues>
+  extends BaseFormFieldConfig<TFieldValues> {
+  type: "custom";
+  render: (field: {
+    name: Path<TFieldValues>;
+    control: Control<TFieldValues>;
+    form: UseFormReturn<TFieldValues>;
+    errors: FieldErrors<TFieldValues>;
+    isSubmitting: boolean;
+  }) => React.ReactNode;
+}
+
 // Union type for all field configs
 export type FormFieldConfig<TFieldValues extends FieldValues> =
   | StringFieldConfig<TFieldValues>
@@ -142,7 +165,8 @@ export type FormFieldConfig<TFieldValues extends FieldValues> =
   | RadioFieldConfig<TFieldValues>
   | SliderFieldConfig<TFieldValues>
   | DateFieldConfig<TFieldValues>
-  | FileFieldConfig<TFieldValues>;
+  | FileFieldConfig<TFieldValues>
+  | CustomFieldConfig<TFieldValues>;
 
 // Advanced form configuration
 export interface FormConfig<TFieldValues extends FieldValues> {
@@ -171,8 +195,21 @@ export type ZodFormFieldConfig<TFieldValues extends FieldValues> =
 export interface ZodFormConfig<TFieldValues extends FieldValues>
   extends UseFormProps<TFieldValues> {
   schema?: import("zod").ZodSchema<TFieldValues>;
-
   fields: ZodFormFieldConfig<TFieldValues>[];
+
+  // Enhanced error handling
+  onError?: (errors: FieldErrors<TFieldValues>) => void;
+  errorDisplay?: "inline" | "toast" | "modal" | "none";
+
+  // Form state access for advanced use cases
+  render?: (formState: {
+    form: UseFormReturn<TFieldValues>;
+    isSubmitting: boolean;
+    isSubmitted: boolean;
+    isSuccess: boolean;
+    errors: FieldErrors<TFieldValues>;
+    values: TFieldValues;
+  }) => React.ReactNode;
 }
 
 export interface FormValidationError {
@@ -218,4 +255,41 @@ export interface FieldGroup<TFieldValues extends FieldValues> {
   collapsible?: boolean;
   defaultCollapsed?: boolean;
   fields: FormFieldConfig<TFieldValues>[];
+}
+
+// Validation utilities
+export interface ValidationUtils {
+  createMinLengthSchema: (
+    min: number,
+    fieldName: string,
+  ) => import("zod").ZodString;
+  createMaxLengthSchema: (
+    max: number,
+    fieldName: string,
+  ) => import("zod").ZodString;
+  createEmailSchema: () => import("zod").ZodString;
+  createRequiredSchema: (fieldName: string) => import("zod").ZodString;
+  createUrlSchema: () => import("zod").ZodString;
+  createPhoneSchema: () => import("zod").ZodString;
+}
+
+// Testing utilities
+export interface FormTestUtils<TFieldValues extends FieldValues> {
+  getField: (name: Path<TFieldValues>) => {
+    value: unknown;
+    error: unknown;
+    isDirty: boolean;
+    isTouched: boolean;
+  };
+  submitForm: () => Promise<void>;
+  resetForm: () => void;
+  getFormState: () => {
+    values: TFieldValues;
+    errors: FieldErrors<TFieldValues>;
+    isSubmitting: boolean;
+    isSubmitted: boolean;
+    isSuccess: boolean;
+  };
+  setFieldValue: (name: Path<TFieldValues>, value: unknown) => void;
+  triggerValidation: (name?: Path<TFieldValues>) => Promise<boolean>;
 }

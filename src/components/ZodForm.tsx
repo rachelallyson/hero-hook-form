@@ -3,7 +3,12 @@
 import React from "react";
 
 import { Button } from "@heroui/react";
-import type { FieldValues, SubmitHandler } from "react-hook-form";
+import type {
+  FieldErrors,
+  FieldValues,
+  SubmitHandler,
+  UseFormReturn,
+} from "react-hook-form";
 
 import type { FormValidationError, ZodFormConfig } from "../types";
 import { useZodForm } from "../zod-integration";
@@ -25,16 +30,29 @@ interface ZodFormProps<T extends FieldValues> {
   submitButtonText?: string;
   subtitle?: string;
   title?: string;
+  // Enhanced error handling
+  errorDisplay?: "inline" | "toast" | "modal" | "none";
+  // Form state access
+  render?: (formState: {
+    form: UseFormReturn<T>;
+    isSubmitting: boolean;
+    isSubmitted: boolean;
+    isSuccess: boolean;
+    errors: FieldErrors<T>;
+    values: T;
+  }) => React.ReactNode;
 }
 
 export function ZodForm<T extends FieldValues>({
   className,
   columns = 1,
   config,
+  errorDisplay = "inline",
   layout = "vertical",
   onError,
   onSubmit,
   onSuccess,
+  render,
   resetButtonText = "Reset",
   showResetButton = false,
   spacing = "4",
@@ -60,7 +78,7 @@ export function ZodForm<T extends FieldValues>({
 
     // Check if form is valid before proceeding
     const isValid = await form.trigger();
-    
+
     if (!isValid) {
       setSubmissionState({
         error: "Please fix the validation errors above",
@@ -68,6 +86,7 @@ export function ZodForm<T extends FieldValues>({
         isSubmitting: false,
         isSuccess: false,
       });
+
       return;
     }
 
@@ -170,6 +189,25 @@ export function ZodForm<T extends FieldValues>({
     void handleSubmit();
   };
 
+  // Enhanced error handling
+  React.useEffect(() => {
+    if (config.onError && Object.keys(form.formState.errors).length > 0) {
+      config.onError(form.formState.errors);
+    }
+  }, [form.formState.errors, config.onError]);
+
+  // Custom render function
+  if (render) {
+    return render({
+      errors: form.formState.errors,
+      form,
+      isSubmitted: submissionState.isSubmitted,
+      isSubmitting: submissionState.isSubmitting,
+      isSuccess: submissionState.isSuccess,
+      values: form.getValues(),
+    });
+  }
+
   return (
     <form className={className} role="form" onSubmit={handleFormSubmit}>
       {/* Title and Subtitle */}
@@ -198,7 +236,7 @@ export function ZodForm<T extends FieldValues>({
       )}
 
       {/* Error Message */}
-      {submissionState.error && (
+      {submissionState.error && errorDisplay !== "none" && (
         <div
           className="mb-6 p-4 bg-danger-50 border border-danger-200 rounded-lg"
           data-testid="error-message"

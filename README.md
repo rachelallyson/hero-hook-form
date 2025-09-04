@@ -25,25 +25,44 @@ Build beautiful, accessible forms with full TypeScript support, validation, and 
 
 ## 🚀 Quick Start
 
+### Option 1: All-in-One HeroUI Package (Recommended for Development)
+
 ```bash
-npm install @rachelallyson/hero-hook-form react-hook-form @heroui/react
+npm install @rachelallyson/hero-hook-form @heroui/react react-hook-form zod
 ```
+
+### Option 2: Individual HeroUI Packages (Recommended for Production)
+
+```bash
+npm install @rachelallyson/hero-hook-form react-hook-form zod
+npm install @heroui/button @heroui/input @heroui/select  # Only what you need
+```
+
+### Basic Usage
 
 ```tsx
-import { useForm } from "react-hook-form";
-import { Form, InputField, SubmitButton } from "@rachelallyson/hero-hook-form/react";
+import { ZodForm } from "@rachelallyson/hero-hook-form";
+import { z } from "zod";
+
+const schema = z.object({
+  email: z.string().email("Invalid email"),
+  name: z.string().min(1, "Name is required"),
+});
+
+const config = {
+  schema,
+  fields: [
+    { name: "name", type: "input", label: "Name" },
+    { name: "email", type: "input", label: "Email", inputProps: { type: "email" } },
+  ],
+};
 
 export function ContactForm() {
-  const methods = useForm();
-  
-  return (
-    <Form methods={methods} onSubmit={console.log}>
-      <InputField control={methods.control} label="Email" name="email" />
-      <SubmitButton>Send</SubmitButton>
-    </Form>
-  );
+  return <ZodForm config={config} onSubmit={console.log} />;
 }
 ```
+
+> 📚 **See [Installation Guide](./docs/installation.md) for detailed setup instructions and bundle optimization tips.**
 
 ## 📊 Why Hero Hook Form?
 

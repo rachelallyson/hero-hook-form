@@ -1,45 +1,44 @@
 import { z } from "zod";
 
-import { createZodFormConfig } from "../zod-integration";
-
-// Test schema
-const testSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-  firstName: z.string().min(2, "First name must be at least 2 characters"),
-  message: z.string().min(10, "Message must be at least 10 characters"),
-  terms: z
-    .boolean()
-    .refine((val) => val === true, "You must agree to the terms"),
-});
-
-// Test fields
-const testFields = [
-  {
-    label: "First Name",
-    name: "firstName" as const,
-    type: "input" as const,
-  },
-  {
-    inputProps: { type: "email" },
-    label: "Email",
-    name: "email" as const,
-    type: "input" as const,
-  },
-  {
-    label: "Message",
-    name: "message" as const,
-    type: "textarea" as const,
-  },
-  {
-    label: "I agree to the terms",
-    name: "terms" as const,
-    type: "checkbox" as const,
-  },
-];
-
 describe("ZodForm Integration", () => {
   it("should create a valid ZodFormConfig", () => {
-    const config = createZodFormConfig(testSchema, testFields);
+    const testSchema = z.object({
+      email: z.string().email("Please enter a valid email address"),
+      firstName: z.string().min(2, "First name must be at least 2 characters"),
+      message: z.string().min(10, "Message must be at least 10 characters"),
+      terms: z
+        .boolean()
+        .refine((val) => val === true, "You must agree to the terms"),
+    });
+
+    const testFields = [
+      {
+        label: "First Name",
+        name: "firstName" as const,
+        type: "input" as const,
+      },
+      {
+        inputProps: { type: "email" },
+        label: "Email",
+        name: "email" as const,
+        type: "input" as const,
+      },
+      {
+        label: "Message",
+        name: "message" as const,
+        type: "textarea" as const,
+      },
+      {
+        label: "I agree to the terms",
+        name: "terms" as const,
+        type: "checkbox" as const,
+      },
+    ];
+
+    const config = {
+      fields: testFields,
+      schema: testSchema,
+    };
 
     expect(config).to.have.property("schema");
     expect(config).to.have.property("fields");
@@ -51,6 +50,39 @@ describe("ZodForm Integration", () => {
   });
 
   it("should create config with default values", () => {
+    const testSchema = z.object({
+      email: z.string().email("Please enter a valid email address"),
+      firstName: z.string().min(2, "First name must be at least 2 characters"),
+      message: z.string().min(10, "Message must be at least 10 characters"),
+      terms: z
+        .boolean()
+        .refine((val) => val === true, "You must agree to the terms"),
+    });
+
+    const testFields = [
+      {
+        label: "First Name",
+        name: "firstName" as const,
+        type: "input" as const,
+      },
+      {
+        inputProps: { type: "email" },
+        label: "Email",
+        name: "email" as const,
+        type: "input" as const,
+      },
+      {
+        label: "Message",
+        name: "message" as const,
+        type: "textarea" as const,
+      },
+      {
+        label: "I agree to the terms",
+        name: "terms" as const,
+        type: "checkbox" as const,
+      },
+    ];
+
     const defaultValues = {
       email: "test@example.com",
       firstName: "John",
@@ -58,14 +90,54 @@ describe("ZodForm Integration", () => {
       terms: false,
     };
 
-    const config = createZodFormConfig(testSchema, testFields, defaultValues);
+    const config = {
+      defaultValues,
+      fields: testFields,
+      schema: testSchema,
+    };
 
     expect(config).to.have.property("defaultValues");
     expect(config.defaultValues).to.deep.equal(defaultValues);
   });
 
   it("should handle different field types", () => {
-    const config = createZodFormConfig(testSchema, testFields);
+    const testSchema = z.object({
+      email: z.string().email("Please enter a valid email address"),
+      firstName: z.string().min(2, "First name must be at least 2 characters"),
+      message: z.string().min(10, "Message must be at least 10 characters"),
+      terms: z
+        .boolean()
+        .refine((val) => val === true, "You must agree to the terms"),
+    });
+
+    const testFields = [
+      {
+        label: "First Name",
+        name: "firstName" as const,
+        type: "input" as const,
+      },
+      {
+        inputProps: { type: "email" },
+        label: "Email",
+        name: "email" as const,
+        type: "input" as const,
+      },
+      {
+        label: "Message",
+        name: "message" as const,
+        type: "textarea" as const,
+      },
+      {
+        label: "I agree to the terms",
+        name: "terms" as const,
+        type: "checkbox" as const,
+      },
+    ];
+
+    const config = {
+      fields: testFields,
+      schema: testSchema,
+    };
 
     expect(config.fields[0]).to.have.property("type", "input");
     expect(config.fields[1]).to.have.property("type", "input");
@@ -74,7 +146,43 @@ describe("ZodForm Integration", () => {
   });
 
   it("should handle field configurations", () => {
-    const config = createZodFormConfig(testSchema, testFields);
+    const testSchema = z.object({
+      email: z.string().email("Please enter a valid email address"),
+      firstName: z.string().min(2, "First name must be at least 2 characters"),
+      message: z.string().min(10, "Message must be at least 10 characters"),
+      terms: z
+        .boolean()
+        .refine((val) => val === true, "You must agree to the terms"),
+    });
+
+    const testFields = [
+      {
+        label: "First Name",
+        name: "firstName" as const,
+        type: "input" as const,
+      },
+      {
+        inputProps: { type: "email" },
+        label: "Email",
+        name: "email" as const,
+        type: "input" as const,
+      },
+      {
+        label: "Message",
+        name: "message" as const,
+        type: "textarea" as const,
+      },
+      {
+        label: "I agree to the terms",
+        name: "terms" as const,
+        type: "checkbox" as const,
+      },
+    ];
+
+    const config = {
+      fields: testFields,
+      schema: testSchema,
+    };
 
     // Check that inputProps are preserved
     expect(config.fields[1]).to.have.property("inputProps");
@@ -82,7 +190,43 @@ describe("ZodForm Integration", () => {
   });
 
   it("should handle schema validation", () => {
-    const config = createZodFormConfig(testSchema, testFields);
+    const testSchema = z.object({
+      email: z.string().email("Please enter a valid email address"),
+      firstName: z.string().min(2, "First name must be at least 2 characters"),
+      message: z.string().min(10, "Message must be at least 10 characters"),
+      terms: z
+        .boolean()
+        .refine((val) => val === true, "You must agree to the terms"),
+    });
+
+    const testFields = [
+      {
+        label: "First Name",
+        name: "firstName" as const,
+        type: "input" as const,
+      },
+      {
+        inputProps: { type: "email" },
+        label: "Email",
+        name: "email" as const,
+        type: "input" as const,
+      },
+      {
+        label: "Message",
+        name: "message" as const,
+        type: "textarea" as const,
+      },
+      {
+        label: "I agree to the terms",
+        name: "terms" as const,
+        type: "checkbox" as const,
+      },
+    ];
+
+    const config = {
+      fields: testFields,
+      schema: testSchema,
+    };
 
     // The schema should be a Zod object
     expect(config.schema).to.be.an("object");

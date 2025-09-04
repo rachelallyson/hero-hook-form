@@ -3,6 +3,7 @@
 import React from "react";
 
 import type { FieldValues, UseFormReturn } from "react-hook-form";
+import { useWatch } from "react-hook-form";
 
 import { CheckboxField } from "../fields/CheckboxField";
 import { DateField } from "../fields/DateField";
@@ -27,7 +28,28 @@ export function FormField<TFieldValues extends FieldValues>({
   submissionState,
 }: FormFieldProps<TFieldValues>) {
   const { control } = form;
+  const watchedValues = useWatch({ control });
+
+  // Handle conditional rendering
+  if (config.condition && !config.condition(watchedValues)) {
+    return null;
+  }
+
+  // Handle dependency-based conditional rendering
+  if (config.dependsOn) {
+    const dependentValue = watchedValues[config.dependsOn];
+
+    if (
+      config.dependsOnValue !== undefined &&
+      dependentValue !== config.dependsOnValue
+    ) {
+      return null;
+    }
+  }
+
   const baseProps = {
+    ariaDescribedBy: config.ariaDescribedBy,
+    ariaLabel: config.ariaLabel,
     className: config.className,
     description: config.description,
     isDisabled: config.isDisabled ?? submissionState.isSubmitting,
@@ -136,6 +158,15 @@ export function FormField<TFieldValues extends FieldValues>({
           multiple={config.multiple}
         />
       );
+
+    case "custom":
+      return config.render({
+        control,
+        errors: form.formState.errors,
+        form,
+        isSubmitting: submissionState.isSubmitting,
+        name: config.name,
+      });
 
     default: {
       const fieldType = (config as { type: string }).type;

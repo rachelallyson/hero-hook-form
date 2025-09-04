@@ -11,6 +11,11 @@ import { fixupPluginRules } from "@eslint/compat";
 import nextPlugin from "@next/eslint-plugin-next";
 import jsxA11y from "eslint-plugin-jsx-a11y";
 import reactPlugin from "eslint-plugin-react";
+import { fileURLToPath } from "url";
+import { dirname, resolve } from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const patchedNextPlugin = fixupPluginRules(nextPlugin);
 
@@ -96,8 +101,8 @@ export default [
       ignores: ["src/**/*.cy.{ts,tsx}"],
       languageOptions: {
         parserOptions: {
-          project: "./tsconfig.json",
-          tsconfigRootDir: ".",
+          project: resolve(__dirname, "./tsconfig.json"),
+          tsconfigRootDir: __dirname,
         },
       },
       rules: {
@@ -122,8 +127,8 @@ export default [
       files: ["example/**/*.{ts,tsx}"],
       languageOptions: {
         parserOptions: {
-          project: "./example/tsconfig.json",
-          tsconfigRootDir: ".",
+          project: resolve(__dirname, "./example/tsconfig.json"),
+          tsconfigRootDir: __dirname,
         },
       },
       rules: {
@@ -145,7 +150,7 @@ export default [
     files: ["*.{ts,tsx}"],
     languageOptions: {
       parserOptions: {
-        tsconfigRootDir: ".",
+        tsconfigRootDir: __dirname,
       },
     },
     rules: {
