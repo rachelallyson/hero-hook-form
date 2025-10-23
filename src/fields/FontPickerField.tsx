@@ -62,10 +62,16 @@ export function FontPickerField<
       setFontPickerState(prev => ({ ...prev, loading: true }));
 
       try {
+        console.log("🔍 Attempting to import @rachelallyson/heroui-font-picker...");
         const fontPickerModule = await import("@rachelallyson/heroui-font-picker");
+        console.log("✅ Font picker module loaded:", fontPickerModule);
+        console.log("📦 Available exports:", Object.keys(fontPickerModule));
+        
         // The font picker package exports FontPicker as the main component
         // Use any type to avoid TypeScript issues with incomplete definitions
         FontPickerComponent = (fontPickerModule as any).FontPicker || (fontPickerModule as any).default;
+        console.log("🎯 FontPicker component:", FontPickerComponent);
+        
         fontPickerLoaded = true;
         setFontPickerState({
           component: FontPickerComponent,
@@ -73,6 +79,7 @@ export function FontPickerField<
           error: null,
         });
       } catch (error) {
+        console.error("❌ Font picker import failed:", error);
         console.debug("Font picker package not available - FontPickerField will show fallback UI");
         setFontPickerState({
           component: null,

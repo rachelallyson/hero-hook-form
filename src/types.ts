@@ -200,7 +200,8 @@ export type ZodFormFieldConfig<TFieldValues extends FieldValues> =
   | Omit<SliderFieldConfig<TFieldValues>, "rules">
   | Omit<DateFieldConfig<TFieldValues>, "rules">
   | Omit<FileFieldConfig<TFieldValues>, "rules">
-  | Omit<FontPickerFieldConfig<TFieldValues>, "rules">;
+  | Omit<FontPickerFieldConfig<TFieldValues>, "rules">
+  | Omit<CustomFieldConfig<TFieldValues>, "rules">;
 
 export interface ZodFormConfig<TFieldValues extends FieldValues>
   extends UseFormProps<TFieldValues> {

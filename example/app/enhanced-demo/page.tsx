@@ -117,7 +117,7 @@ export default function EnhancedDemoPage() {
         type: "custom" as const,
         label: "Skills",
         description: "Select your technical skills",
-        render: ({ form, name }) => (
+        render: ({ form, name }: { form: any; name: string }) => (
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">
               Skills
@@ -174,12 +174,12 @@ export default function EnhancedDemoPage() {
     ],
 
     // Enhanced error handling
-    onError: (errors) => {
+    onError: (errors: any) => {
       console.log("Form validation errors:", errors);
     },
 
     // Custom render function for advanced use cases
-    render: ({ form, isSubmitting, errors, values }) => {
+    render: ({ form, isSubmitting, errors, values }: { form: any; isSubmitting: boolean; errors: any; values: any }) => {
       // Set up test utils for debugging
       React.useEffect(() => {
         setTestUtils(createFormTestUtils(form));
@@ -218,7 +218,7 @@ export default function EnhancedDemoPage() {
 
           {/* Form Fields */}
           <form
-            className="space-y-6" onSubmit={form.handleSubmit((data) => {
+            className="space-y-6" onSubmit={form.handleSubmit((data: any) => {
             setFormData(data);
             console.log("Form submitted:", data);
           })}>
