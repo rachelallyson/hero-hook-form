@@ -12,6 +12,9 @@ let FontPickerComponent: any = null;
 let fontPickerLoaded = false;
 let fontPickerLoading = false;
 
+// Store callbacks to notify components when loading completes
+const loadingCallbacks: Array<() => void> = [];
+
 // Font picker props type - matches the font picker package interface
 interface FontPickerProps {
   showFontPreview?: boolean;
@@ -55,37 +58,73 @@ export function FontPickerField<
 
   // Load font picker component dynamically
   React.useEffect(() => {
-    if (fontPickerLoaded || fontPickerLoading) return;
+    // If already loaded, use the existing component
+    if (fontPickerLoaded && FontPickerComponent) {
+      setFontPickerState({
+        component: FontPickerComponent,
+        loading: false,
+        error: null,
+      });
+      return;
+    }
+
+    // If already loading, wait for it to complete
+    if (fontPickerLoading) {
+      setFontPickerState(prev => ({ ...prev, loading: true }));
+      
+      // Register callback to be notified when loading completes
+      const callback = () => {
+        if (fontPickerLoaded && FontPickerComponent) {
+          setFontPickerState({
+            component: FontPickerComponent,
+            loading: false,
+            error: null,
+          });
+        } else {
+          setFontPickerState({
+            component: null,
+            loading: false,
+            error: "Font picker package not found",
+          });
+        }
+      };
+      loadingCallbacks.push(callback);
+      return;
+    }
 
     const loadFontPicker = async () => {
       fontPickerLoading = true;
       setFontPickerState(prev => ({ ...prev, loading: true }));
 
       try {
-        console.log("🔍 Attempting to import @rachelallyson/heroui-font-picker...");
         const fontPickerModule = await import("@rachelallyson/heroui-font-picker");
-        console.log("✅ Font picker module loaded:", fontPickerModule);
-        console.log("📦 Available exports:", Object.keys(fontPickerModule));
         
         // The font picker package exports FontPicker as the main component
         // Use any type to avoid TypeScript issues with incomplete definitions
         FontPickerComponent = (fontPickerModule as any).FontPicker || (fontPickerModule as any).default;
-        console.log("🎯 FontPicker component:", FontPickerComponent);
         
         fontPickerLoaded = true;
+        fontPickerLoading = false; // Reset loading flag
         setFontPickerState({
           component: FontPickerComponent,
           loading: false,
           error: null,
         });
+        
+        // Notify all waiting components
+        loadingCallbacks.forEach(callback => callback());
+        loadingCallbacks.length = 0; // Clear the callbacks
       } catch (error) {
-        console.error("❌ Font picker import failed:", error);
-        console.debug("Font picker package not available - FontPickerField will show fallback UI");
+        fontPickerLoading = false; // Reset loading flag on error too
         setFontPickerState({
           component: null,
           loading: false,
           error: "Font picker package not found",
         });
+        
+        // Notify all waiting components
+        loadingCallbacks.forEach(callback => callback());
+        loadingCallbacks.length = 0; // Clear the callbacks
       }
     };
 
