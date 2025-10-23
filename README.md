@@ -6,22 +6,24 @@
 [![React](https://img.shields.io/badge/React-18.2+-blue.svg)](https://reactjs.org/)
 [![HeroUI](https://img.shields.io/badge/HeroUI-2.x-purple.svg)](https://heroui.com/)
 
-> **Typed form helpers that combine React Hook Form and HeroUI components.**
+> **Type-safe form components that combine React Hook Form with HeroUI's design system.**
 
-Build beautiful, accessible forms with full TypeScript support, validation, and HeroUI's design system.
+Build beautiful, accessible forms with full TypeScript support, comprehensive validation, and HeroUI's modern design system. Perfect for React applications that need robust form handling with excellent developer experience.
 
 ## ✨ Features
 
-- 🎯 **Strongly-typed** field components for HeroUI + React Hook Form
-- 🏗️ **Single codebase, dual entrypoints**:
-  - Default entrypoint for individual HeroUI packages
-  - `/react` entrypoint for the aggregate `@heroui/react`
-- 📦 **Optional peers** so apps can install only what they need
-- 🔧 **Global configuration** system for consistent styling
-- ✅ **Zod integration** for schema-based validation
-- 🎨 **Multiple layouts** (vertical, horizontal, grid)
-- ♿ **Accessibility-first** with HeroUI's built-in features
+- 🎯 **Strongly-typed** field components with automatic TypeScript inference
+- 🏗️ **Dual entrypoints** for maximum flexibility:
+  - Default entrypoint for individual HeroUI packages (better tree-shaking)
+  - `/react` entrypoint for the aggregate `@heroui/react` (convenient single dependency)
+- 📦 **Optional dependencies** - install only what you need
+- 🔧 **Global configuration** system for consistent styling across your app
+- ✅ **Zod integration** for schema-based validation with type safety
+- 🎨 **Multiple layouts** (vertical, horizontal, grid) with responsive design
+- ♿ **Accessibility-first** with HeroUI's built-in ARIA support
 - 🌳 **Tree-shakeable** for optimal bundle sizes
+- 🚀 **Rapid prototyping** with ConfigurableForm component
+- 🎨 **Optional font picker** with Google Fonts integration
 
 ## 🚀 Quick Start
 
@@ -37,6 +39,16 @@ npm install @rachelallyson/hero-hook-form @heroui/react react-hook-form zod
 npm install @rachelallyson/hero-hook-form react-hook-form zod
 npm install @heroui/button @heroui/input @heroui/select  # Only what you need
 ```
+
+### Option 3: With Optional Font Picker
+
+For advanced font selection with Google Fonts integration:
+
+```bash
+npm install @rachelallyson/hero-hook-form @rachelallyson/heroui-font-picker
+```
+
+The `FontPickerField` will automatically use the font picker package if available, with a helpful fallback message if not installed.
 
 ### Basic Usage
 
@@ -77,39 +89,39 @@ export function ContactForm() {
 
 ## Requirements
 
-- react: >=18.2 <20
-- react-dom: >=18.2 <20
-- react-hook-form: >=7 <8
-- HeroUI: 2.x (either the aggregate or individual component packages)
+- **React**: >=18.2 <20
+- **React DOM**: >=18.2 <20  
+- **React Hook Form**: >=7 <8
+- **HeroUI**: >=2 <3 (either individual packages or `@heroui/react`)
 
-## Installation
+## Installation Options
 
-### Option A: Using individual HeroUI packages (default entrypoint)
+### Option A: Individual HeroUI Packages (Recommended for Production)
 
-Install the library, React Hook Form, and the HeroUI components you actually use. If you only use a subset, install just that subset.
+Install only the HeroUI components you actually use for optimal bundle size:
 
 ```bash
-# minimal set that covers all included fields
+# Minimal set that covers all included fields
 npm i @rachelallyson/hero-hook-form react-hook-form \
   @heroui/input @heroui/checkbox @heroui/radio @heroui/select \
   @heroui/switch @heroui/button @heroui/spinner
 ```
 
-Then import from the package root:
+Import from the package root:
 
 ```tsx
 import { InputField, SelectField, CheckboxField, RadioGroupField, SwitchField, TextareaField, SubmitButton } from "@rachelallyson/hero-hook-form";
 ```
 
-### Option B: Using the aggregate `@heroui/react` (react entrypoint)
+### Option B: Aggregate HeroUI Package (Recommended for Development)
 
-Install the library, React Hook Form, and the aggregate package:
+Install the all-in-one HeroUI package for convenience:
 
 ```bash
 npm i @rachelallyson/hero-hook-form react-hook-form @heroui/react
 ```
 
-Then import from the `/react` subpath:
+Import from the `/react` subpath:
 
 ```tsx
 import { InputField, SelectField, CheckboxField, RadioGroupField, SwitchField, TextareaField, SubmitButton } from "@rachelallyson/hero-hook-form/react";
@@ -229,185 +241,126 @@ const config = createZodFormConfig(contactSchema, [
 />
 ```
 
+### Nested Fields and Radio Buttons
+
+For nested field names and radio buttons:
+
+```tsx
+const settingsSchema = z.object({
+  fonts: z.object({
+    scale: z.enum(["small", "medium", "large"]).default("medium"),
+  }),
+  layout: z.object({
+    sidebarPosition: z.enum(["left", "right", "hidden"]).default("left"),
+  }),
+  style: z.object({
+    theme: z.enum(["light", "dark", "auto"]).default("auto"),
+  }),
+});
+
+const config = createZodFormConfig(settingsSchema, [
+  {
+    name: "fonts.scale",
+    type: "radio",
+    label: "Font Scale",
+    radioOptions: [
+      { label: "Small", value: "small" },
+      { label: "Medium", value: "medium" },
+      { label: "Large", value: "large" },
+    ],
+  },
+  {
+    name: "layout.sidebarPosition",
+    type: "radio",
+    label: "Sidebar Position",
+    radioOptions: [
+      { label: "Left", value: "left" },
+      { label: "Right", value: "right" },
+      { label: "Hidden", value: "hidden" },
+    ],
+  },
+  {
+    name: "style.theme",
+    type: "radio",
+    label: "Theme",
+    radioOptions: [
+      { label: "Light", value: "light" },
+      { label: "Dark", value: "dark" },
+      { label: "Auto", value: "auto" },
+    ],
+  },
+], {
+  defaultValues: {
+    fonts: { scale: "large" },
+    layout: { sidebarPosition: "right" },
+    style: { theme: "auto" },
+  },
+});
+```
+
 ### Zod Features
 
 - **Type Safety**: Full TypeScript support with automatic type inference
-- **Runtime Validation**: Comprehensive validation with custom error messages
-- **Schema Reusability**: Define schemas once and reuse across your app
-- **Complex Validation**: Support for enums, numbers, custom refinements, and more
-- **Optional Integration**: Only install Zod if you need it
-
-### Zod vs Standard Validation
-
-| Feature | Standard Form | Zod Form |
-|---------|---------------|----------|
-| Validation Rules | In field config | In schema |
-| Type Safety | Manual types | Automatic inference |
-| Error Messages | Inline | In schema |
-| Reusability | Per field | Schema-wide |
-| Runtime Safety | Basic | Comprehensive |
-
-## Quick start
-
-A small form wired with React Hook Form using our typed field components.
-
-```tsx
-import { useForm } from "react-hook-form";
-import { Form } from "@rachelallyson/hero-hook-form"; // or "/react"
-import { InputField, SelectField, CheckboxField, TextareaField, RadioGroupField, SwitchField, SubmitButton } from "@rachelallyson/hero-hook-form"; // or "/react"
-
-type Values = {
-  name: string;
-  email: string;
-  bio: string;
-  plan: "free" | "pro" | "team";
-  agree: boolean;
-  enabled: boolean;
-};
-
-export function ExampleForm() {
-  const methods = useForm<Values>({
-    defaultValues: {
-      name: "",
-      email: "",
-      bio: "",
-      plan: "free",
-      agree: false,
-      enabled: false,
-    },
-    mode: "onBlur",
-  });
-
-  return (
-    <Form
-      className="flex flex-col gap-4"
-      methods={methods}
-      onSubmit={async (values) => {
-        // submit values to your API
-        await new Promise((r) => setTimeout(r, 300));
-        console.log(values);
-      }}
-    >
-      <InputField control={methods.control} label="Name" name="name" rules={{ required: "Enter your name" }} />
-      <InputField control={methods.control} label="Email" name="email" inputProps={{ type: "email" }} rules={{ required: "Enter your email" }} />
-
-      <TextareaField control={methods.control} label="Bio" name="bio" description="Tell us about yourself" />
-
-      <SelectField
-        control={methods.control}
-        label="Plan"
-        name="plan"
-        options={[
-          { label: "Free", value: "free" },
-          { label: "Pro", value: "pro" },
-          { label: "Team", value: "team" },
-        ]}
-      />
-
-      <RadioGroupField
-        control={methods.control}
-        label="Plan (radio)"
-        name="plan"
-        options={[
-          { label: "Free", value: "free" },
-          { label: "Pro", value: "pro" },
-          { label: "Team", value: "team" },
-        ]}
-      />
-
-      <CheckboxField control={methods.control} label="I agree to the terms" name="agree" rules={{ required: "You must agree" }} />
-      <SwitchField control={methods.control} label="Enable feature" name="enabled" />
-
-      <div className="flex justify-end">
-        <SubmitButton buttonProps={{ color: "primary" }}>Submit</SubmitButton>
-      </div>
-    </Form>
-  );
-}
-```
-
-## API
-
-### Field components
-
-All field components are strongly typed over your form values and expose a `...Props` prop for passing through component props in a type-safe way. We derive prop types via `React.ComponentProps<typeof Component>` to avoid tight coupling to HeroUI’s internal type names.
-
-- `InputField<TFieldValues>`
-  - `inputProps?: Omit<ComponentProps<typeof Input>, "value" | "onValueChange" | "label" | "isInvalid" | "errorMessage" | "isDisabled">`
-  - `transform?: (value: string) => string` – modify the value before writing to the form state
-- `TextareaField<TFieldValues>`
-  - `textareaProps?: Omit<ComponentProps<typeof Textarea>, ...>`
-- `SelectField<TFieldValues, TValue extends string | number = string>`
-  - `options: readonly { label: string; value: TValue; description?: string; disabled?: boolean }[]`
-  - `selectProps?: Omit<ComponentProps<typeof Select>, "selectedKeys" | "onSelectionChange" | ...>`
-- `RadioGroupField<TFieldValues, TValue extends string | number = string>`
-  - `options: readonly { label: string; value: TValue; description?: string; disabled?: boolean }[]`
-  - `radioGroupProps?: Omit<ComponentProps<typeof RadioGroup>, "value" | "onValueChange" | "label">`
-- `CheckboxField<TFieldValues>`
-  - `checkboxProps?: Omit<ComponentProps<typeof Checkbox>, ...>`
-- `SwitchField<TFieldValues>`
-  - `switchProps?: Omit<ComponentProps<typeof Switch>, ...>`
-- `SubmitButton`
-  - `isLoading?: boolean` – if omitted, reflects RHF’s `formState.isSubmitting`
-  - `buttonProps?: Omit<ComponentProps<typeof Button>, "type" | "isLoading">`
-
-### Form provider
-
-- `Form<TFieldValues>` – light wrapper around RHF’s `FormProvider` that renders a `<form>` and wires `handleSubmit` safely.
-
-```tsx
-import { Form } from "@rachelallyson/hero-hook-form"; // or "/react"
-
-<Form methods={methods} onSubmit={onSubmit} className="space-y-4">
-  {/* fields */}
-</Form>
-```
-
-### Server error helper
-
-- `applyServerErrors(form, serverErrors)` – map API validation errors into RHF field errors.
-
-```ts
-import { applyServerErrors } from "@rachelallyson/hero-hook-form"; // or "/react"
-
-try {
-  await api.save(values);
-} catch (e) {
-  applyServerErrors(methods, e.errors);
-}
-```
-
-## Choosing an entrypoint
-
-- Use the default entrypoint if your app installs individual HeroUI packages.
-- Use `/react` if your app installs the aggregate `@heroui/react` and you prefer a single HeroUI dep.
-
-Peers are marked optional. Install only the set required by your chosen entrypoint.
-
-## Version compatibility
-
-- HeroUI: `>=2 <3`
-- React: `>=18.2.0 <20`
-- react-hook-form: `>=7 <8`
-
-## 📚 Documentation
-
-For comprehensive documentation, examples, and guides, visit our [documentation](./docs/README.md).
-
-### Quick Links
-
-- [🚀 Getting Started](./docs/getting-started.md) - Installation, setup, and first form
-- [🧩 Components](./docs/components.md) - All available field components
-- [🏗️ Form Builder](./docs/form-builder.md) - ConfigurableForm component guide
-- [⚙️ Configuration](./docs/configuration.md) - Global configuration and providers
-- [✅ Validation](./docs/validation.md) - Form validation patterns
-- [🔒 Zod Integration](./docs/zod-integration.md) - Schema-based validation with Zod
-- [🎨 Layouts](./docs/layouts.md) - Form layout options
-- [📖 API Reference](./docs/api-reference.md) - Complete API documentation
+- **Nested Fields**: Support for nested field names like "fonts.scale"
+- **Default Values**: Proper handling of default values with nested structure
+- **Radio Buttons**: Easy configuration with `radioOptions`
 
 ## 🎯 Examples
 
 Check out our [comprehensive demo](../example/app/comprehensive-demo/page.tsx) to see Hero Hook Form in action with all field types and layouts!
+
+## 📚 Documentation
+
+For comprehensive guides and examples, visit our [documentation](./docs/README.md):
+
+- [🚀 Getting Started](./docs/getting-started.md) - Installation, setup, and first form
+- [🧩 Components](./docs/components.md) - All available field components  
+- [⚙️ Configuration](./docs/configuration.md) - Global configuration and providers
+- [📝 Form Builder](./docs/form-builder.md) - ConfigurableForm component
+- [✅ Validation](./docs/validation.md) - Form validation patterns
+- [🔮 Zod Integration](./docs/zod-integration.md) - Schema-based validation with Zod
+- [🎨 Layouts](./docs/layouts.md) - Form layout options
+- [📖 API Reference](./docs/api-reference.md) - Complete API documentation
+
+## 🔧 API Overview
+
+### Field Components
+
+All field components are strongly typed and expose component-specific props:
+
+- **`InputField`** - Text inputs with validation
+- **`TextareaField`** - Multi-line text inputs  
+- **`SelectField`** - Dropdown selections
+- **`RadioGroupField`** - Radio button groups
+- **`CheckboxField`** - Single checkboxes
+- **`SwitchField`** - Toggle switches
+- **`SliderField`** - Range slider inputs
+- **`DateField`** - Date picker inputs
+- **`FileField`** - File upload inputs
+- **`FontPickerField`** - Optional font selection (requires `@rachelallyson/heroui-font-picker`)
+
+### Form Components
+
+- **`Form`** - Light wrapper around React Hook Form's FormProvider
+- **`FormField`** - Generic field wrapper component
+- **`ZodForm`** - Schema-based forms with Zod validation
+- **`ConfigurableForm`** - Rapid form development with declarative config
+
+### Utilities & Hooks
+
+- **`applyServerErrors`** - Map API validation errors to form fields
+- **`HeroHookFormProvider`** - Global configuration for consistent styling
+- **`useHeroForm`** - Enhanced form hook with additional utilities
+- **`useFormHelper`** - Form helper utilities
+
+For complete API documentation, see [API Reference](./docs/api-reference.md).
+
+## 🎯 Entrypoint Selection
+
+- **Default entrypoint**: For apps using individual HeroUI packages (better tree-shaking)
+- **`/react` entrypoint**: For apps using `@heroui/react` (convenient single dependency)
+
+Both entrypoints are fully tree-shakeable and support all features.
 
 ## ❓ FAQ
 

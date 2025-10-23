@@ -2,9 +2,7 @@
 
 import React from "react";
 import { z } from "zod";
-import { ZodForm } from "@rachelallyson/hero-hook-form";
-import { commonValidations } from "@rachelallyson/hero-hook-form/utils/validation";
-import { createFormTestUtils } from "@rachelallyson/hero-hook-form/utils/testing";
+import { ZodForm, commonValidations, createFormTestUtils } from "@rachelallyson/hero-hook-form";
 
 // Enhanced form schema with validation utilities
 const enhancedFormSchema = z.object({
@@ -224,7 +222,6 @@ export default function EnhancedDemoPage() {
             setFormData(data);
             console.log("Form submitted:", data);
           })}>
-          >
             {/* Basic Information Group */}
             <div className="space-y-4">
               <h2 className="text-xl font-semibold text-foreground border-b pb-2">

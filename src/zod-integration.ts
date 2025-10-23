@@ -1,8 +1,8 @@
-import type { FieldValues, Resolver } from "react-hook-form";
+import type { DefaultValues, FieldValues, Resolver, FieldErrors } from "react-hook-form";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import type { ZodFormConfig } from "./types";
+import type { ZodFormConfig, ZodFormFieldConfig } from "./types";
 
 /**
  * Simple Zod resolver that works with Zod v4
@@ -15,7 +15,7 @@ function createZodResolver<T extends FieldValues>(
       const result = await schema.parseAsync(values);
 
       return {
-        errors: {},
+        errors: {} as Record<string, never>,
         values: result,
       };
     } catch (error) {
@@ -29,8 +29,8 @@ function createZodResolver<T extends FieldValues>(
         });
 
         return {
-          errors,
-          values: {} as T,
+          errors: errors as FieldErrors<T>,
+          values: {} as Record<string, never>,
         };
       }
 
@@ -50,4 +50,19 @@ export function useZodForm<TFieldValues extends FieldValues>(
   }
 
   return useForm<TFieldValues>(config);
+}
+
+/**
+ * Helper function to create Zod form configurations
+ */
+export function createZodFormConfig<TFieldValues extends FieldValues>(
+  schema: z.ZodSchema<TFieldValues>,
+  fields: ZodFormFieldConfig<TFieldValues>[],
+  defaultValues?: Partial<TFieldValues>,
+): ZodFormConfig<TFieldValues> {
+  return {
+    schema,
+    fields,
+    ...(defaultValues && { defaultValues: defaultValues as DefaultValues<TFieldValues> }),
+  };
 }

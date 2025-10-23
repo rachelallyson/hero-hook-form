@@ -2,49 +2,61 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [1.0.2] - 2025-01-27
 
-## [1.0.0] - 2024-08-23
+### Enhanced
+
+- **Font Picker Refactored**: Now uses native [HeroUI Autocomplete component](https://www.heroui.com/docs/components/autocomplete)
+- **Better Integration**: Perfect HeroUI design system integration with Autocomplete
+- **Enhanced Features**: Built-in search, filtering, keyboard navigation, and accessibility
+- **Sections Support**: Organized font categories with `AutocompleteSection`
+- **Improved Performance**: Leverages HeroUI's optimized Autocomplete implementation
+- **Better UX**: Native HeroUI animations, transitions, and responsive design
 
 ### Added
 
-- Initial release of Hero Hook Form
-- Complete form field components for HeroUI integration
-  - InputField
-  - TextareaField
-  - SelectField
-  - RadioGroupField
-  - CheckboxField
-  - SwitchField
-  - SliderField
-  - DateField
-  - FileField
-- ConfigurableForm component for rapid form development
-- FormProvider for form context management
-- ConfigProvider for global configuration defaults
-- SubmitButton component with loading states
-- Zod integration with ZodForm component
-- Dual entrypoint support (default and /react)
-- Comprehensive TypeScript support
-- Full documentation with examples
-- Cypress test suite for all components
+- **Google Fonts Integration**: Access to 1000+ Google Fonts with API key
+- **Automatic Font Loading**: Selected fonts are automatically loaded from Google Fonts
+- **Fallback Support**: Graceful fallback to local fonts if Google Fonts unavailable
+- **Font Previews**: Live font previews in the picker
+- **Accessibility Features**: Full ARIA support and keyboard navigation
 
-### Features
+## [1.0.1] - 2024-12-19
 
-- Strongly-typed field components
-- Multiple form layouts (vertical, horizontal, grid)
-- Global configuration system
-- Validation integration with React Hook Form
-- Optional Zod schema validation
-- Responsive design support
-- Accessibility features from HeroUI
-- Tree-shaking support for individual components
+### Added
 
-### Technical
+- **`createZodFormConfig` function**: Missing utility function for creating Zod form configurations
+- **Font picker field**: Optional font picker field with `react-fontpicker-ts` integration
+- **Comprehensive documentation**: Complete guides for radio buttons, nested fields, and font picker
+- **Working examples**: Practical examples demonstrating proper usage
 
-- Built with TypeScript
-- ESM and CommonJS support
-- Dual entrypoint architecture
-- Comprehensive test coverage
-- Full documentation suite
+### Fixed
+
+- **Default values handling**: Fixed type casting issues in `createZodFormConfig`
+- **Radio button configuration**: Clarified proper usage with `radioOptions` instead of `inputProps.options`
+- **Nested field names**: Documented proper schema structure for nested fields like "fonts.scale"
+- **Type safety**: Updated `ZodFormConfig` interface to make `schema` required
+
+### Documentation
+
+- [Quick Start Guide](./docs/quick-start.md) - Get started quickly with examples
+- [Radio Buttons Guide](./docs/radio-buttons-guide.md) - Complete guide for radio button configuration
+- [Nested Fields Guide](./docs/nested-fields-guide.md) - Working with nested field names
+- [Input Types Guide](./docs/input-types-guide.md) - Complete reference for all input types
+- [Font Picker Guide](./docs/font-picker-guide.md) - Optional font picker field
+- [Font Picker Styling](./docs/font-picker-styling.md) - HeroUI integration and styling
+- [Fixes Summary](./docs/fixes-summary.md) - Summary of all fixes implemented
+
+### Examples
+
+- `example-settings-form.tsx` - Complete settings form with nested fields and radio buttons
+- `example-nested-fields.tsx` - Demonstration of nested field names
+
+## [1.0.0] - 2024-12-18
+
+### Initial Release
+
+- Basic form components with HeroUI integration
+- Zod integration support
+- TypeScript support
+- Form validation and error handling

@@ -222,6 +222,147 @@ import { SwitchField } from "@rachelallyson/hero-hook-form";
 - `isDisabled`: Disable the field
 - `switchProps`: HeroUI Switch component props
 
+### SliderField
+
+Range slider component for numeric values.
+
+```tsx
+import { SliderField } from "@rachelallyson/hero-hook-form";
+
+<SliderField<TFieldValues>
+  control={Control<TFieldValues>}
+  name={Path<TFieldValues>}
+  label?: string
+  description?: string
+  className?: string
+  rules?: RegisterOptions<TFieldValues, Path<TFieldValues>>
+  defaultValue?: number
+  isDisabled?: boolean
+  sliderProps?: Omit<ComponentProps<typeof Slider>, "value" | "onChange" | "label" | "isInvalid" | "errorMessage" | "isDisabled">
+/>
+```
+
+**Props:**
+
+- `control` (required): React Hook Form control object
+- `name` (required): Form field name
+- `label`: Field label text
+- `description`: Helper text below the field
+- `className`: Additional CSS classes
+- `rules`: React Hook Form validation rules
+- `defaultValue`: Default field value
+- `isDisabled`: Disable the field
+- `sliderProps`: HeroUI Slider component props
+
+### DateField
+
+Date picker component for date selection.
+
+```tsx
+import { DateField } from "@rachelallyson/hero-hook-form";
+
+<DateField<TFieldValues>
+  control={Control<TFieldValues>}
+  name={Path<TFieldValues>}
+  label?: string
+  description?: string
+  className?: string
+  rules?: RegisterOptions<TFieldValues, Path<TFieldValues>>
+  defaultValue?: CalendarDate
+  isDisabled?: boolean
+  dateProps?: Omit<ComponentProps<typeof DateInput>, "value" | "onChange" | "label" | "isInvalid" | "errorMessage" | "isDisabled">
+/>
+```
+
+**Props:**
+
+- `control` (required): React Hook Form control object
+- `name` (required): Form field name
+- `label`: Field label text
+- `description`: Helper text below the field
+- `className`: Additional CSS classes
+- `rules`: React Hook Form validation rules
+- `defaultValue`: Default field value (CalendarDate)
+- `isDisabled`: Disable the field
+- `dateProps`: HeroUI DateInput component props
+
+### FileField
+
+File upload component for file selection.
+
+```tsx
+import { FileField } from "@rachelallyson/hero-hook-form";
+
+<FileField<TFieldValues>
+  control={Control<TFieldValues>}
+  name={Path<TFieldValues>}
+  label?: string
+  description?: string
+  className?: string
+  rules?: RegisterOptions<TFieldValues, Path<TFieldValues>>
+  defaultValue?: FileList | null
+  isDisabled?: boolean
+  multiple?: boolean
+  accept?: string
+  fileProps?: Omit<ComponentProps<typeof Input>, "value" | "onValueChange" | "label" | "isInvalid" | "errorMessage" | "isDisabled" | "type">
+  transform?: (value: FileList | null) => FileList | null
+/>
+```
+
+**Props:**
+
+- `control` (required): React Hook Form control object
+- `name` (required): Form field name
+- `label`: Field label text
+- `description`: Helper text below the field
+- `className`: Additional CSS classes
+- `rules`: React Hook Form validation rules
+- `defaultValue`: Default field value
+- `isDisabled`: Disable the field
+- `multiple`: Allow multiple file selection
+- `accept`: Accepted file types
+- `fileProps`: HeroUI Input component props (for file input)
+- `transform`: Function to transform file value
+
+### FontPickerField
+
+Optional font picker component for font selection (requires `@rachelallyson/heroui-font-picker`).
+
+```tsx
+import { FontPickerField } from "@rachelallyson/hero-hook-form";
+
+<FontPickerField<TFieldValues>
+  control={Control<TFieldValues>}
+  name={Path<TFieldValues>}
+  label?: string
+  description?: string
+  className?: string
+  rules?: RegisterOptions<TFieldValues, Path<TFieldValues>>
+  defaultValue?: string
+  isDisabled?: boolean
+  fontPickerProps?: {
+    showFontPreview?: boolean
+    loadAllVariants?: boolean
+    onFontsLoaded?: (loaded: boolean) => void
+    fontsLoadedTimeout?: number
+  }
+/>
+```
+
+**Props:**
+
+- `control` (required): React Hook Form control object
+- `name` (required): Form field name
+- `label`: Field label text
+- `description`: Helper text below the field
+- `className`: Additional CSS classes
+- `rules`: React Hook Form validation rules
+- `defaultValue`: Default field value
+- `isDisabled`: Disable the field
+- `fontPickerProps`: Font picker specific configuration
+
+> **Note**: FontPickerField requires the `@rachelallyson/heroui-font-picker` package. If not installed, it will show a helpful fallback message.
+
 ## Form Components
 
 ### ConfigurableForm

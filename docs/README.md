@@ -3,24 +3,51 @@
 Build beautiful, type-safe forms with React Hook Form and HeroUI components.
 Featuring comprehensive validation, multiple layouts, and seamless integration.
 
-## Quick Navigation
+## 📚 Documentation Index
 
-- [🚀 Getting Started](./getting-started.md) - Installation, setup, and first form
-- [🧩 Components](./components.md) - All available field components
-- [⚙️ Configuration](./configuration.md) - Global configuration and providers
-- [📝 Form Builder](./form-builder.md) - ConfigurableForm component
-- [✅ Validation](./validation.md) - Form validation patterns
-- [🔮 Zod Integration](./zod-integration.md) - Schema-based validation with Zod
-- [🎨 Layouts](./layouts.md) - Form layout options
-- [🔧 API Reference](./api-reference.md) - Complete API documentation
+### 🚀 Getting Started
 
-## Key Features
+- [Getting Started](./getting-started.md) - Installation, setup, and first form
+- [Quick Start](./quick-start.md) - Fast track to your first form
+- [Installation](./installation.md) - Detailed installation guide
+
+### 🧩 Components & Fields
+
+- [Components](./components.md) - All available field components
+- [Input Types Guide](./input-types-guide.md) - Complete reference for all input types
+- [Radio Buttons Guide](./radio-buttons-guide.md) - Complete radio button guide
+- [Nested Fields Guide](./nested-fields-guide.md) - Working with nested fields
+
+### ⚙️ Configuration & Setup
+
+- [Configuration](./configuration.md) - Global configuration and providers
+- [Form Builder](./form-builder.md) - ConfigurableForm component
+- [Layouts](./layouts.md) - Form layout options
+
+### ✅ Validation & Forms
+
+- [Validation](./validation.md) - Form validation patterns
+- [Zod Integration](./zod-integration.md) - Schema-based validation with Zod
+- [Form Methods Guide](./form-methods-guide.md) - Advanced form methods
+- [ZodForm Methods Quick Reference](./zodform-methods-quick-reference.md) - Quick reference
+
+### 🎨 Advanced Features
+
+- [Font Picker Guide](./font-picker-guide.md) - Optional font picker field
+- [Font Picker Styling](./font-picker-styling.md) - HeroUI integration and styling
+- [Enhanced Features](./enhanced-features.md) - Advanced features and patterns
+
+### 📖 Reference
+
+- [API Reference](./api-reference.md) - Complete API documentation
+
+## 🎯 Key Features
 
 ### ✓ Type Safety
 
 Full TypeScript support with automatic type inference from your form schemas.
 
-### ✓ Multiple Field Types
+### ✓ Multiple Field Types  
 
 Input, Textarea, Select, Radio, Checkbox, Switch, Slider, Date, File, and more with HeroUI styling.
 
@@ -39,6 +66,10 @@ Set defaults across your entire application with the HeroHookFormProvider.
 ### ✓ ConfigurableForm
 
 Rapid form development with declarative field configurations.
+
+### ✓ Optional Dependencies
+
+Install only what you need - font picker, validation libraries, and HeroUI components are all optional.
 
 ## Quick Example
 
@@ -87,9 +118,9 @@ const fields = [
 />
 ```
 
-## Installation
+## 🚀 Installation
 
-### Option A: Individual HeroUI Packages
+### Option A: Individual HeroUI Packages (Recommended for Production)
 
 ```bash
 npm install @rachelallyson/hero-hook-form react-hook-form \
@@ -98,29 +129,29 @@ npm install @rachelallyson/hero-hook-form react-hook-form \
   @heroui/spinner
 ```
 
-### Option B: Aggregate HeroUI Package
+### Option B: Aggregate HeroUI Package (Recommended for Development)
 
 ```bash
 npm install @rachelallyson/hero-hook-form react-hook-form @heroui/react
 ```
 
-## Requirements
+## 📋 Requirements
 
-- React: >=18.2.0 <20
-- React DOM: >=18.2.0 <20
-- React Hook Form: >=7 <8
-- HeroUI: >=2 <3
+- **React**: >=18.2.0 <20
+- **React DOM**: >=18.2.0 <20  
+- **React Hook Form**: >=7 <8
+- **HeroUI**: >=2 <3
 
-## Live Demo
+## 🎯 Live Demo
 
-Check out our [comprehensive demo](../example/app/comprehensive-demo/page.tsx) to see Hero Hook Form in action!
+Check out our [comprehensive demo](../example/app/comprehensive-demo/page.tsx) to see Hero Hook Form in action with all field types and layouts!
 
-## Support
+## 🤝 Support
 
-- [GitHub Issues](https://github.com/your-repo/hero-hook-form/issues)
-- [Discussions](https://github.com/your-repo/hero-hook-form/discussions)
+- [GitHub Issues](https://github.com/rachelallyson/hero-hook-form/issues)
 - [Examples](../example/) - Complete working examples
+- [Documentation](./) - Comprehensive guides and references
 
-## License
+## 📄 License
 
-ISC
+ISC License - see [LICENSE](../LICENSE) file for details.

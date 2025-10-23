@@ -8,6 +8,7 @@ import { useWatch } from "react-hook-form";
 import { CheckboxField } from "../fields/CheckboxField";
 import { DateField } from "../fields/DateField";
 import { FileField } from "../fields/FileField";
+import { FontPickerField } from "../fields/FontPickerField";
 import { InputField } from "../fields/InputField";
 import { RadioGroupField } from "../fields/RadioGroupField";
 import { SelectField } from "../fields/SelectField";
@@ -156,6 +157,16 @@ export function FormField<TFieldValues extends FieldValues>({
           defaultValue={config.defaultValue}
           fileProps={config.fileProps}
           multiple={config.multiple}
+        />
+      );
+
+    case "fontPicker":
+      return (
+        <FontPickerField<TFieldValues>
+          {...baseProps}
+          control={control}
+          defaultValue={config.defaultValue}
+          fontPickerProps={config.fontPickerProps}
         />
       );
 

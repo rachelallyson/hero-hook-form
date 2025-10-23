@@ -2,7 +2,7 @@
 
 import React from "react";
 
-import { useFormContext } from "react-hook-form";
+import { useFormContext } from "../index";
 
 import { useHeroHookFormDefaults } from "../providers/ConfigProvider";
 

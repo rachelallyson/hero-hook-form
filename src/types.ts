@@ -145,6 +145,14 @@ export interface FileFieldConfig<TFieldValues extends FieldValues>
   accept?: string;
 }
 
+// Font picker field config
+export interface FontPickerFieldConfig<TFieldValues extends FieldValues>
+  extends BaseFormFieldConfig<TFieldValues> {
+  type: "fontPicker";
+  defaultValue?: string;
+  fontPickerProps?: Record<string, string | number | boolean>;
+}
+
 // Custom field config for advanced use cases
 export interface CustomFieldConfig<TFieldValues extends FieldValues>
   extends BaseFormFieldConfig<TFieldValues> {
@@ -166,6 +174,7 @@ export type FormFieldConfig<TFieldValues extends FieldValues> =
   | SliderFieldConfig<TFieldValues>
   | DateFieldConfig<TFieldValues>
   | FileFieldConfig<TFieldValues>
+  | FontPickerFieldConfig<TFieldValues>
   | CustomFieldConfig<TFieldValues>;
 
 // Advanced form configuration
@@ -190,11 +199,12 @@ export type ZodFormFieldConfig<TFieldValues extends FieldValues> =
   | Omit<RadioFieldConfig<TFieldValues>, "rules">
   | Omit<SliderFieldConfig<TFieldValues>, "rules">
   | Omit<DateFieldConfig<TFieldValues>, "rules">
-  | Omit<FileFieldConfig<TFieldValues>, "rules">;
+  | Omit<FileFieldConfig<TFieldValues>, "rules">
+  | Omit<FontPickerFieldConfig<TFieldValues>, "rules">;
 
 export interface ZodFormConfig<TFieldValues extends FieldValues>
   extends UseFormProps<TFieldValues> {
-  schema?: import("zod").ZodSchema<TFieldValues>;
+  schema: import("zod").ZodSchema<TFieldValues>;
   fields: ZodFormFieldConfig<TFieldValues>[];
 
   // Enhanced error handling

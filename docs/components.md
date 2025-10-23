@@ -216,6 +216,29 @@ import { FileField } from "@rachelallyson/hero-hook-form";
 />
 ```
 
+### FontPickerField
+
+An optional font picker component for font selection (requires `@rachelallyson/heroui-font-picker`).
+
+```tsx
+import { FontPickerField } from "@rachelallyson/hero-hook-form";
+
+<FontPickerField
+  control={control}
+  name="fontFamily"
+  label="Font Family"
+  description="Choose your preferred font"
+  fontPickerProps={{
+    showFontPreview: true,
+    loadAllVariants: false,
+    fontsLoadedTimeout: 5000,
+  }}
+  rules={{ required: "Font family is required" }}
+/>
+```
+
+> **Note**: FontPickerField requires the `@rachelallyson/heroui-font-picker` package. If not installed, it will show a helpful fallback message explaining the requirement.
+
 ## Common Props
 
 All field components share these common props:
