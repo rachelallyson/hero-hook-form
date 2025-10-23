@@ -9,15 +9,8 @@ import type { FieldBaseProps, WithControl } from "../types";
 
 // Optional font picker import - will be null if package is not installed
 let FontPickerComponent: any = null;
-
-try {
-  // Try to dynamically import the font picker package
-  const fontPickerModule = require("@rachelallyson/heroui-font-picker");
-  FontPickerComponent = fontPickerModule.FontPicker;
-} catch (e) {
-  // Font picker package not available - this is expected for users who don't need it
-  console.debug("Font picker package not available - FontPickerField will show fallback UI");
-}
+let fontPickerLoaded = false;
+let fontPickerLoading = false;
 
 // Font picker props type - matches the font picker package interface
 interface FontPickerProps {
@@ -50,8 +43,73 @@ export function FontPickerField<
     rules,
   } = props;
 
+  const [fontPickerState, setFontPickerState] = React.useState<{
+    component: any;
+    loading: boolean;
+    error: string | null;
+  }>({
+    component: FontPickerComponent,
+    loading: false,
+    error: null,
+  });
+
+  // Load font picker component dynamically
+  React.useEffect(() => {
+    if (fontPickerLoaded || fontPickerLoading) return;
+
+    const loadFontPicker = async () => {
+      fontPickerLoading = true;
+      setFontPickerState(prev => ({ ...prev, loading: true }));
+
+      try {
+        const fontPickerModule = await import("@rachelallyson/heroui-font-picker");
+        // The font picker package exports FontPicker as the main component
+        // Use any type to avoid TypeScript issues with incomplete definitions
+        FontPickerComponent = (fontPickerModule as any).FontPicker || (fontPickerModule as any).default;
+        fontPickerLoaded = true;
+        setFontPickerState({
+          component: FontPickerComponent,
+          loading: false,
+          error: null,
+        });
+      } catch (error) {
+        console.debug("Font picker package not available - FontPickerField will show fallback UI");
+        setFontPickerState({
+          component: null,
+          loading: false,
+          error: "Font picker package not found",
+        });
+      }
+    };
+
+    void loadFontPicker();
+  }, []);
+
+  // Show loading state
+  if (fontPickerState.loading) {
+    return (
+      <div className={className}>
+        <div className="space-y-2">
+          {label && (
+            <label className="block text-sm font-medium text-foreground">
+              {label}
+            </label>
+          )}
+          {description && (
+            <p className="text-sm text-muted-foreground">{description}</p>
+          )}
+          <div className="p-4 border border-default-200 bg-default-50 rounded-medium">
+            <p className="text-default-600 text-sm">
+              Loading font picker...
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // Check if font picker is available
-  if (!FontPickerComponent) {
+  if (!fontPickerState.component) {
     return (
       <div className={className}>
         <div className="space-y-2">
@@ -80,7 +138,7 @@ export function FontPickerField<
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <FontPickerComponent
+        <fontPickerState.component
           label={label}
           description={description}
           value={field.value ?? ""}
