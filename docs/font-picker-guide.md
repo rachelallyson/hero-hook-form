@@ -27,10 +27,13 @@ npm install @rachelallyson/hero-hook-form
 
 ## How It Works
 
-The font picker field automatically detects if the `@rachelallyson/heroui-font-picker` package is available:
+The font picker field automatically detects if the `@rachelallyson/heroui-font-picker` package is available using dynamic imports:
 
 - **✅ With Package**: Full font picker functionality with Google Fonts integration
+- **⏳ Loading**: Shows loading state while the package is being imported
 - **⚠️ Without Package**: Shows helpful fallback message explaining the requirement
+
+The FontPickerField uses modern dynamic imports to load the font picker package at runtime, ensuring compatibility with all modern bundlers and ESM environments.
 
 This provides:
 
