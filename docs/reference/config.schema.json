@@ -1,0 +1,708 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Hero Hook Form Configuration Schema",
+    "description": "JSON Schema for Hero Hook Form configuration options",
+    "type": "object",
+    "properties": {
+        "schema": {
+            "type": "object",
+            "description": "Zod schema for form validation"
+        },
+        "fields": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/FormFieldConfig"
+            },
+            "description": "Array of field configurations"
+        },
+        "onSubmit": {
+            "type": "function",
+            "description": "Form submission handler"
+        },
+        "onError": {
+            "type": "function",
+            "description": "Error handler function"
+        },
+        "onSuccess": {
+            "type": "function",
+            "description": "Success handler function"
+        },
+        "defaultValues": {
+            "type": "object",
+            "description": "Default form values"
+        },
+        "title": {
+            "type": "string",
+            "description": "Form title"
+        },
+        "subtitle": {
+            "type": "string",
+            "description": "Form subtitle"
+        },
+        "submitButtonText": {
+            "type": "string",
+            "default": "Submit",
+            "description": "Submit button text"
+        },
+        "resetButtonText": {
+            "type": "string",
+            "default": "Reset",
+            "description": "Reset button text"
+        },
+        "showResetButton": {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether to show reset button"
+        },
+        "layout": {
+            "type": "string",
+            "enum": [
+                "vertical",
+                "horizontal",
+                "grid"
+            ],
+            "default": "vertical",
+            "description": "Form layout type"
+        },
+        "columns": {
+            "type": "integer",
+            "enum": [
+                1,
+                2,
+                3
+            ],
+            "default": 1,
+            "description": "Number of columns for grid layout"
+        },
+        "spacing": {
+            "type": "string",
+            "enum": [
+                "2",
+                "4",
+                "6",
+                "8",
+                "lg"
+            ],
+            "default": "4",
+            "description": "Field spacing"
+        },
+        "className": {
+            "type": "string",
+            "description": "Custom CSS class"
+        },
+        "submitButtonProps": {
+            "type": "object",
+            "description": "Submit button props",
+            "properties": {
+                "color": {
+                    "type": "string",
+                    "enum": [
+                        "default",
+                        "primary",
+                        "secondary",
+                        "success",
+                        "warning",
+                        "danger"
+                    ]
+                },
+                "variant": {
+                    "type": "string",
+                    "enum": [
+                        "solid",
+                        "bordered",
+                        "light",
+                        "flat",
+                        "faded",
+                        "shadow",
+                        "ghost"
+                    ]
+                },
+                "size": {
+                    "type": "string",
+                    "enum": [
+                        "sm",
+                        "md",
+                        "lg"
+                    ]
+                },
+                "isDisabled": {
+                    "type": "boolean"
+                },
+                "isLoading": {
+                    "type": "boolean"
+                }
+            }
+        }
+    },
+    "required": [
+        "schema",
+        "fields",
+        "onSubmit"
+    ],
+    "definitions": {
+        "FormFieldConfig": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Field name (type-safe path)"
+                },
+                "label": {
+                    "type": "string",
+                    "description": "Field label"
+                },
+                "description": {
+                    "type": "string",
+                    "description": "Help text"
+                },
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "input",
+                        "textarea",
+                        "select",
+                        "checkbox",
+                        "switch",
+                        "radio",
+                        "slider",
+                        "date",
+                        "file",
+                        "fontPicker"
+                    ],
+                    "description": "Field type"
+                },
+                "isDisabled": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Disable field"
+                },
+                "rules": {
+                    "type": "object",
+                    "description": "React Hook Form validation rules"
+                },
+                "condition": {
+                    "type": "function",
+                    "description": "Show/hide condition function"
+                },
+                "dependsOn": {
+                    "type": "string",
+                    "description": "Field this field depends on"
+                },
+                "dependsOnValue": {
+                    "description": "Value that triggers this field"
+                },
+                "group": {
+                    "type": "string",
+                    "description": "Field group name"
+                },
+                "ariaLabel": {
+                    "type": "string",
+                    "description": "ARIA label"
+                },
+                "ariaDescribedBy": {
+                    "type": "string",
+                    "description": "ARIA described by"
+                },
+                "inputProps": {
+                    "$ref": "#/definitions/InputProps"
+                },
+                "textareaProps": {
+                    "$ref": "#/definitions/TextareaProps"
+                },
+                "selectProps": {
+                    "$ref": "#/definitions/SelectProps"
+                },
+                "checkboxProps": {
+                    "$ref": "#/definitions/CheckboxProps"
+                },
+                "switchProps": {
+                    "$ref": "#/definitions/SwitchProps"
+                },
+                "radioProps": {
+                    "$ref": "#/definitions/RadioProps"
+                },
+                "sliderProps": {
+                    "$ref": "#/definitions/SliderProps"
+                },
+                "dateProps": {
+                    "$ref": "#/definitions/DateProps"
+                },
+                "fileProps": {
+                    "$ref": "#/definitions/FileProps"
+                },
+                "fontPickerProps": {
+                    "$ref": "#/definitions/FontPickerProps"
+                },
+                "options": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "label": {
+                                "type": "string"
+                            },
+                            "value": {
+                                "type": [
+                                    "string",
+                                    "number"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "label",
+                            "value"
+                        ]
+                    },
+                    "description": "Select/radio options"
+                }
+            },
+            "required": [
+                "name",
+                "type"
+            ]
+        },
+        "InputProps": {
+            "type": "object",
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "text",
+                        "email",
+                        "tel",
+                        "password",
+                        "number",
+                        "url"
+                    ]
+                },
+                "placeholder": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "disabled": {
+                    "type": "boolean"
+                },
+                "className": {
+                    "type": "string"
+                },
+                "variant": {
+                    "type": "string",
+                    "enum": [
+                        "flat",
+                        "bordered",
+                        "faded",
+                        "underlined"
+                    ]
+                },
+                "color": {
+                    "type": "string",
+                    "enum": [
+                        "default",
+                        "primary",
+                        "secondary",
+                        "success",
+                        "warning",
+                        "danger"
+                    ]
+                },
+                "size": {
+                    "type": "string",
+                    "enum": [
+                        "sm",
+                        "md",
+                        "lg"
+                    ]
+                }
+            }
+        },
+        "TextareaProps": {
+            "type": "object",
+            "properties": {
+                "placeholder": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "disabled": {
+                    "type": "boolean"
+                },
+                "className": {
+                    "type": "string"
+                },
+                "rows": {
+                    "type": "integer"
+                },
+                "maxLength": {
+                    "type": "integer"
+                },
+                "variant": {
+                    "type": "string",
+                    "enum": [
+                        "flat",
+                        "bordered",
+                        "faded",
+                        "underlined"
+                    ]
+                },
+                "color": {
+                    "type": "string",
+                    "enum": [
+                        "default",
+                        "primary",
+                        "secondary",
+                        "success",
+                        "warning",
+                        "danger"
+                    ]
+                },
+                "size": {
+                    "type": "string",
+                    "enum": [
+                        "sm",
+                        "md",
+                        "lg"
+                    ]
+                }
+            }
+        },
+        "SelectProps": {
+            "type": "object",
+            "properties": {
+                "placeholder": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "disabled": {
+                    "type": "boolean"
+                },
+                "className": {
+                    "type": "string"
+                },
+                "variant": {
+                    "type": "string",
+                    "enum": [
+                        "flat",
+                        "bordered",
+                        "faded",
+                        "underlined"
+                    ]
+                },
+                "color": {
+                    "type": "string",
+                    "enum": [
+                        "default",
+                        "primary",
+                        "secondary",
+                        "success",
+                        "warning",
+                        "danger"
+                    ]
+                },
+                "size": {
+                    "type": "string",
+                    "enum": [
+                        "sm",
+                        "md",
+                        "lg"
+                    ]
+                }
+            }
+        },
+        "CheckboxProps": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "disabled": {
+                    "type": "boolean"
+                },
+                "className": {
+                    "type": "string"
+                },
+                "color": {
+                    "type": "string",
+                    "enum": [
+                        "default",
+                        "primary",
+                        "secondary",
+                        "success",
+                        "warning",
+                        "danger"
+                    ]
+                },
+                "size": {
+                    "type": "string",
+                    "enum": [
+                        "sm",
+                        "md",
+                        "lg"
+                    ]
+                }
+            }
+        },
+        "SwitchProps": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "disabled": {
+                    "type": "boolean"
+                },
+                "className": {
+                    "type": "string"
+                },
+                "color": {
+                    "type": "string",
+                    "enum": [
+                        "default",
+                        "primary",
+                        "secondary",
+                        "success",
+                        "warning",
+                        "danger"
+                    ]
+                },
+                "size": {
+                    "type": "string",
+                    "enum": [
+                        "sm",
+                        "md",
+                        "lg"
+                    ]
+                }
+            }
+        },
+        "RadioProps": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "disabled": {
+                    "type": "boolean"
+                },
+                "className": {
+                    "type": "string"
+                },
+                "color": {
+                    "type": "string",
+                    "enum": [
+                        "default",
+                        "primary",
+                        "secondary",
+                        "success",
+                        "warning",
+                        "danger"
+                    ]
+                },
+                "size": {
+                    "type": "string",
+                    "enum": [
+                        "sm",
+                        "md",
+                        "lg"
+                    ]
+                }
+            }
+        },
+        "SliderProps": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "disabled": {
+                    "type": "boolean"
+                },
+                "className": {
+                    "type": "string"
+                },
+                "min": {
+                    "type": "number"
+                },
+                "max": {
+                    "type": "number"
+                },
+                "step": {
+                    "type": "number"
+                },
+                "color": {
+                    "type": "string",
+                    "enum": [
+                        "default",
+                        "primary",
+                        "secondary",
+                        "success",
+                        "warning",
+                        "danger"
+                    ]
+                },
+                "size": {
+                    "type": "string",
+                    "enum": [
+                        "sm",
+                        "md",
+                        "lg"
+                    ]
+                }
+            }
+        },
+        "DateProps": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "disabled": {
+                    "type": "boolean"
+                },
+                "className": {
+                    "type": "string"
+                },
+                "variant": {
+                    "type": "string",
+                    "enum": [
+                        "flat",
+                        "bordered",
+                        "faded",
+                        "underlined"
+                    ]
+                },
+                "color": {
+                    "type": "string",
+                    "enum": [
+                        "default",
+                        "primary",
+                        "secondary",
+                        "success",
+                        "warning",
+                        "danger"
+                    ]
+                },
+                "size": {
+                    "type": "string",
+                    "enum": [
+                        "sm",
+                        "md",
+                        "lg"
+                    ]
+                }
+            }
+        },
+        "FileProps": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "disabled": {
+                    "type": "boolean"
+                },
+                "className": {
+                    "type": "string"
+                },
+                "accept": {
+                    "type": "string"
+                },
+                "multiple": {
+                    "type": "boolean"
+                },
+                "maxFiles": {
+                    "type": "integer"
+                },
+                "maxSize": {
+                    "type": "integer"
+                },
+                "variant": {
+                    "type": "string",
+                    "enum": [
+                        "flat",
+                        "bordered",
+                        "faded",
+                        "underlined"
+                    ]
+                },
+                "color": {
+                    "type": "string",
+                    "enum": [
+                        "default",
+                        "primary",
+                        "secondary",
+                        "success",
+                        "warning",
+                        "danger"
+                    ]
+                },
+                "size": {
+                    "type": "string",
+                    "enum": [
+                        "sm",
+                        "md",
+                        "lg"
+                    ]
+                }
+            }
+        },
+        "FontPickerProps": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "disabled": {
+                    "type": "boolean"
+                },
+                "className": {
+                    "type": "string"
+                },
+                "googleFontsApiKey": {
+                    "type": "string"
+                },
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "showPreview": {
+                    "type": "boolean"
+                },
+                "variant": {
+                    "type": "string",
+                    "enum": [
+                        "flat",
+                        "bordered",
+                        "faded",
+                        "underlined"
+                    ]
+                },
+                "color": {
+                    "type": "string",
+                    "enum": [
+                        "default",
+                        "primary",
+                        "secondary",
+                        "success",
+                        "warning",
+                        "danger"
+                    ]
+                },
+                "size": {
+                    "type": "string",
+                    "enum": [
+                        "sm",
+                        "md",
+                        "lg"
+                    ]
+                }
+            }
+        }
+    }
+}

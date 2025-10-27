@@ -2,6 +2,86 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.0] - 2025-01-27
+
+### 🎉 Major Release - Enhanced Form Experience
+
+This is a major release with significant new features, performance improvements, and some breaking changes. See the [Migration Guide](./docs/migration-v2.md) for upgrade instructions.
+
+### Added
+
+#### Dynamic Form Sections
+
+- **Conditional Fields**: Show/hide fields based on form data with `ConditionalField` component
+- **Field Arrays**: Dynamic repeating field groups with `FieldArrayField` component  
+- **Dynamic Sections**: Grouped conditional fields with `DynamicSectionField` component
+- Builder methods: `conditionalField()`, `fieldArray()`, `dynamicSection()`
+
+#### Enhanced Form State Management
+
+- **Enhanced Form State Hook**: `useEnhancedFormState` with comprehensive state tracking
+- **Form Status Component**: `FormStatus` with loading, success, and error states
+- **Automatic State Management**: Built-in loading indicators and success feedback
+- **Toast Notifications**: Optional toast notifications with `FormToast` component
+
+#### Performance Optimizations
+
+- **Memoized Components**: All field components now use `React.memo` for better performance
+- **Debounced Validation**: `useDebouncedValidation` hook for configurable validation delays
+- **Performance Utilities**: `usePerformanceMonitor`, `useBatchedFieldUpdates`, and optimization helpers
+- **Memory Optimization**: Better memory usage with proper cleanup and memoization
+
+#### Type-Inferred Forms (Alternative API)
+
+- **Type-Inferred Builder**: `TypeInferredBuilder` for automatic schema and field generation
+- **Define Inferred Form**: `defineInferredForm` function for single-call form definition
+- **Field Type Builders**: Individual field builders with proper type inference
+- **Auto-Generated Schemas**: Automatic Zod schema generation from field definitions
+
+#### Enhanced Validation Patterns
+
+- **Cross-Field Validation**: Password confirmation, date ranges, conditional requirements
+- **Validation Patterns**: Common patterns for emails, phones, passwords, credit cards
+- **Async Validation**: Server-side validation integration with `asyncValidation` helpers
+- **Validation Utilities**: Comprehensive validation utilities and error message helpers
+
+#### New Hooks and Utilities
+
+- `useEnhancedFormState`: Comprehensive form state management
+- `useDebouncedValidation`: Debounced field validation
+- `useInferredForm`: Type-inferred form hook
+- `usePerformanceMonitor`: Performance monitoring utilities
+- `useBatchedFieldUpdates`: Batched field updates for better performance
+
+### Changed
+
+#### Breaking Changes
+
+- **Field Props**: `isDisabled` → `disabled` for consistency with HeroUI
+- **Form State**: Enhanced form state structure with additional properties and methods
+- **Field Configuration**: `FormFieldConfig` → `ZodFormFieldConfig` (removed `rules` property)
+- **Type Definitions**: Updated type definitions for better TypeScript support
+
+#### API Improvements
+
+- **Consistent Naming**: Standardized prop names across all components
+- **Better Type Safety**: Enhanced TypeScript support with better type inference
+- **Simplified API**: Cleaner, more intuitive API design
+- **Performance**: Significant performance improvements across all components
+
+### Fixed
+
+- **Memory Leaks**: Fixed potential memory leaks in form components
+- **Type Safety**: Resolved TypeScript compilation issues
+- **Build Process**: Improved build process and bundle optimization
+- **Component Re-renders**: Reduced unnecessary re-renders with proper memoization
+
+### Removed
+
+- **Deprecated APIs**: Removed deprecated field prop names
+- **Legacy Code**: Cleaned up legacy code and unused utilities
+- **Redundant Types**: Simplified type definitions by removing redundant types
+
 ## [1.0.2] - 2025-01-27
 
 ### Enhanced

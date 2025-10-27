@@ -1,274 +1,385 @@
 # Contributing to Hero Hook Form
 
-Thank you for your interest in contributing to Hero Hook Form! This document provides guidelines and information for contributors.
+Thank you for your interest in contributing to Hero Hook Form! This guide will help you get started with development, testing, and contributing to the project.
 
-## 🚀 Quick Start
-
-1. **Fork** the repository
-2. **Clone** your fork: `git clone https://github.com/YOUR_USERNAME/hero-hook-form.git`
-3. **Install** dependencies: `npm install`
-4. **Create** a feature branch: `git checkout -b feature/amazing-feature`
-5. **Make** your changes
-6. **Test** your changes: `npm test`
-7. **Commit** with conventional commits: `git commit -m "feat: add amazing feature"`
-8. **Push** to your fork: `git push origin feature/amazing-feature`
-9. **Create** a Pull Request
-
-## 🛠️ Development Setup
+## Development Setup
 
 ### Prerequisites
 
-- Node.js 18+
-- npm 9+
-- Git
+- **Node.js**: >=18.0.0
+- **npm**: >=8.0.0 (or yarn/pnpm)
+- **Git**: Latest version
 
-### Local Development
+### Installation
+
+1. **Clone the repository**
+
+   ```bash
+   git clone https://github.com/rachelallyson/hero-hook-form.git
+   cd hero-hook-form
+   ```
+
+2. **Install dependencies**
+
+   ```bash
+   npm install
+   ```
+
+3. **Install peer dependencies**
+
+   ```bash
+   npm install @heroui/react react-hook-form zod @hookform/resolvers
+   ```
+
+### Development Environment
+
+1. **Start development build**
+
+   ```bash
+   npm run dev:build
+   ```
+
+2. **Run example app** (in separate terminal)
+
+   ```bash
+   cd example
+   npm install
+   npm run dev
+   ```
+
+3. **Open browser**
+   - Example app: <http://localhost:3010>
+   - Cypress: `npm run cy:open`
+
+## Project Structure
+
+```
+hero-hook-form/
+├── src/                    # Source code
+│   ├── components/         # Core form components
+│   ├── fields/            # Individual field components
+│   ├── hooks/             # Custom hooks
+│   ├── builders/          # Form builders
+│   ├── utils/             # Utility functions
+│   ├── providers/         # Context providers
+│   └── index.ts           # Public exports
+├── example/               # Example Next.js app
+├── docs/                  # Documentation
+├── cypress/               # Cypress tests
+└── dist/                  # Built files
+```
+
+## Development Workflow
+
+### 1. Create a Feature Branch
 
 ```bash
-# Clone and setup
-git clone https://github.com/rachelallyson/hero-hook-form.git
-cd hero-hook-form
-npm install
+git checkout -b feature/your-feature-name
+```
 
-# Start development build
-npm run dev:build
+### 2. Make Changes
 
-# Run tests
-npm test
+- Follow the [Cursor Rules](.cursor/rules/01-repo.md)
+- Read [Documentation](docs/index.md) before making changes
+- Use TypeScript for all new code
+- Add tests for new functionality
+
+### 3. Test Your Changes
+
+```bash
+# Run TypeScript check
+npm run typecheck
 
 # Run linting
 npm run lint
 
-# Type checking
-npm run typecheck
-```
-
-### Testing
-
-We use Cypress for component testing. To run tests:
-
-```bash
-# Run all tests
+# Run Cypress tests
 npm run cy:run
 
-# Open Cypress UI
-npm run cy:open
+# Run all tests
+npm test
 ```
 
-## 📝 Code Style
+### 4. Build and Verify
+
+```bash
+# Build the package
+npm run build
+
+# Verify build output
+ls -la dist/
+```
+
+### 5. Commit and Push
+
+```bash
+git add .
+git commit -m "feat: add new feature"
+git push origin feature/your-feature-name
+```
+
+## Code Style
 
 ### TypeScript
 
-- Use strict TypeScript settings
+- Use strict TypeScript configuration
 - Prefer interfaces over types for object shapes
-- Use proper generic constraints
-- Avoid `any` type - use proper typing instead
+- Use `Path<T>` for field names, not `string`
+- Export types from `src/index.ts`
 
 ### React
 
 - Use functional components with hooks
-- Prefer named exports over default exports
-- Use proper prop types and interfaces
-- Follow React best practices
+- Use `React.memo` for field components
+- Prefer composition over inheritance
+- Use proper TypeScript props
 
-### Naming Conventions
+### Form Patterns
 
-- **Files**: PascalCase for components, camelCase for utilities
-- **Components**: PascalCase
-- **Functions**: camelCase
-- **Constants**: UPPER_SNAKE_CASE
-- **Types/Interfaces**: PascalCase
+- Use configuration-based forms
+- Follow established field patterns
+- Implement proper error handling
+- Use Zod for validation
 
-## 🧪 Testing Guidelines
+## Testing
 
 ### Component Testing
 
-- Test all field components thoroughly
-- Test form validation scenarios
-- Test accessibility features
-- Test responsive behavior
-- Use realistic test data
+All components have corresponding Cypress tests:
+
+```bash
+# Run component tests
+npm run cy:run
+
+# Open Cypress for interactive testing
+npm run cy:open
+```
 
 ### Test Structure
 
-```typescript
-describe('ComponentName', () => {
-  it('should render correctly', () => {
-    // Test basic rendering
+```
+src/
+├── components/
+│   ├── Form.cy.tsx        # Form component tests
+│   └── FormField.cy.tsx   # FormField component tests
+├── fields/
+│   ├── InputField.cy.tsx  # InputField tests
+│   └── CheckboxField.cy.tsx # CheckboxField tests
+└── hooks/
+    └── useFormHelper.cy.tsx # Hook tests
+```
+
+### Writing Tests
+
+```tsx
+// Example test structure
+describe('InputField', () => {
+  it('renders with label', () => {
+    cy.mount(<InputField name="test" label="Test Field" />);
+    cy.get('label').should('contain', 'Test Field');
   });
 
-  it('should handle user interactions', () => {
-    // Test user interactions
-  });
-
-  it('should validate input correctly', () => {
-    // Test validation
-  });
-
-  it('should be accessible', () => {
-    // Test accessibility
+  it('shows validation error', () => {
+    cy.mount(<InputField name="test" label="Test Field" />);
+    cy.get('[name="test"]').type('invalid');
+    cy.get('[data-testid="test-error"]').should('be.visible');
   });
 });
 ```
 
-## 📚 Documentation
+### Test Data
 
-### Code Comments
+Use `data-testid` attributes for reliable testing:
 
-- Comment complex logic
-- Document public APIs
-- Use JSDoc for function documentation
-- Keep comments up-to-date with code changes
+```tsx
+<InputField 
+  name="email" 
+  label="Email"
+  inputProps={{ "data-testid": "email-input" }}
+/>
+```
 
-### README Updates
+## Documentation
 
-- Update README when adding new features
-- Include usage examples
-- Document breaking changes
-- Keep installation instructions current
+### Adding Documentation
 
-## 🔄 Pull Request Process
+1. **Update existing docs** in `docs/` directory
+2. **Add new guides** for complex features
+3. **Update API reference** when adding new exports
+4. **Include examples** in documentation
+
+### Documentation Structure
+
+```
+docs/
+├── index.md              # Main entry point
+├── concepts.md           # Core concepts
+├── guides/               # How-to guides
+│   ├── quickstart.md    # Getting started
+│   ├── dynamic-forms.md # Advanced features
+│   └── error-handling.md # Error patterns
+├── reference/            # API reference
+│   ├── config.md        # Configuration
+│   └── api/             # Generated API docs
+├── recipes/              # Code examples
+│   └── examples.md      # Copy-paste snippets
+└── troubleshooting.md    # Common issues
+```
+
+### Writing Documentation
+
+- Use clear, concise language
+- Include code examples
+- Link to related sections
+- Keep examples runnable
+- Update when APIs change
+
+## Release Process
+
+### Version Bumping
+
+We use semantic versioning (semver):
+
+- **Patch** (1.0.1): Bug fixes, documentation updates
+- **Minor** (1.1.0): New features, backward compatible
+- **Major** (2.0.0): Breaking changes
+
+### Release Steps
+
+1. **Update version** in `package.json`
+2. **Update CHANGELOG.md** with new features/fixes
+3. **Run tests** to ensure everything works
+4. **Build package** with `npm run build`
+5. **Publish** with `npm publish`
+
+### Changelog Format
+
+```markdown
+## [2.0.0] - 2025-01-27
+
+### Added
+- New feature description
+- Another new feature
+
+### Changed
+- Breaking change description
+- Non-breaking change description
+
+### Fixed
+- Bug fix description
+- Another bug fix
+
+### Removed
+- Deprecated feature removal
+```
+
+## Pull Request Process
 
 ### Before Submitting
 
-1. **Test** your changes thoroughly
-2. **Update** documentation if needed
-3. **Ensure** all tests pass
-4. **Check** that the build succeeds
-5. **Verify** TypeScript compilation
+1. **Read the documentation** in `docs/`
+2. **Follow the code style** guidelines
+3. **Add tests** for new functionality
+4. **Update documentation** if needed
+5. **Run all tests** and ensure they pass
 
-### PR Description
+### PR Template
 
-- Describe the problem you're solving
-- Explain your solution approach
-- Include screenshots for UI changes
-- List any breaking changes
-- Reference related issues
+```markdown
+## Description
+Brief description of changes
+
+## Type of Change
+- [ ] Bug fix
+- [ ] New feature
+- [ ] Breaking change
+- [ ] Documentation update
+
+## Testing
+- [ ] Tests pass
+- [ ] New tests added
+- [ ] Manual testing completed
+
+## Documentation
+- [ ] Documentation updated
+- [ ] Examples added
+- [ ] API reference updated
+```
 
 ### Review Process
 
-- All PRs require review
-- Address review comments promptly
-- Keep PRs focused and small
-- Respond to CI failures quickly
+1. **Automated checks** must pass
+2. **Code review** by maintainers
+3. **Testing** in example app
+4. **Documentation** review
+5. **Approval** and merge
 
-## 🐛 Bug Reports
+## Code of Conduct
 
-### Bug Report Template
+### Our Pledge
 
-```markdown
-**Describe the bug**
-A clear description of what the bug is.
+We are committed to providing a welcoming and inclusive environment for all contributors.
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. See error
+### Expected Behavior
 
-**Expected behavior**
-A clear description of what you expected to happen.
+- Be respectful and inclusive
+- Focus on what's best for the community
+- Show empathy towards other community members
+- Accept constructive criticism gracefully
 
-**Environment:**
-- OS: [e.g. macOS, Windows]
-- Node.js version: [e.g. 18.0.0]
-- Package version: [e.g. 1.0.0]
+### Unacceptable Behavior
 
-**Additional context**
-Add any other context about the problem here.
-```
+- Harassment or discrimination
+- Trolling or inflammatory comments
+- Personal attacks or political discussions
+- Spam or off-topic discussions
 
-## 💡 Feature Requests
+## Getting Help
 
-### Feature Request Template
+### Documentation
 
-```markdown
-**Is your feature request related to a problem?**
-A clear description of what the problem is.
+- **Start here**: [docs/index.md](docs/index.md)
+- **Quick reference**: [docs/llm-context.md](docs/llm-context.md)
+- **API docs**: [docs/reference/api/README.md](docs/reference/api/README.md)
 
-**Describe the solution you'd like**
-A clear description of what you want to happen.
+### Community
 
-**Describe alternatives you've considered**
-A clear description of any alternative solutions.
+- **GitHub Issues**: Report bugs and request features
+- **GitHub Discussions**: Ask questions and share ideas
+- **Discord**: Join the community chat
 
-**Additional context**
-Add any other context or screenshots about the feature request.
-```
+### Common Issues
 
-## 📋 Issue Labels
+- **TypeScript errors**: Check field names match form data type
+- **Build failures**: Ensure all dependencies are installed
+- **Test failures**: Check test setup and data-testid attributes
 
-We use the following labels to organize issues:
+## Development Tips
 
-- `bug` - Something isn't working
-- `enhancement` - New feature or request
-- `documentation` - Improvements or additions to documentation
-- `good first issue` - Good for newcomers
-- `help wanted` - Extra attention is needed
-- `priority: high` - High priority issues
-- `priority: low` - Low priority issues
+### Performance
 
-## 🎯 Areas for Contribution
+- Use `React.memo` for field components
+- Implement debouncing for expensive operations
+- Monitor performance with built-in utilities
 
-### High Priority
+### Debugging
 
-- Performance improvements
-- Accessibility enhancements
-- Additional field types
-- Better error handling
-- Enhanced validation
+- Enable debug mode for form state
+- Use browser dev tools for component inspection
+- Check console for validation errors
 
-### Medium Priority
+### Best Practices
 
-- Additional form layouts
-- More configuration options
-- Better TypeScript types
-- Documentation improvements
-- Example applications
+- Follow established patterns
+- Write comprehensive tests
+- Document complex functionality
+- Consider accessibility
+- Optimize for performance
 
-### Low Priority
+## License
 
-- UI theme variations
-- Additional utility functions
-- Performance monitoring
-- Testing improvements
-
-## 🤝 Community Guidelines
-
-### Be Respectful
-
-- Use welcoming and inclusive language
-- Be respectful of differing viewpoints
-- Gracefully accept constructive criticism
-- Focus on what is best for the community
-
-### Communication
-
-- Use clear and concise language
-- Ask questions when you need clarification
-- Provide constructive feedback
-- Be patient with newcomers
-
-## 📞 Getting Help
-
-- **GitHub Issues**: For bugs and feature requests
-- **GitHub Discussions**: For questions and general discussion
-- **Pull Requests**: For code contributions
-- **Documentation**: Check the docs folder first
-
-## 🏆 Recognition
-
-Contributors will be recognized in:
-
-- README contributors section
-- Release notes
-- GitHub contributors list
-- Special mentions for significant contributions
-
-## 📄 License
-
-By contributing, you agree that your contributions will be licensed under the same license as the project (ISC License).
+By contributing to Hero Hook Form, you agree that your contributions will be licensed under the ISC License.
 
 ---
 
-Thank you for contributing to Hero Hook Form! 🎉
+Thank you for contributing to Hero Hook Form! Your contributions help make the library better for everyone.
