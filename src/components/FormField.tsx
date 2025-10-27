@@ -6,7 +6,10 @@ import type { FieldValues, UseFormReturn } from "react-hook-form";
 import { useWatch } from "react-hook-form";
 
 import { CheckboxField } from "../fields/CheckboxField";
+import { ConditionalField } from "../fields/ConditionalField";
 import { DateField } from "../fields/DateField";
+import { DynamicSectionField } from "../fields/DynamicSectionField";
+import { FieldArrayField } from "../fields/FieldArrayField";
 import { FileField } from "../fields/FileField";
 import { FontPickerField } from "../fields/FontPickerField";
 import { InputField } from "../fields/InputField";
@@ -23,11 +26,16 @@ interface FormFieldProps<TFieldValues extends FieldValues> {
   submissionState: FormSubmissionState;
 }
 
-export function FormField<TFieldValues extends FieldValues>({
+export const FormField = React.memo(<TFieldValues extends FieldValues>({
   config,
   form,
   submissionState,
-}: FormFieldProps<TFieldValues>) {
+}: FormFieldProps<TFieldValues>) => {
+  // Check if form context is available (for SSR compatibility)
+  if (!form || !form.control) {
+    return null;
+  }
+  
   const { control } = form;
   const watchedValues = useWatch({ control });
 
@@ -179,6 +187,32 @@ export function FormField<TFieldValues extends FieldValues>({
         name: config.name,
       });
 
+    case "conditional":
+      return (
+        <ConditionalField<TFieldValues>
+          config={config}
+          control={control}
+          className={config.className}
+        />
+      );
+
+    case "fieldArray":
+      return (
+        <FieldArrayField<TFieldValues>
+          config={config}
+          className={config.className}
+        />
+      );
+
+    case "dynamicSection":
+      return (
+        <DynamicSectionField<TFieldValues>
+          config={config}
+          control={control}
+          className={config.className}
+        />
+      );
+
     default: {
       const fieldType = (config as { type: string }).type;
 
@@ -187,4 +221,6 @@ export function FormField<TFieldValues extends FieldValues>({
       return null;
     }
   }
-}
+}) as <TFieldValues extends FieldValues>(
+  props: FormFieldProps<TFieldValues>
+) => React.JSX.Element;

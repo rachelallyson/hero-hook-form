@@ -16,6 +16,13 @@
 // Import commands.js using ES2015 syntax:
 import "./commands";
 
+// Import Hero Hook Form Cypress helpers
+// Using direct path due to package.json exports issue
+import { registerHeroFormCommands } from "../../node_modules/@rachelallyson/hero-hook-form/dist/cypress/index.js";
+
+// Manually register the commands
+registerHeroFormCommands();
+
 import installLogsCollector from "cypress-terminal-report/src/installLogsCollector";
 
 installLogsCollector({
@@ -38,23 +45,49 @@ installLogsCollector({
 declare global {
   namespace Cypress {
     interface Chainable {
-      // New commands that work with HeroUI
-      fillFieldByLabel(labelText: string, value: string): Chainable<Element>;
-      fillFieldByType(inputType: string, value: string): Chainable<Element>;
-      selectOptionByLabel(
-        labelText: string,
-        option: string,
-      ): Chainable<Element>;
-      testFormSubmission(): Chainable<Element>;
-      testFieldInteraction(
-        inputType: string,
-        testValue: string,
-      ): Chainable<Element>;
-
+      // Field Interaction Helpers
+      fillInputByType(type: string, value: string, index?: number, options?: any): Chainable<Element>;
+      fillInputByPlaceholder(placeholder: string, value: string, options?: any): Chainable<Element>;
+      fillInputByLabel(label: string, value: string, options?: any): Chainable<Element>;
+      fillTextarea(value: string, index?: number, options?: any): Chainable<Element>;
+      selectDropdownOption(optionValue?: string, dropdownIndex?: number): Chainable<Element>;
+      selectDropdownByLabel(label: string, optionValue: string): Chainable<Element>;
+      checkCheckbox(index?: number): Chainable<Element>;
+      checkCheckboxByLabel(label: string): Chainable<Element>;
+      checkSwitch(index?: number): Chainable<Element>;
+      uncheckCheckbox(index?: number): Chainable<Element>;
+      uncheckSwitch(index?: number): Chainable<Element>;
+      moveSlider(value: number, index?: number): Chainable<Element>;
+      
+      // Validation & Error Testing Helpers
+      expectValidationError(message: string): Chainable<Element>;
+      expectNoValidationErrors(): Chainable<Element>;
+      expectFieldError(fieldLabel: string, errorMessage: string): Chainable<Element>;
+      expectFieldValid(fieldLabel: string): Chainable<Element>;
+      triggerValidation(submitButton?: boolean): Chainable<Element>;
+      
+      // Form Submission Helpers
+      submitForm(): Chainable<Element>;
+      submitAndExpectSuccess(successIndicator?: string): Chainable<Element>;
+      submitAndExpectErrors(errorMessage?: string, formIndex?: number): Chainable<Element>;
+      resetForm(): Chainable<Element>;
+      interceptFormSubmission(method: string, url: string, alias: string): Chainable<Element>;
+      
+      // Form State Helpers
+      verifyFormExists(): Chainable<Element>;
+      verifyFieldExists(selector: string): Chainable<Element>;
+      verifyFieldValue(type: string, value: string, index?: number): Chainable<Element>;
+      verifyFieldCount(selector: string, count: number): Chainable<Element>;
+      getFormData(): Chainable<any>;
+      
+      // Complex Form Flow Helpers
+      fillCompleteForm(formData: any): Chainable<Element>;
+      testFieldInteraction(fieldType: string, value: string): Chainable<Element>;
+      testFormFlow(steps: any[]): Chainable<Element>;
+      
       // Legacy commands (kept for backward compatibility)
       fillField(label: string, value: string): Chainable<Element>;
       selectOption(label: string, option: string): Chainable<Element>;
-      submitForm(): Chainable<Element>;
     }
   }
 }

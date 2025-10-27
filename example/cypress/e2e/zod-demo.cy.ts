@@ -13,88 +13,60 @@ describe("Zod Demo - Schema-based Validation and Real-time Feedback", () => {
 
     it("should validate required fields with real-time Zod feedback", () => {
       // Try to submit empty form to trigger validation
-      cy.get('button[type="submit"]').first().click();
-
-      // Form should still exist (validation errors should appear)
-      cy.get("form").should("exist");
-
-      // Should show at least one Zod validation error message
-      // (React Hook Form may not show all errors at once)
-      cy.contains("First name must be at least 2 characters").should(
-        "be.visible",
-      );
+      cy.submitAndExpectErrors("First name must be at least 2 characters");
     });
 
     it("should validate first name with Zod pattern constraints", () => {
       // Test pattern validation (only letters allowed)
-      cy.get('input[type="text"]').first().type("John123");
-      cy.get('input[type="text"]').first().should("have.value", "John123");
+      cy.fillInputByType("text", "John123");
+      cy.verifyFieldValue("text", "John123");
 
       // Clear and test with valid input
-      cy.get('input[type="text"]').first().clear().type("John");
-      cy.get('input[type="text"]').first().should("have.value", "John");
+      cy.fillInputByType("text", "John");
+      cy.verifyFieldValue("text", "John");
 
       // Test first name minimum length validation
-      cy.get('input[type="text"]').first().clear().type("A");
-      cy.get('button[type="submit"]').first().click();
-      cy.contains("First name must be at least 2 characters").should(
-        "be.visible",
-      );
+      cy.fillInputByType("text", "A");
+      cy.submitAndExpectErrors("First name must be at least 2 characters");
     });
 
     it("should validate email format with Zod email validation", () => {
       // Test invalid email format
-      cy.get('input[type="email"]').type("invalid-email");
-      cy.get('input[type="email"]').should("have.value", "invalid-email");
+      cy.fillInputByType("email", "invalid-email");
+      cy.verifyFieldValue("email", "invalid-email");
 
       // Test valid email format
-      cy.get('input[type="email"]').clear().type("valid@example.com");
-      cy.get('input[type="email"]').should("have.value", "valid@example.com");
+      cy.fillInputByType("email", "valid@example.com");
+      cy.verifyFieldValue("email", "valid@example.com");
 
       // Test email validation error message
-      cy.get('input[type="email"]').clear().type("invalid-email");
-      cy.get('button[type="submit"]').first().click();
-      cy.contains("Please enter a valid email address").should("be.visible");
+      cy.fillInputByType("email", "invalid-email");
+      cy.submitAndExpectErrors("Please enter a valid email address");
     });
 
     it("should validate phone number with Zod pattern", () => {
       // Test phone field exists and can accept input
-      cy.get('input[type="tel"]').type("123-456-7890");
-      cy.get('input[type="tel"]').should("have.value", "123-456-7890");
+      cy.fillInputByType("tel", "123-456-7890");
+      cy.verifyFieldValue("tel", "123-456-7890");
     });
 
     it("should validate message length with Zod constraints", () => {
       // Test message field with minimum length validation
-      cy.get("textarea").first().type("Short");
-      cy.get("textarea").first().should("have.value", "Short");
+      cy.fillInputByType("textarea", "Short");
+      cy.verifyFieldValue("textarea", "Short");
 
       // Test with longer message
-      cy.get("textarea")
-        .first()
-        .clear()
-        .type(
-          "This is a longer message that should meet minimum length requirements",
-        );
-      cy.get("textarea")
-        .first()
-        .should(
-          "have.value",
-          "This is a longer message that should meet minimum length requirements",
-        );
+      cy.fillInputByType("textarea", "This is a longer message that should meet minimum length requirements");
+      cy.verifyFieldValue("textarea", "This is a longer message that should meet minimum length requirements");
 
       // Test message length validation error message
-      cy.get("textarea").first().clear().type("Short");
-      cy.get('button[type="submit"]').first().click();
-      cy.contains("Message must be at least 10 characters").should(
-        "be.visible",
-      );
+      cy.fillInputByType("textarea", "Short");
+      cy.submitAndExpectErrors("Message must be at least 10 characters");
     });
 
     it("should handle country selection with Zod validation", () => {
       // Test country dropdown selection using HeroUI pattern
       cy.get('button[aria-haspopup="listbox"]').first().click();
-
-      // Wait longer for dropdown options to render and try multiple approaches
       cy.wait(500); // Give more time for dropdown to render
 
       // Try to find options with different approaches
@@ -111,24 +83,17 @@ describe("Zod Demo - Schema-based Validation and Real-time Feedback", () => {
         }
       });
 
-      // Wait a moment for selection to process
       cy.wait(200);
 
       // Test country validation error message (try to submit without selecting)
-      // First, clear any existing selection by clicking the dropdown again
       cy.get('button[aria-haspopup="listbox"]').first().click();
       cy.wait(300);
       cy.get('[role="option"]').should("exist").and("be.visible");
-
-      // Try to find an option that represents "no selection" or clear the field
-      // Let's try clicking the first option again to see if it toggles
       cy.get('[role="option"]').first().click({ force: true });
       cy.wait(200);
 
       // Now try to submit and see what validation message appears
-      cy.get('button[type="submit"]').first().click();
-
-      // Check for any validation error message (be more flexible)
+      cy.submitAndExpectErrors();
       cy.get("body").should("contain.text", "country");
     });
 
@@ -154,19 +119,16 @@ describe("Zod Demo - Schema-based Validation and Real-time Feedback", () => {
 
       // Test terms validation error message
       cy.get('input[type="checkbox"]').eq(1).uncheck();
-      cy.get('button[type="submit"]').first().click();
-      cy.contains("You must agree to the terms").should("be.visible");
+      cy.submitAndExpectErrors("You must agree to the terms");
     });
 
     it("should submit contact form with valid data", () => {
       // Fill required fields with valid data
-      cy.get('input[type="text"]').first().type("John");
-      cy.get('input[type="text"]').eq(1).type("Doe");
-      cy.get('input[type="email"]').type("john.doe@example.com");
-      cy.get('input[type="tel"]').type("123-456-7890");
-      cy.get("textarea")
-        .first()
-        .type("This is a test message for the contact form");
+      cy.fillInputByType("text", "John");
+      cy.fillInputByType("text", "Doe", 1);
+      cy.fillInputByType("email", "john.doe@example.com");
+      cy.fillInputByType("tel", "123-456-7890");
+      cy.fillInputByType("textarea", "This is a test message for the contact form");
 
       // Select country using HeroUI pattern
       cy.get('button[aria-haspopup="listbox"]').first().click();
@@ -185,8 +147,8 @@ describe("Zod Demo - Schema-based Validation and Real-time Feedback", () => {
 
     it("should reset contact form correctly", () => {
       // Fill some fields first
-      cy.get('input[type="text"]').first().type("Test");
-      cy.get('input[type="email"]').type("test@example.com");
+      cy.fillInputByType("text", "Test");
+      cy.fillInputByType("email", "test@example.com");
 
       // Reset form
       cy.get('button[type="button"]').contains("Reset").click();
@@ -198,15 +160,12 @@ describe("Zod Demo - Schema-based Validation and Real-time Feedback", () => {
 
     it("should validate last name with Zod constraints", () => {
       // Test last name minimum length validation
-      cy.get('input[type="text"]').eq(1).type("A");
-      cy.get('button[type="submit"]').first().click();
-      cy.contains("Last name must be at least 2 characters").should(
-        "be.visible",
-      );
+      cy.fillInputByType("text", "A", 1);
+      cy.submitAndExpectErrors("Last name must be at least 2 characters");
 
       // Test with valid last name
-      cy.get('input[type="text"]').eq(1).clear().type("Doe");
-      cy.get('input[type="text"]').eq(1).should("have.value", "Doe");
+      cy.fillInputByType("text", "Doe", 1);
+      cy.verifyFieldValue("text", "Doe", 1);
     });
   });
 
@@ -218,50 +177,49 @@ describe("Zod Demo - Schema-based Validation and Real-time Feedback", () => {
     });
 
     it("should validate username with Zod length and pattern constraints", () => {
-      // Test username field with validation
-      cy.get('input[type="text"]').eq(2).type("user");
-      cy.get('input[type="text"]').eq(2).should("have.value", "user");
+      // Test username field with validation using custom helpers
+      cy.fillInputByType("text", "user", 2);
+      cy.verifyFieldValue("text", "user", 2);
 
       // Test with longer username
-      cy.get('input[type="text"]').eq(2).clear().type("validusername");
-      cy.get('input[type="text"]').eq(2).should("have.value", "validusername");
+      cy.fillInputByType("text", "validusername", 2);
+      cy.verifyFieldValue("text", "validusername", 2);
 
       // Test username minimum length validation
-      cy.get('input[type="text"]').eq(2).clear().type("ab");
-      cy.get('button[type="submit"]').eq(1).click();
-      cy.contains("Username must be at least 3 characters").should(
-        "be.visible",
-      );
+      cy.fillInputByType("text", "ab", 2);
+      cy.fillInputByType("number", "25"); // Fill age to avoid other validation errors
+      cy.submitAndExpectErrors("Username must be at least 3 characters", 1);
 
       // Test username maximum length validation
-      cy.get('input[type="text"]')
-        .eq(2)
-        .clear()
-        .type("thisusernameistoolongforvalidation");
-      cy.get('button[type="submit"]').eq(1).click();
-      cy.contains("Username must be less than 20 characters").should(
-        "be.visible",
-      );
+      cy.fillInputByType("text", "thisusernameistoolongforvalidation", 2);
+      cy.fillInputByType("number", "25"); // Fill age to avoid other validation errors
+      
+      // Debug: Check what's in the form before submission
+      cy.get('input[type="text"]').eq(2).should('have.value', 'thisusernameistoolongforvalidation');
+      cy.get('input[type="number"]').should('have.value', '25');
+      
+      // Use submitAndExpectErrors helper for better error handling
+      cy.submitAndExpectErrors("Username must be less than 20 characters", 1);
     });
 
     it("should validate age with Zod range constraints", () => {
-      // Test age field with min/max validation
-      cy.get('input[type="number"]').type("15");
-      cy.get('input[type="number"]').should("have.value", "15");
+      // Test age field with min/max validation using custom helpers
+      cy.fillInputByType("number", "15");
+      cy.verifyFieldValue("number", "15");
 
       // Test with valid age
-      cy.get('input[type="number"]').clear().type("25");
-      cy.get('input[type="number"]').should("have.value", "25");
+      cy.fillInputByType("number", "25");
+      cy.verifyFieldValue("number", "25");
 
       // Test age validation error message
-      cy.get('input[type="number"]').clear().type("5");
-      cy.get('button[type="submit"]').eq(1).click();
-      cy.contains("You must be at least 13 years old").should("be.visible");
+      cy.fillInputByType("number", "5");
+      cy.fillInputByType("text", "validusername", 2); // Fill username to avoid other validation errors
+      cy.submitAndExpectErrors("You must be at least 13 years old", 1);
 
       // Test max age validation
-      cy.get('input[type="number"]').clear().type("150");
-      cy.get('button[type="submit"]').eq(1).click();
-      cy.contains("Please enter a valid age").should("be.visible");
+      cy.fillInputByType("number", "150");
+      cy.fillInputByType("text", "validusername", 2); // Fill username to avoid other validation errors
+      cy.submitAndExpectErrors("Age must be less than 120", 1);
     });
 
     it("should handle theme selection with Zod enum validation", () => {
@@ -385,14 +343,14 @@ describe("Zod Demo - Schema-based Validation and Real-time Feedback", () => {
 
     it("should allow users to correct validation errors", () => {
       // Fill invalid data first
-      cy.get('input[type="email"]').type("invalid-email");
+      cy.fillInputByType("email", "invalid-email");
 
       // Try to submit
       cy.get('button[type="submit"]').first().click();
 
       // Correct the error
-      cy.get('input[type="email"]').clear().type("valid@example.com");
-      cy.get('input[type="email"]').should("have.value", "valid@example.com");
+      cy.fillInputByType("email", "valid@example.com");
+      cy.verifyFieldValue("email", "valid@example.com");
     });
 
     it("should handle multiple validation errors simultaneously", () => {
@@ -420,12 +378,10 @@ describe("Zod Demo - Schema-based Validation and Real-time Feedback", () => {
 
     it("should show success message only when form is valid", () => {
       // Fill required fields with valid data
-      cy.get('input[type="text"]').first().type("John");
-      cy.get('input[type="text"]').eq(1).type("Doe");
-      cy.get('input[type="email"]').type("john.doe@example.com");
-      cy.get("textarea")
-        .first()
-        .type("This is a test message for the contact form");
+      cy.fillInputByType("text", "John");
+      cy.fillInputByType("text", "Doe", 1);
+      cy.fillInputByType("email", "john.doe@example.com");
+      cy.fillInputByType("textarea", "This is a test message for the contact form");
 
       // Select country
       cy.get('button[aria-haspopup="listbox"]').first().click();
@@ -447,34 +403,29 @@ describe("Zod Demo - Schema-based Validation and Real-time Feedback", () => {
   describe("Performance and Edge Case Handling", () => {
     it("should handle rapid form interactions without breaking", () => {
       // Test rapid typing and interactions
-      cy.get('input[type="text"]').first().type("test");
+      cy.fillInputByType("text", "test");
       cy.get('input[type="text"]').first().clear();
-      cy.get('input[type="text"]').first().type("another test");
-      cy.get('input[type="text"]').first().should("have.value", "another test");
+      cy.fillInputByType("text", "another test");
+      cy.verifyFieldValue("text", "another test");
     });
 
     it("should handle edge case values appropriately", () => {
       // Test boundary values for age field
-      cy.get('input[type="number"]').type("0");
-      cy.get('input[type="number"]').should("have.value", "0");
+      cy.fillInputByType("number", "0");
+      cy.verifyFieldValue("number", "0");
 
-      cy.get('input[type="number"]').clear().type("100");
-      cy.get('input[type="number"]').should("have.value", "100");
+      cy.fillInputByType("number", "100");
+      cy.verifyFieldValue("number", "100");
     });
 
     it("should handle special characters in text inputs", () => {
       // Test special characters
-      cy.get('input[type="text"]').first().type("Test@#$%^&*()");
-      cy.get('input[type="text"]')
-        .first()
-        .should("have.value", "Test@#$%^&*()");
+      cy.fillInputByType("text", "Test@#$%^&*()");
+      cy.verifyFieldValue("text", "Test@#$%^&*()");
 
       // Test email with special characters
-      cy.get('input[type="email"]').clear().type("test+tag@example.com");
-      cy.get('input[type="email"]').should(
-        "have.value",
-        "test+tag@example.com",
-      );
+      cy.fillInputByType("email", "test+tag@example.com");
+      cy.verifyFieldValue("email", "test+tag@example.com");
     });
   });
 });

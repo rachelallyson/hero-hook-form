@@ -21,43 +21,39 @@ describe("Comprehensive Demo - Complete Form Testing", () => {
     });
 
     it("should validate required fields", () => {
-      // Try to submit the form without filling required fields
-      cy.get('button[type="submit"]').first().click();
+      // Try to submit the form without filling required fields using helper
+      cy.submitAndExpectErrors();
 
       // Check for validation errors (they should appear in the form)
-      cy.get("form").should("exist");
+      cy.verifyFormExists();
     });
 
     it("should validate email format correctly", () => {
-      // Fill email with invalid format
-      cy.get('input[type="email"]').type("invalid-email");
+      // Fill email with invalid format using helper
+      cy.fillInputByType("email", "invalid-email");
 
-      // Fill email with valid format
-      cy.get('input[type="email"]').clear().type("valid@example.com");
-      cy.get('input[type="email"]').should("have.value", "valid@example.com");
+      // Fill email with valid format using helper
+      cy.fillInputByType("email", "valid@example.com");
+      cy.verifyFieldValue("email", "valid@example.com");
     });
 
     it("should handle form submission", () => {
-      // Fill some fields - target the first form specifically
-      cy.get("form")
-        .first()
-        .within(() => {
-          cy.get('input[type="text"]').first().type("John");
-          cy.get('input[type="email"]').type("john@example.com");
-          cy.get("textarea").type("Test message");
-        });
+      // Fill some fields using helpers
+      cy.fillInputByType("text", "John");
+      cy.fillInputByType("email", "john@example.com");
+      cy.fillTextarea("Test message");
 
-      // Submit form
-      cy.get('button[type="submit"]').first().click();
+      // Submit form using helper
+      cy.submitForm();
     });
 
     it("should handle form reset", () => {
-      // Fill some fields
-      cy.get('input[type="text"]').first().type("John");
-      cy.get('input[type="email"]').type("john@example.com");
+      // Fill some fields using helpers
+      cy.fillInputByType("text", "John");
+      cy.fillInputByType("email", "john@example.com");
 
-      // Reset form
-      cy.get('button[type="button"]').contains("Reset").click();
+      // Reset form using helper
+      cy.resetForm();
 
       // Check that fields are cleared
       cy.get('input[type="text"]').first().should("have.value", "");
@@ -90,53 +86,53 @@ describe("Comprehensive Demo - Complete Form Testing", () => {
     });
 
     it("should handle switch toggles", () => {
-      // Toggle notification switch
-      cy.get('input[role="switch"]').first().click();
+      // Toggle notification switch using helper
+      cy.checkSwitch();
       cy.get('input[role="switch"]').first().should("be.checked");
 
-      // Toggle auto save switch
-      cy.get('input[role="switch"]').last().click();
+      // Toggle auto save switch using helper
+      cy.checkSwitch(1);
       cy.get('input[role="switch"]').last().should("be.checked");
     });
 
     it("should handle settings form submission", () => {
       // Fill some settings
       cy.get('input[type="radio"][value="light"]').check();
-      cy.get('input[role="switch"]').first().click();
+      cy.checkSwitch();
 
-      // Submit settings form
-      cy.get('button[type="submit"]').last().click();
+      // Submit settings form using helper
+      cy.submitForm();
     });
   });
 
   describe("Form Interactions", () => {
     it("should handle text input fields", () => {
-      cy.get('input[type="text"]').eq(0).type("Test User");
-      cy.get('input[type="text"]').eq(0).should("have.value", "Test User");
+      cy.fillInputByType("text", "Test User");
+      cy.verifyFieldValue("text", "Test User");
     });
 
     it("should handle email input", () => {
-      cy.get('input[type="email"]').type("test@example.com");
-      cy.get('input[type="email"]').should("have.value", "test@example.com");
+      cy.fillInputByType("email", "test@example.com");
+      cy.verifyFieldValue("email", "test@example.com");
     });
 
     it("should handle phone input", () => {
-      cy.get('input[type="tel"]').type("123-456-7890");
-      cy.get('input[type="tel"]').should("have.value", "123-456-7890");
+      cy.fillInputByType("tel", "123-456-7890");
+      cy.verifyFieldValue("tel", "123-456-7890");
     });
 
     it("should handle textarea", () => {
       const message = "This is a comprehensive test message for the form.";
 
-      cy.get("textarea").type(message);
+      cy.fillTextarea(message);
       cy.get("textarea").should("have.value", message);
     });
 
     it("should handle checkbox interactions", () => {
-      cy.get('input[type="checkbox"]').first().check();
+      cy.checkCheckbox();
       cy.get('input[type="checkbox"]').first().should("be.checked");
 
-      cy.get('input[type="checkbox"]').first().uncheck();
+      cy.uncheckCheckbox();
       cy.get('input[type="checkbox"]').first().should("not.be.checked");
     });
   });

@@ -12,6 +12,8 @@ import type {
 
 import type { FormValidationError, ZodFormConfig } from "../types";
 import { useZodForm } from "../zod-integration";
+import { useEnhancedFormState } from "../hooks/useEnhancedFormState";
+import { FormStatus } from "./FormStatus";
 
 import { FormField } from "./FormField";
 
@@ -62,72 +64,36 @@ export function ZodForm<T extends FieldValues>({
   title,
 }: ZodFormProps<T>) {
   const form = useZodForm(config);
-  const [submissionState, setSubmissionState] = React.useState({
-    error: undefined as string | undefined,
-    isSubmitted: false,
-    isSubmitting: false,
-    isSuccess: false,
+  const enhancedState = useEnhancedFormState(form, {
+    onSuccess: onSuccess,
+    onError: (error: string) => onError?.({ message: error, field: "form" }),
+    autoReset: true,
+    resetDelay: 3000,
   });
 
   const handleSubmit = async () => {
-    setSubmissionState((prev) => ({
-      ...prev,
-      error: undefined,
-      isSubmitting: true,
-    }));
-
-    // Check if form is valid before proceeding
-    const isValid = await form.trigger();
-
-    if (!isValid) {
-      setSubmissionState({
-        error: "Please fix the validation errors above",
-        isSubmitted: true,
-        isSubmitting: false,
-        isSuccess: false,
-      });
-
-      return;
-    }
-
     try {
-      await form.handleSubmit(async (formData) => {
-        await onSubmit(formData);
-      })();
-
-      setSubmissionState({
-        error: undefined,
-        isSubmitted: true,
-        isSubmitting: false,
-        isSuccess: true,
-      });
-
-      onSuccess?.(form.getValues());
+      // Use React Hook Form's built-in validation
+      await form.handleSubmit(
+        async (formData) => {
+          // Success handler - form is valid
+          await onSubmit(formData);
+          enhancedState.handleSuccess(formData);
+        },
+        (errors) => {
+          // Error handler - form has validation errors
+          enhancedState.handleError("Please fix the validation errors above");
+        }
+      )();
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "An error occurred";
-
-      setSubmissionState({
-        error: errorMessage,
-        isSubmitted: true,
-        isSubmitting: false,
-        isSuccess: false,
-      });
-
-      onError?.({
-        message: errorMessage,
-      });
+      const errorMessage = error instanceof Error ? error.message : "An error occurred";
+      enhancedState.handleError(errorMessage);
     }
   };
 
   const resetForm = () => {
     form.reset();
-    setSubmissionState({
-      error: undefined,
-      isSubmitted: false,
-      isSubmitting: false,
-      isSuccess: false,
-    });
+    enhancedState.reset();
   };
 
   const renderFields = () => {
@@ -147,7 +113,12 @@ export function ZodForm<T extends FieldValues>({
               key={field.name as string}
               config={field}
               form={form}
-              submissionState={submissionState}
+              submissionState={{
+                isSubmitting: enhancedState.isSubmitting,
+                isSubmitted: enhancedState.status !== "idle",
+                isSuccess: enhancedState.isSuccess,
+                error: enhancedState.error,
+              }}
             />
           ))}
         </div>
@@ -162,7 +133,12 @@ export function ZodForm<T extends FieldValues>({
               key={field.name as string}
               config={field}
               form={form}
-              submissionState={submissionState}
+              submissionState={{
+                isSubmitting: enhancedState.isSubmitting,
+                isSubmitted: enhancedState.status !== "idle",
+                isSuccess: enhancedState.isSuccess,
+                error: enhancedState.error,
+              }}
             />
           ))}
         </div>
@@ -177,7 +153,12 @@ export function ZodForm<T extends FieldValues>({
             key={field.name as string}
             config={field}
             form={form}
-            submissionState={submissionState}
+            submissionState={{
+              isSubmitting: enhancedState.isSubmitting,
+              isSubmitted: enhancedState.status !== "idle",
+              isSuccess: enhancedState.isSuccess,
+              error: enhancedState.error,
+            }}
           />
         ))}
       </div>
@@ -201,9 +182,9 @@ export function ZodForm<T extends FieldValues>({
     return render({
       errors: form.formState.errors,
       form,
-      isSubmitted: submissionState.isSubmitted,
-      isSubmitting: submissionState.isSubmitting,
-      isSuccess: submissionState.isSuccess,
+      isSubmitted: enhancedState.status !== "idle",
+      isSubmitting: enhancedState.isSubmitting,
+      isSuccess: enhancedState.isSuccess,
       values: form.getValues(),
     });
   }
@@ -222,31 +203,12 @@ export function ZodForm<T extends FieldValues>({
         </div>
       )}
 
-      {/* Success Message */}
-      {submissionState.isSubmitted && submissionState.isSuccess && (
-        <div
-          className="mb-6 p-4 bg-success-50 border border-success-200 rounded-lg"
-          data-testid="success-message"
-        >
-          <p className="text-success-800 font-medium">Success!</p>
-          <p className="text-success-700 text-sm mt-1">
-            Your request has been processed successfully.
-          </p>
-        </div>
-      )}
-
-      {/* Error Message */}
-      {submissionState.error && errorDisplay !== "none" && (
-        <div
-          className="mb-6 p-4 bg-danger-50 border border-danger-200 rounded-lg"
-          data-testid="error-message"
-        >
-          <p className="text-danger-800 font-medium">Error</p>
-          <p className="text-danger-700 text-sm mt-1">
-            {submissionState.error}
-          </p>
-        </div>
-      )}
+      {/* Enhanced Form Status */}
+      <FormStatus 
+        state={enhancedState} 
+        onDismiss={() => enhancedState.reset()}
+        showDetails={true}
+      />
 
       {/* Form Fields */}
       {renderFields()}
@@ -255,17 +217,17 @@ export function ZodForm<T extends FieldValues>({
       <div className="mt-6 flex gap-3 justify-end">
         <Button
           color="primary"
-          isDisabled={submissionState.isSubmitting}
-          isLoading={submissionState.isSubmitting}
+          isDisabled={enhancedState.isSubmitting}
+          isLoading={enhancedState.isSubmitting}
           type="submit"
           {...submitButtonProps}
         >
-          {submitButtonText}
+          {enhancedState.isSuccess ? "Success!" : submitButtonText}
         </Button>
 
         {showResetButton && (
           <Button
-            isDisabled={submissionState.isSubmitting}
+            isDisabled={enhancedState.isSubmitting}
             type="button"
             variant="bordered"
             onPress={resetForm}

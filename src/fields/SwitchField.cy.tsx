@@ -4,6 +4,7 @@ import { mount } from "cypress/react";
 import { useForm } from "react-hook-form";
 
 import { SwitchField } from "./SwitchField";
+import { uncheckSwitch, submitForm } from "../cypress/helpers";
 
 interface TestFormData {
   notifications: boolean;
@@ -39,9 +40,9 @@ describe("SwitchField", () => {
     mount(<TestForm />);
 
     cy.get("input[type=checkbox]").should("not.be.checked");
-    cy.get("input[type=checkbox]").click();
+    cy.get('input[type="checkbox"]').check();
     cy.get("input[type=checkbox]").should("be.checked");
-    cy.get("input[type=checkbox]").click();
+    uncheckSwitch();
     cy.get("input[type=checkbox]").should("not.be.checked");
   });
 
@@ -73,7 +74,7 @@ describe("SwitchField", () => {
 
     mount(<TestFormWithValidation />);
 
-    cy.get("button").click();
+    submitForm();
     cy.contains("Please enable notifications").should("exist");
   });
 

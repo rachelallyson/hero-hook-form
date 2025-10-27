@@ -3,16 +3,16 @@ describe("Core Form Functionality Tests", () => {
     it("should allow users to fill out and submit the comprehensive form", () => {
       cy.visit("/comprehensive-demo");
 
-      // Fill out form fields - be more specific about which inputs
-      cy.get('input[type="text"]').first().type("John Doe");
-      cy.get('input[type="email"]').first().type("john@example.com");
-      cy.get('input[type="tel"]').first().type("123-456-7890");
+      // Fill out form fields using helpers
+      cy.fillInputByType("text", "John Doe");
+      cy.fillInputByType("email", "john@example.com");
+      cy.fillInputByType("tel", "123-456-7890");
 
-      // Submit form - be more specific about which submit button
-      cy.get('button[type="submit"]').first().click();
+      // Submit form using helper
+      cy.submitForm();
 
       // Verify form still exists (submission handled)
-      cy.get("form").should("exist");
+      cy.verifyFormExists();
     });
   });
 
@@ -23,11 +23,11 @@ describe("Core Form Functionality Tests", () => {
       // Check initial state
       cy.get('input[type="checkbox"]').first().should("exist");
 
-      // Toggle checkbox to see conditional behavior
-      cy.get('input[type="checkbox"]').first().check();
+      // Toggle checkbox to see conditional behavior using helper
+      cy.checkCheckbox();
 
       // Verify conditional fields appear
-      cy.get("form").should("exist");
+      cy.verifyFormExists();
     });
   });
 
@@ -35,17 +35,17 @@ describe("Core Form Functionality Tests", () => {
     it("should allow users to interact with form fields and see validation", () => {
       cy.visit("/interactive-demo");
 
-      // Type in email field
-      cy.get('input[type="email"]').first().type("test");
+      // Type in email field using helper
+      cy.fillInputByType("email", "test");
 
-      // Verify field accepts input
-      cy.get('input[type="email"]').first().should("have.value", "test");
+      // Verify field accepts input using helper
+      cy.verifyFieldValue("email", "test");
 
-      // Submit to see validation behavior
-      cy.get('button[type="submit"]').first().click();
+      // Submit to see validation behavior using helper
+      cy.submitForm();
 
       // Form should still exist
-      cy.get("form").should("exist");
+      cy.verifyFormExists();
     });
   });
 
@@ -53,20 +53,19 @@ describe("Core Form Functionality Tests", () => {
     it("should allow users to complete checkout form with all field types", () => {
       cy.visit("/real-world-demo");
 
-      // Fill customer information
-      cy.get('input[type="text"]').first().type("Jane Smith");
-      cy.get('input[type="email"]').first().type("jane@example.com");
-      cy.get('input[type="tel"]').first().type("555-123-4567");
+      // Fill customer information using helpers
+      cy.fillInputByType("text", "Jane Smith");
+      cy.fillInputByType("email", "jane@example.com");
+      cy.fillInputByType("tel", "555-123-4567");
 
-      // Select from dropdowns
-      cy.get('button[aria-haspopup="listbox"]').first().click();
-      cy.get('[role="option"]').first().click({ force: true });
+      // Select from dropdowns using helper
+      cy.selectDropdownOption();
 
-      // Submit form
-      cy.get('button[type="submit"]').first().click();
+      // Submit form using helper
+      cy.submitForm();
 
       // Verify form submission handled
-      cy.get("form").should("exist");
+      cy.verifyFormExists();
     });
   });
 
@@ -74,15 +73,15 @@ describe("Core Form Functionality Tests", () => {
     it("should handle form submission with Zod validation", () => {
       cy.visit("/zod-demo");
 
-      // Fill required fields
-      cy.get('input[type="text"]').first().type("Valid Name");
-      cy.get('input[type="email"]').first().type("valid@email.com");
+      // Fill required fields using helpers
+      cy.fillInputByType("text", "Valid Name");
+      cy.fillInputByType("email", "valid@email.com");
 
-      // Submit form
-      cy.get('button[type="submit"]').first().click();
+      // Submit form using helper
+      cy.submitForm();
 
       // Verify form behavior
-      cy.get("form").should("exist");
+      cy.verifyFormExists();
     });
   });
 
@@ -101,11 +100,11 @@ describe("Core Form Functionality Tests", () => {
       cy.contains("Date of Birth").should("exist");
       cy.contains("Appointment Date").should("exist");
 
-      // Submit form
-      cy.get('button[type="submit"]').first().click();
+      // Submit form using helper
+      cy.submitForm();
 
       // Verify form functionality
-      cy.get("form").should("exist");
+      cy.verifyFormExists();
     });
   });
 
@@ -113,15 +112,15 @@ describe("Core Form Functionality Tests", () => {
     it("should apply global configuration to form behavior", () => {
       cy.visit("/config-demo");
 
-      // Fill form with global config applied - be more specific
-      cy.get('input[type="text"]').first().type("Test User");
-      cy.get('input[type="email"]').first().type("test@example.com");
+      // Fill form with global config applied using helpers
+      cy.fillInputByType("text", "Test User");
+      cy.fillInputByType("email", "test@example.com");
 
-      // Submit to see configured behavior
-      cy.get('button[type="submit"]').first().click();
+      // Submit to see configured behavior using helper
+      cy.submitForm();
 
       // Verify form behavior
-      cy.get("form").should("exist");
+      cy.verifyFormExists();
     });
   });
 
@@ -129,15 +128,15 @@ describe("Core Form Functionality Tests", () => {
     it("should allow users to configure and use dynamic forms", () => {
       cy.visit("/configurable-form-demo");
 
-      // Interact with configurable form - be more specific
-      cy.get('input[type="text"]').first().type("Dynamic User");
-      cy.get('input[type="email"]').first().type("dynamic@example.com");
+      // Interact with configurable form using helpers
+      cy.fillInputByType("text", "Dynamic User");
+      cy.fillInputByType("email", "dynamic@example.com");
 
-      // Submit dynamic form
-      cy.get('button[type="submit"]').first().click();
+      // Submit dynamic form using helper
+      cy.submitForm();
 
       // Verify dynamic form behavior
-      cy.get("form").should("exist");
+      cy.verifyFormExists();
     });
   });
 });

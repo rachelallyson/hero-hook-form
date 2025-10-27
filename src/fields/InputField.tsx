@@ -63,9 +63,9 @@ function CoercedInput<TFieldValues extends FieldValues>(props: {
   );
 }
 
-export function InputField<TFieldValues extends FieldValues>(
+export const InputField = React.memo(<TFieldValues extends FieldValues>(
   props: InputFieldProps<TFieldValues>,
-) {
+) => {
   const {
     className,
     control,
@@ -111,4 +111,6 @@ export function InputField<TFieldValues extends FieldValues>(
       rules={rules}
     />
   );
-}
+}) as <TFieldValues extends FieldValues>(
+  props: InputFieldProps<TFieldValues>
+) => React.JSX.Element;

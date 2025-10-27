@@ -29,49 +29,47 @@ describe("Advanced Demo - Complex Multi-Section Forms with Conditional Logic", (
     });
 
     it("should enforce required field validation for data integrity", () => {
-      // Attempt to submit form without filling required fields
-      cy.get('button[type="submit"]').first().click();
+      // Attempt to submit form without filling required fields using helper
+      cy.submitAndExpectErrors();
 
       // Form should remain visible (validation errors should appear)
-      cy.get("form").should("exist");
+      cy.verifyFormExists();
     });
 
     it("should validate field patterns and constraints for data quality", () => {
-      // Test first name minimum length validation
-      cy.get('input[type="text"]').first().type("A");
-      cy.get('input[type="text"]').first().should("have.value", "A");
+      // Test first name minimum length validation using helpers
+      cy.fillInputByType("text", "A");
+      cy.verifyFieldValue("text", "A");
 
-      // Test first name with valid length
-      cy.get('input[type="text"]').first().clear().type("John");
-      cy.get('input[type="text"]').first().should("have.value", "John");
+      // Test first name with valid length using helpers
+      cy.fillInputByType("text", "John");
+      cy.verifyFieldValue("text", "John");
 
-      // Test email validation with invalid format
-      cy.get('input[type="email"]').type("invalid-email");
-      cy.get('input[type="email"]').should("have.value", "invalid-email");
+      // Test email validation with invalid format using helpers
+      cy.fillInputByType("email", "invalid-email");
+      cy.verifyFieldValue("email", "invalid-email");
 
-      // Test email validation with valid format
-      cy.get('input[type="email"]').clear().type("john@example.com");
-      cy.get('input[type="email"]').should("have.value", "john@example.com");
+      // Test email validation with valid format using helpers
+      cy.fillInputByType("email", "john@example.com");
+      cy.verifyFieldValue("email", "john@example.com");
 
-      // Test phone validation with invalid format
-      cy.get('input[type="tel"]').type("abc");
-      cy.get('input[type="tel"]').should("have.value", "abc");
+      // Test phone validation with invalid format using helpers
+      cy.fillInputByType("tel", "abc");
+      cy.verifyFieldValue("tel", "abc");
 
-      // Test phone validation with valid format
-      cy.get('input[type="tel"]').clear().type("+1234567890");
-      cy.get('input[type="tel"]').should("have.value", "+1234567890");
+      // Test phone validation with valid format using helpers
+      cy.fillInputByType("tel", "+1234567890");
+      cy.verifyFieldValue("tel", "+1234567890");
     });
 
     it("should handle password confirmation validation for security", () => {
-      // Enter initial password
-      cy.get('input[type="password"]').first().type("password123");
-      cy.get('input[type="password"]')
-        .first()
-        .should("have.value", "password123");
+      // Enter initial password using helper
+      cy.fillInputByType("password", "password123");
+      cy.verifyFieldValue("password", "password123");
 
-      // Enter different confirmation password
-      cy.get('input[type="password"]').last().type("different");
-      cy.get('input[type="password"]').last().should("have.value", "different");
+      // Enter different confirmation password using helper
+      cy.fillInputByType("password", "different", 1);
+      cy.verifyFieldValue("password", "different", 1);
     });
 
     it("should handle account type selection and conditional field display", () => {
@@ -86,46 +84,46 @@ describe("Advanced Demo - Complex Multi-Section Forms with Conditional Logic", (
     });
 
     it("should handle checkbox and switch interactions for user preferences", () => {
-      // Test newsletter subscription checkbox
-      cy.get('input[type="checkbox"]').first().check();
+      // Test newsletter subscription checkbox using helper
+      cy.checkCheckbox();
       cy.get('input[type="checkbox"]').first().should("be.checked");
 
-      // Test newsletter unsubscription
-      cy.get('input[type="checkbox"]').first().uncheck();
+      // Test newsletter unsubscription using helper
+      cy.uncheckCheckbox();
       cy.get('input[type="checkbox"]').first().should("not.be.checked");
 
-      // Test SMS notifications switch
-      cy.get('input[role="switch"]').first().click();
+      // Test SMS notifications switch using helper
+      cy.checkSwitch();
       cy.get('input[role="switch"]').first().should("be.checked");
     });
 
     it("should submit successfully with complete valid user data", () => {
-      // Fill all required fields with valid data
-      cy.get('input[type="text"]').eq(0).type("John");
-      cy.get('input[type="text"]').eq(1).type("Doe");
-      cy.get('input[type="email"]').type("john.doe@example.com");
-      cy.get('input[type="tel"]').type("+1234567890");
-      cy.get('input[type="text"]').eq(2).type("johndoe");
-      cy.get('input[type="password"]').first().type("password123");
-      cy.get('input[type="password"]').last().type("password123");
+      // Fill all required fields with valid data using helpers
+      cy.fillInputByType("text", "John");
+      cy.fillInputByType("text", "Doe", 1);
+      cy.fillInputByType("email", "john.doe@example.com");
+      cy.fillInputByType("tel", "+1234567890");
+      cy.fillInputByType("text", "johndoe", 2);
+      cy.fillInputByType("password", "password123");
+      cy.fillInputByType("password", "password123", 1);
       cy.get('input[type="radio"][value="personal"]').check();
-      cy.get('input[type="checkbox"]').first().check();
-      cy.get('input[type="checkbox"]').last().check();
+      cy.checkCheckbox();
+      cy.checkCheckbox(1);
 
-      // Submit form
-      cy.get('button[type="submit"]').first().click();
+      // Submit form using helper
+      cy.submitForm();
 
       // Verify form submission was handled
-      cy.get("form").should("exist");
+      cy.verifyFormExists();
     });
 
     it("should reset form correctly and clear all user input", () => {
-      // Fill some fields with test data
-      cy.get('input[type="text"]').eq(0).type("John");
-      cy.get('input[type="email"]').type("john@example.com");
+      // Fill some fields with test data using helpers
+      cy.fillInputByType("text", "John");
+      cy.fillInputByType("email", "john@example.com");
 
-      // Reset form using clear button
-      cy.get('button[type="button"]').contains("Clear Form").click();
+      // Reset form using helper
+      cy.resetForm();
 
       // Verify that fields are properly cleared
       cy.get('input[type="text"]').eq(0).should("have.value", "");

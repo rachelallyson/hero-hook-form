@@ -7,7 +7,7 @@ import { z } from "zod";
 // Define the form schema with Zod
 const contactSchema = z.object({
   country: z.string().min(1, "Please select a country"),
-  email: z.email("Please enter a valid email address"),
+  email: z.string().email("Please enter a valid email address"),
   firstName: z.string().min(2, "First name must be at least 2 characters"),
   lastName: z.string().min(2, "Last name must be at least 2 characters"),
   message: z.string().min(10, "Message must be at least 10 characters"),
@@ -75,9 +75,9 @@ const contactFields = [
 // Settings form with more complex validation
 const settingsSchema = z.object({
   age: z
-    .number()
+    .coerce.number()
     .min(13, "You must be at least 13 years old")
-    .max(120, "Please enter a valid age"),
+    .max(120, "Age must be less than 120"),
   autoSave: z.boolean().default(true),
   language: z.enum(["en", "es", "fr"]).default("en"),
   notifications: z.boolean().default(true),
@@ -187,9 +187,8 @@ export default function ZodDemoPage() {
         </p>
         <div className="bg-blue-50 p-6 rounded-lg">
           <ZodForm
-            columns={2}
             config={{ schema: settingsSchema, fields: settingsFields }}
-            layout="grid"
+            layout="vertical"
             showResetButton={true}
             subtitle="Customize your experience"
             title="User Settings"
@@ -270,7 +269,7 @@ export default function ZodDemoPage() {
             {`// Define your schema
 const contactSchema = z.object({
   firstName: z.string().min(2, "First name must be at least 2 characters"),
-  email: z.email("Please enter a valid email address"),
+  email: z.string().email("Please enter a valid email address"),
   terms: z.boolean().refine((val) => val === true, "You must agree to the terms"),
 });
 

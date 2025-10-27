@@ -183,3 +183,65 @@ export const commonValidations = {
     createRequiredCheckboxSchema(fieldName),
   url: createUrlSchema(),
 };
+
+/**
+ * Cross-field validation helpers
+ */
+export const crossFieldValidation = {
+  /**
+   * Password confirmation validation
+   */
+  passwordConfirmation: (passwordField: string, confirmField: string) => {
+    return z.object({
+      [passwordField]: z.string(),
+      [confirmField]: z.string(),
+    }).refine(
+      (data) => data[passwordField] === data[confirmField],
+      {
+        message: "Passwords do not match",
+        path: [confirmField],
+      }
+    );
+  },
+
+  /**
+   * Date range validation
+   */
+  dateRange: (startField: string, endField: string) => {
+    return z.object({
+      [startField]: z.string(),
+      [endField]: z.string(),
+    }).refine(
+      (data) => {
+        const startDate = new Date(data[startField]);
+        const endDate = new Date(data[endField]);
+        return startDate < endDate;
+      },
+      {
+        message: "End date must be after start date",
+        path: [endField],
+      }
+    );
+  },
+
+  /**
+   * Conditional required field validation
+   */
+  conditionalRequired: (field: string, conditionField: string, conditionValue: any) => {
+    return z.object({
+      [field]: z.string(),
+      [conditionField]: z.any(),
+    }).refine(
+      (data) => {
+        if (data[conditionField] === conditionValue) {
+          return data[field] && data[field].trim().length > 0;
+        }
+        return true;
+      },
+      {
+        message: "This field is required",
+        path: [field],
+      }
+    );
+  },
+};

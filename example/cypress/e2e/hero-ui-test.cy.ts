@@ -115,14 +115,14 @@ describe("HeroUI Component Testing", () => {
     // Test typing in any visible input we find
     cy.get("input").should("have.length.at.least", 1);
 
-    // Find visible inputs only
+    // Find visible inputs only and test with helpers
     cy.get("input:visible").first().should("exist");
-    cy.get("input:visible").first().type("test value");
-    cy.get("input:visible").first().should("have.value", "test value");
+    cy.fillInputByType("text", "test value");
+    cy.verifyFieldValue("text", "test value");
 
-    // Test any visible textarea we find
+    // Test any visible textarea we find using helpers
     cy.get("textarea:visible").first().should("exist");
-    cy.get("textarea:visible").first().type("test message");
+    cy.fillTextarea("test message");
     cy.get("textarea:visible").first().should("have.value", "test message");
 
     // Log what we found for analysis

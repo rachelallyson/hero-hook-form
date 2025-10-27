@@ -42,9 +42,9 @@ describe("CheckboxField", () => {
     mount(<TestForm />);
 
     cy.get("input[type=checkbox]").should("not.be.checked");
-    cy.get("input[type=checkbox]").click();
+    cy.get('input[type="checkbox"]').check();
     cy.get("input[type=checkbox]").should("be.checked");
-    cy.get("input[type=checkbox]").click();
+    cy.get('input[type="checkbox"]').uncheck();
     cy.get("input[type=checkbox]").should("not.be.checked");
   });
 
