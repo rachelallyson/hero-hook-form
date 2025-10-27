@@ -166,6 +166,35 @@ export interface CustomFieldConfig<TFieldValues extends FieldValues>
   }) => React.ReactNode;
 }
 
+// Conditional field config for dynamic rendering
+export interface ConditionalFieldConfig<TFieldValues extends FieldValues>
+  extends BaseFormFieldConfig<TFieldValues> {
+  type: "conditional";
+  condition: (formData: Partial<TFieldValues>) => boolean;
+  field: ZodFormFieldConfig<TFieldValues>;
+}
+
+// Field array config for dynamic repeating field groups
+export interface FieldArrayConfig<TFieldValues extends FieldValues>
+  extends BaseFormFieldConfig<TFieldValues> {
+  type: "fieldArray";
+  fields: ZodFormFieldConfig<TFieldValues>[];
+  min?: number;
+  max?: number;
+  addButtonText?: string;
+  removeButtonText?: string;
+}
+
+// Dynamic section config for grouped conditional fields
+export interface DynamicSectionConfig<TFieldValues extends FieldValues>
+  extends BaseFormFieldConfig<TFieldValues> {
+  type: "dynamicSection";
+  title?: string;
+  description?: string;
+  condition: (formData: Partial<TFieldValues>) => boolean;
+  fields: ZodFormFieldConfig<TFieldValues>[];
+}
+
 // Union type for all field configs
 export type FormFieldConfig<TFieldValues extends FieldValues> =
   | StringFieldConfig<TFieldValues>
@@ -175,7 +204,10 @@ export type FormFieldConfig<TFieldValues extends FieldValues> =
   | DateFieldConfig<TFieldValues>
   | FileFieldConfig<TFieldValues>
   | FontPickerFieldConfig<TFieldValues>
-  | CustomFieldConfig<TFieldValues>;
+  | CustomFieldConfig<TFieldValues>
+  | ConditionalFieldConfig<TFieldValues>
+  | FieldArrayConfig<TFieldValues>
+  | DynamicSectionConfig<TFieldValues>;
 
 // Advanced form configuration
 export interface FormConfig<TFieldValues extends FieldValues> {
@@ -201,7 +233,10 @@ export type ZodFormFieldConfig<TFieldValues extends FieldValues> =
   | Omit<DateFieldConfig<TFieldValues>, "rules">
   | Omit<FileFieldConfig<TFieldValues>, "rules">
   | Omit<FontPickerFieldConfig<TFieldValues>, "rules">
-  | Omit<CustomFieldConfig<TFieldValues>, "rules">;
+  | Omit<CustomFieldConfig<TFieldValues>, "rules">
+  | Omit<ConditionalFieldConfig<TFieldValues>, "rules">
+  | Omit<FieldArrayConfig<TFieldValues>, "rules">
+  | Omit<DynamicSectionConfig<TFieldValues>, "rules">;
 
 export interface ZodFormConfig<TFieldValues extends FieldValues>
   extends UseFormProps<TFieldValues> {
