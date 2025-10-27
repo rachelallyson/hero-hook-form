@@ -1,0 +1,488 @@
+{
+    "$schema": "https://typedoc.org/schema.json",
+    "entryPoints": [
+        "src/index.ts"
+    ],
+    "out": "docs/api",
+    "name": "Hero Hook Form API",
+    "description": "Complete API documentation for @rachelallyson/hero-hook-form",
+    "includeVersion": true,
+    "excludePrivate": true,
+    "excludeProtected": true,
+    "excludeExternals": true,
+    "excludeInternal": true,
+    "excludeNotDocumented": false,
+    "excludeNotDocumentedKinds": [
+        "Module"
+    ],
+    "externalPattern": [
+        "node_modules/**"
+    ],
+    "exclude": [
+        "src/**/*.cy.ts",
+        "src/**/*.cy.tsx",
+        "src/cypress/**/*",
+        "**/*.test.ts",
+        "**/*.test.tsx",
+        "**/*.spec.ts",
+        "**/*.spec.tsx"
+    ],
+    "readme": "docs/api/README.md",
+    "theme": "default",
+    "navigation": {
+        "includeCategories": true,
+        "includeGroups": true
+    },
+    "categorizeByGroup": true,
+    "defaultCategory": "Other",
+    "categoryOrder": [
+        "Components",
+        "Fields",
+        "Hooks",
+        "Builders",
+        "Utilities",
+        "Providers",
+        "Types",
+        "Other"
+    ],
+    "groupOrder": [
+        "Components",
+        "Fields",
+        "Hooks",
+        "Builders",
+        "Utilities",
+        "Providers",
+        "Types",
+        "Other"
+    ],
+    "sort": [
+        "source-order"
+    ],
+    "kindSortOrder": [
+        "Project",
+        "Module",
+        "Namespace",
+        "Enum",
+        "Class",
+        "Interface",
+        "Type alias",
+        "Constructor",
+        "Property",
+        "Variable",
+        "Function",
+        "Accessor",
+        "Method"
+    ],
+    "visibilityFilters": {
+        "protected": false,
+        "private": false,
+        "inherited": true,
+        "external": false
+    },
+    "searchInComments": true,
+    "cleanOutputDir": true,
+    "plugin": [
+        "typedoc-plugin-markdown"
+    ],
+    "entryDocument": "README.md",
+    "hidePageHeader": false,
+    "hideBreadcrumbs": false,
+    "hidePageTitle": false,
+    "hideInPageTOC": false,
+    "hideGenerator": false,
+    "searchIndexBundler": "esbuild",
+    "searchIndexFormat": "html",
+    "searchIndexPath": "search-index.html",
+    "searchIndexUrl": "search-index.html",
+    "searchIndexTitle": "Search",
+    "searchIndexDescription": "Search the API documentation",
+    "searchIndexKeywords": [
+        "hero",
+        "hook",
+        "form",
+        "react",
+        "typescript",
+        "validation"
+    ],
+    "searchIndexTags": [
+        "hero-hook-form",
+        "react",
+        "typescript",
+        "forms",
+        "validation"
+    ],
+    "searchIndexCategories": [
+        "Components",
+        "Fields",
+        "Hooks",
+        "Builders",
+        "Utilities",
+        "Providers",
+        "Types"
+    ],
+    "searchIndexGroups": [
+        "Components",
+        "Fields",
+        "Hooks",
+        "Builders",
+        "Utilities",
+        "Providers",
+        "Types"
+    ],
+    "searchIndexKinds": [
+        "Class",
+        "Interface",
+        "Type alias",
+        "Function",
+        "Variable",
+        "Enum"
+    ],
+    "searchIndexSources": [
+        "src/index.ts",
+        "src/components/**/*.ts",
+        "src/fields/**/*.ts",
+        "src/hooks/**/*.ts",
+        "src/builders/**/*.ts",
+        "src/utils/**/*.ts",
+        "src/providers/**/*.ts"
+    ],
+    "searchIndexModules": [
+        "src/index.ts"
+    ],
+    "searchIndexExports": [
+        "ZodForm",
+        "ConfigurableForm",
+        "FormField",
+        "FormStatus",
+        "InputField",
+        "TextareaField",
+        "SelectField",
+        "CheckboxField",
+        "SwitchField",
+        "RadioGroupField",
+        "SliderField",
+        "DateField",
+        "FileField",
+        "FontPickerField",
+        "ConditionalField",
+        "FieldArrayField",
+        "DynamicSectionField",
+        "useHeroForm",
+        "useFormHelper",
+        "useEnhancedFormState",
+        "useDebouncedValidation",
+        "useInferredForm",
+        "createAdvancedBuilder",
+        "createTypeInferredBuilder",
+        "createBasicFormBuilder",
+        "FormFieldHelpers",
+        "CommonFields",
+        "validationPatterns",
+        "applyServerErrors",
+        "crossFieldValidation",
+        "ConfigProvider",
+        "FormProvider"
+    ],
+    "searchIndexTypes": [
+        "ZodFormConfig",
+        "FormFieldConfig",
+        "FormValidationError",
+        "SubmissionState",
+        "UseFormHelperReturn",
+        "UseEnhancedFormStateReturn",
+        "UseDebouncedValidationReturn",
+        "AdvancedFormBuilder",
+        "TypeInferredBuilder",
+        "BasicFormBuilder",
+        "HeroHookFormDefaults",
+        "ThemeConfig",
+        "ValidationConfig",
+        "FormData",
+        "FieldPath",
+        "FieldType"
+    ],
+    "searchIndexFunctions": [
+        "createAdvancedBuilder",
+        "createTypeInferredBuilder",
+        "createBasicFormBuilder",
+        "applyServerErrors",
+        "crossFieldValidation",
+        "usePerformanceMonitor",
+        "useBatchedFieldUpdates",
+        "optimizeFormRender"
+    ],
+    "searchIndexVariables": [
+        "FormFieldHelpers",
+        "CommonFields",
+        "validationPatterns"
+    ],
+    "searchIndexEnums": [],
+    "searchIndexClasses": [
+        "ZodForm",
+        "ConfigurableForm",
+        "FormField",
+        "FormStatus",
+        "InputField",
+        "TextareaField",
+        "SelectField",
+        "CheckboxField",
+        "SwitchField",
+        "RadioGroupField",
+        "SliderField",
+        "DateField",
+        "FileField",
+        "FontPickerField",
+        "ConditionalField",
+        "FieldArrayField",
+        "DynamicSectionField",
+        "ConfigProvider",
+        "FormProvider"
+    ],
+    "searchIndexInterfaces": [
+        "ZodFormConfig",
+        "FormFieldConfig",
+        "FormValidationError",
+        "SubmissionState",
+        "UseFormHelperReturn",
+        "UseEnhancedFormStateReturn",
+        "UseDebouncedValidationReturn",
+        "AdvancedFormBuilder",
+        "TypeInferredBuilder",
+        "BasicFormBuilder",
+        "HeroHookFormDefaults",
+        "ThemeConfig",
+        "ValidationConfig",
+        "FormData",
+        "FieldPath",
+        "FieldType"
+    ],
+    "searchIndexTypeAliases": [
+        "FormData",
+        "FieldPath",
+        "FieldType"
+    ],
+    "searchIndexConstructors": [],
+    "searchIndexProperties": [],
+    "searchIndexMethods": [],
+    "searchIndexAccessors": [],
+    "searchIndexModules": [
+        "src/index.ts"
+    ],
+    "searchIndexNamespaces": [],
+    "searchIndexProjects": [
+        "@rachelallyson/hero-hook-form"
+    ],
+    "searchIndexPackages": [
+        "@rachelallyson/hero-hook-form"
+    ],
+    "searchIndexFiles": [
+        "src/index.ts"
+    ],
+    "searchIndexDirectories": [
+        "src"
+    ],
+    "searchIndexGitHub": {
+        "owner": "rachelallyson",
+        "repository": "hero-hook-form",
+        "branch": "main"
+    },
+    "searchIndexNPM": {
+        "package": "@rachelallyson/hero-hook-form",
+        "version": "2.0.0"
+    },
+    "searchIndexGitLab": {
+        "owner": "rachelallyson",
+        "repository": "hero-hook-form",
+        "branch": "main"
+    },
+    "searchIndexBitbucket": {
+        "owner": "rachelallyson",
+        "repository": "hero-hook-form",
+        "branch": "main"
+    },
+    "searchIndexSourceForge": {
+        "owner": "rachelallyson",
+        "repository": "hero-hook-form",
+        "branch": "main"
+    },
+    "searchIndexCodeberg": {
+        "owner": "rachelallyson",
+        "repository": "hero-hook-form",
+        "branch": "main"
+    },
+    "searchIndexGitea": {
+        "owner": "rachelallyson",
+        "repository": "hero-hook-form",
+        "branch": "main"
+    },
+    "searchIndexGitee": {
+        "owner": "rachelallyson",
+        "repository": "hero-hook-form",
+        "branch": "main"
+    },
+    "searchIndexGitHubEnterprise": {
+        "owner": "rachelallyson",
+        "repository": "hero-hook-form",
+        "branch": "main"
+    },
+    "searchIndexGitLabEnterprise": {
+        "owner": "rachelallyson",
+        "repository": "hero-hook-form",
+        "branch": "main"
+    },
+    "searchIndexBitbucketEnterprise": {
+        "owner": "rachelallyson",
+        "repository": "hero-hook-form",
+        "branch": "main"
+    },
+    "searchIndexAzureDevOps": {
+        "owner": "rachelallyson",
+        "repository": "hero-hook-form",
+        "branch": "main"
+    },
+    "searchIndexTFS": {
+        "owner": "rachelallyson",
+        "repository": "hero-hook-form",
+        "branch": "main"
+    },
+    "searchIndexVSTS": {
+        "owner": "rachelallyson",
+        "repository": "hero-hook-form",
+        "branch": "main"
+    },
+    "searchIndexTeamFoundationServer": {
+        "owner": "rachelallyson",
+        "repository": "hero-hook-form",
+        "branch": "main"
+    },
+    "searchIndexVisualStudioTeamServices": {
+        "owner": "rachelallyson",
+        "repository": "hero-hook-form",
+        "branch": "main"
+    },
+    "searchIndexAzureRepos": {
+        "owner": "rachelallyson",
+        "repository": "hero-hook-form",
+        "branch": "main"
+    },
+    "searchIndexAzureDevOpsRepos": {
+        "owner": "rachelallyson",
+        "repository": "hero-hook-form",
+        "branch": "main"
+    },
+    "searchIndexAzureDevOpsGit": {
+        "owner": "rachelallyson",
+        "repository": "hero-hook-form",
+        "branch": "main"
+    },
+    "searchIndexAzureDevOpsTFVC": {
+        "owner": "rachelallyson",
+        "repository": "hero-hook-form",
+        "branch": "main"
+    },
+    "searchIndexAzureDevOpsWorkItems": {
+        "owner": "rachelallyson",
+        "repository": "hero-hook-form",
+        "branch": "main"
+    },
+    "searchIndexAzureDevOpsBuilds": {
+        "owner": "rachelallyson",
+        "repository": "hero-hook-form",
+        "branch": "main"
+    },
+    "searchIndexAzureDevOpsReleases": {
+        "owner": "rachelallyson",
+        "repository": "hero-hook-form",
+        "branch": "main"
+    },
+    "searchIndexAzureDevOpsPipelines": {
+        "owner": "rachelallyson",
+        "repository": "hero-hook-form",
+        "branch": "main"
+    },
+    "searchIndexAzureDevOpsArtifacts": {
+        "owner": "rachelallyson",
+        "repository": "hero-hook-form",
+        "branch": "main"
+    },
+    "searchIndexAzureDevOpsTestPlans": {
+        "owner": "rachelallyson",
+        "repository": "hero-hook-form",
+        "branch": "main"
+    },
+    "searchIndexAzureDevOpsTestSuites": {
+        "owner": "rachelallyson",
+        "repository": "hero-hook-form",
+        "branch": "main"
+    },
+    "searchIndexAzureDevOpsTestCases": {
+        "owner": "rachelallyson",
+        "repository": "hero-hook-form",
+        "branch": "main"
+    },
+    "searchIndexAzureDevOpsTestRuns": {
+        "owner": "rachelallyson",
+        "repository": "hero-hook-form",
+        "branch": "main"
+    },
+    "searchIndexAzureDevOpsTestResults": {
+        "owner": "rachelallyson",
+        "repository": "hero-hook-form",
+        "branch": "main"
+    },
+    "searchIndexAzureDevOpsTestAttachments": {
+        "owner": "rachelallyson",
+        "repository": "hero-hook-form",
+        "branch": "main"
+    },
+    "searchIndexAzureDevOpsTestConfigurations": {
+        "owner": "rachelallyson",
+        "repository": "hero-hook-form",
+        "branch": "main"
+    },
+    "searchIndexAzureDevOpsTestEnvironments": {
+        "owner": "rachelallyson",
+        "repository": "hero-hook-form",
+        "branch": "main"
+    },
+    "searchIndexAzureDevOpsTestPlans": {
+        "owner": "rachelallyson",
+        "repository": "hero-hook-form",
+        "branch": "main"
+    },
+    "searchIndexAzureDevOpsTestSuites": {
+        "owner": "rachelallyson",
+        "repository": "hero-hook-form",
+        "branch": "main"
+    },
+    "searchIndexAzureDevOpsTestCases": {
+        "owner": "rachelallyson",
+        "repository": "hero-hook-form",
+        "branch": "main"
+    },
+    "searchIndexAzureDevOpsTestRuns": {
+        "owner": "rachelallyson",
+        "repository": "hero-hook-form",
+        "branch": "main"
+    },
+    "searchIndexAzureDevOpsTestResults": {
+        "owner": "rachelallyson",
+        "repository": "hero-hook-form",
+        "branch": "main"
+    },
+    "searchIndexAzureDevOpsTestAttachments": {
+        "owner": "rachelallyson",
+        "repository": "hero-hook-form",
+        "branch": "main"
+    },
+    "searchIndexAzureDevOpsTestConfigurations": {
+        "owner": "rachelallyson",
+        "repository": "hero-hook-form",
+        "branch": "main"
+    },
+    "searchIndexAzureDevOpsTestEnvironments": {
+        "owner": "rachelallyson",
+        "repository": "hero-hook-form",
+        "branch": "main"
+    }
+}

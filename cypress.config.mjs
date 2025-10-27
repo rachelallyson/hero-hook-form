@@ -8,6 +8,7 @@ export default defineConfig({
     },
     specPattern: "src/**/*.cy.{js,jsx,ts,tsx}",
     supportFile: "cypress/support/component.ts",
+    indexHtmlFile: "cypress/support/component-index.html",
   },
   e2e: {
     specPattern: "cypress/e2e/**/*.cy.{js,jsx,ts,tsx}",

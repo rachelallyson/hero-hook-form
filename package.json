@@ -1,6 +1,6 @@
 {
   "name": "@rachelallyson/hero-hook-form",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "description": "Typed form helpers that combine React Hook Form and HeroUI components.",
   "author": "Rachel Higley",
   "homepage": "https://github.com/rachelallyson/hero-hook-form#readme",
@@ -43,6 +43,10 @@
     "./react": {
       "types": "./dist/react/index.d.ts",
       "import": "./dist/react/index.js"
+    },
+    "./cypress": {
+      "types": "./dist/cypress/index.d.ts",
+      "import": "./dist/cypress/index.js"
     }
   },
   "files": [
@@ -55,7 +59,7 @@
     "node": ">=18.0.0"
   },
   "scripts": {
-    "build": "tsup src/index.ts --format esm --dts --clean && tsup src/index.ts --format esm --dts --env.NODE_ENV=production --tsconfig tsconfig.react.json --out-dir dist/react",
+    "build": "tsup src/index.ts --format esm --dts --clean && tsup src/index.ts --format esm --dts --env.NODE_ENV=production --tsconfig tsconfig.react.json --out-dir dist/react && tsup src/cypress/index.ts --format esm --dts --out-dir dist/cypress",
     "dev:build": "tsup src/index.ts --format esm --dts --watch",
     "lint": "eslint src",
     "typecheck": "tsc --noEmit",
@@ -162,5 +166,8 @@
     "@rachelallyson/heroui-font-picker": {
       "optional": true
     }
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^5.2.2"
   }
 }

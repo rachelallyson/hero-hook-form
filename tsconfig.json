@@ -46,6 +46,8 @@
     "dist",
     "example",
     "src/**/*.cy.ts",
-    "src/**/*.cy.tsx"
+    "src/**/*.cy.tsx",
+    "src/cypress/**/*.ts",
+    "src/cypress/**/*.tsx"
   ]
 }

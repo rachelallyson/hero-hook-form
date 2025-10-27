@@ -26,3 +26,38 @@ export { useFormContext, type UseFormReturn } from "react-hook-form";
 // Zod integration (optional - requires zod and @hookform/resolvers to be installed)
 export * from "./components/ZodForm.js";
 export * from "./zod-integration.js";
+
+// Form builders for easier form creation
+export * from "./builders/index.js";
+
+// Enhanced form state and hooks
+export * from "./hooks/useEnhancedFormState.js";
+export * from "./hooks/useDebouncedValidation.js";
+export * from "./hooks/useInferredForm.js";
+
+// Dynamic form components
+export * from "./fields/ConditionalField.js";
+export * from "./fields/FieldArrayField.js";
+export * from "./fields/DynamicSectionField.js";
+
+// Enhanced form components
+export * from "./components/FormStatus.js";
+
+// Performance utilities
+export * from "./utils/performance.js";
+
+// Enhanced validation patterns
+export * from "./builders/validation-helpers.js";
+export { 
+  createEmailSchema,
+  createMinLengthSchema,
+  createMaxLengthSchema,
+  createRequiredSchema,
+  createUrlSchema,
+  createPhoneSchema,
+  createPasswordSchema,
+  createNumberRangeSchema,
+  createPastDateSchema,
+  createRequiredCheckboxSchema,
+  crossFieldValidation
+} from "./utils/validation.js";
