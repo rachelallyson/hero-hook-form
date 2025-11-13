@@ -55,21 +55,6 @@ export const createPasswordSchema = (minLength = 8) =>
     );
 
 /**
- * Creates a confirm password validation schema
- */
-export const createConfirmPasswordSchema = (passwordField: string) =>
-  z.string().refine(
-    (val: string) => {
-      // This is a simplified version - in practice, you'd need access to the form context
-      // For now, we'll return true and handle validation at the form level
-      return true;
-    },
-    {
-      message: "Passwords do not match",
-    },
-  );
-
-/**
  * Creates a number validation schema with range
  */
 export const createNumberRangeSchema = (
@@ -135,35 +120,82 @@ export const createRequiredCheckboxSchema = (fieldName: string) =>
   });
 
 /**
- * Creates a conditional validation schema
+ * Cross-field validation helpers
  */
-export const createConditionalSchema = <T>(
-  condition: (data: unknown) => boolean,
-  schema: z.ZodSchema<T>,
-  errorMessage = "This field is required",
-) =>
-  z.any().refine(
-    (val: unknown) => {
-      // This is a simplified version - in practice, you'd need access to the form context
-      // For now, we'll return true and handle validation at the form level
-      return true;
-    },
-    {
-      message: errorMessage,
-    },
-  );
+export const crossFieldValidation = {
+  /**
+   * Conditional required field validation
+   */
+  conditionalRequired: (
+    field: string,
+    conditionField: string,
+    conditionValue: any,
+  ) => {
+    return z
+      .object({
+        [conditionField]: z.any(),
+        [field]: z.string(),
+      })
+      .refine(
+        (data) => {
+          if (data[conditionField] === conditionValue) {
+            return data[field] && data[field].trim().length > 0;
+          }
+
+          return true;
+        },
+        {
+          message: "This field is required",
+          path: [field],
+        },
+      );
+  },
+
+  /**
+   * Date range validation
+   */
+  dateRange: (startField: string, endField: string) => {
+    return z
+      .object({
+        [endField]: z.string(),
+        [startField]: z.string(),
+      })
+      .refine(
+        (data) => {
+          const startDate = new Date(data[startField]);
+          const endDate = new Date(data[endField]);
+
+          return startDate < endDate;
+        },
+        {
+          message: "End date must be after start date",
+          path: [endField],
+        },
+      );
+  },
+
+  /**
+   * Password confirmation validation
+   */
+  passwordConfirmation: (passwordField: string, confirmField: string) => {
+    return z
+      .object({
+        [confirmField]: z.string(),
+        [passwordField]: z.string(),
+      })
+      .refine((data) => data[passwordField] === data[confirmField], {
+        message: "Passwords do not match",
+        path: [confirmField],
+      });
+  },
+};
 
 /**
  * Common validation patterns for forms
  */
 export const commonValidations = {
-  conditional: <T>(
-    condition: (data: unknown) => boolean,
-    schema: z.ZodSchema<T>,
-    errorMessage?: string,
-  ) => createConditionalSchema(condition, schema, errorMessage),
-  confirmPassword: (passwordField: string) =>
-    createConfirmPasswordSchema(passwordField),
+  confirmPassword: (passwordField: string, confirmField: string) =>
+    crossFieldValidation.passwordConfirmation(passwordField, confirmField),
   date: (fieldName: string) => createDateSchema(fieldName),
   email: createEmailSchema(),
   file: (maxSizeInMB?: number, allowedTypes?: string[]) =>
@@ -182,66 +214,4 @@ export const commonValidations = {
   requiredCheckbox: (fieldName: string) =>
     createRequiredCheckboxSchema(fieldName),
   url: createUrlSchema(),
-};
-
-/**
- * Cross-field validation helpers
- */
-export const crossFieldValidation = {
-  /**
-   * Password confirmation validation
-   */
-  passwordConfirmation: (passwordField: string, confirmField: string) => {
-    return z.object({
-      [passwordField]: z.string(),
-      [confirmField]: z.string(),
-    }).refine(
-      (data) => data[passwordField] === data[confirmField],
-      {
-        message: "Passwords do not match",
-        path: [confirmField],
-      }
-    );
-  },
-
-  /**
-   * Date range validation
-   */
-  dateRange: (startField: string, endField: string) => {
-    return z.object({
-      [startField]: z.string(),
-      [endField]: z.string(),
-    }).refine(
-      (data) => {
-        const startDate = new Date(data[startField]);
-        const endDate = new Date(data[endField]);
-        return startDate < endDate;
-      },
-      {
-        message: "End date must be after start date",
-        path: [endField],
-      }
-    );
-  },
-
-  /**
-   * Conditional required field validation
-   */
-  conditionalRequired: (field: string, conditionField: string, conditionValue: any) => {
-    return z.object({
-      [field]: z.string(),
-      [conditionField]: z.any(),
-    }).refine(
-      (data) => {
-        if (data[conditionField] === conditionValue) {
-          return data[field] && data[field].trim().length > 0;
-        }
-        return true;
-      },
-      {
-        message: "This field is required",
-        path: [field],
-      }
-    );
-  },
 };

@@ -8,7 +8,7 @@ import type { EnhancedFormState } from "../hooks/useEnhancedFormState";
 
 import { useHeroHookFormDefaults } from "../providers/ConfigProvider";
 
-import { Button, Spinner } from "#ui";
+import { Button } from "#ui";
 
 export interface SubmitButtonProps {
   children: React.ReactNode;
@@ -35,8 +35,7 @@ export function SubmitButton(props: SubmitButtonProps) {
     if (enhancedState?.isSuccess) {
       return (
         <span className="inline-flex items-center gap-2">
-          ✅
-          {props.successText || "Success!"}
+          ✅{props.successText || "Success!"}
         </span>
       );
     }
@@ -44,8 +43,7 @@ export function SubmitButton(props: SubmitButtonProps) {
     if (loading) {
       return (
         <span className="inline-flex items-center gap-2">
-          ⏳
-          {props.loadingText || "Submitting..."}
+          ⏳{props.loadingText || "Submitting..."}
         </span>
       );
     }
@@ -60,6 +58,7 @@ export function SubmitButton(props: SubmitButtonProps) {
     if (enhancedState?.isError) {
       return "danger";
     }
+
     return props.buttonProps?.color || defaults.submitButton.color;
   };
 

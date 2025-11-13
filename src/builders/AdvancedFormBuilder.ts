@@ -13,19 +13,19 @@ function inputField<T extends FieldValues>(
     description?: string;
     isDisabled?: boolean;
     className?: string;
-  }
+  },
 ): ZodFormFieldConfig<T> | ZodFormFieldConfig<any> {
   return {
-    name,
     label,
+    name,
     type: "input",
     ...(props && {
       inputProps: {
-        type: props.type || "text",
-        placeholder: props.placeholder,
+        className: props.className,
         description: props.description,
         disabled: props.isDisabled,
-        className: props.className,
+        placeholder: props.placeholder,
+        type: props.type || "text",
       },
     }),
   };
@@ -40,18 +40,18 @@ function textareaField<T extends FieldValues>(
     isDisabled?: boolean;
     className?: string;
     rows?: number;
-  }
+  },
 ): ZodFormFieldConfig<T> | ZodFormFieldConfig<any> {
   return {
-    name,
     label,
+    name,
     type: "textarea",
     ...(props && {
       textareaProps: {
-        placeholder: props.placeholder,
+        className: props.className,
         description: props.description,
         disabled: props.isDisabled,
-        className: props.className,
+        placeholder: props.placeholder,
         rows: props.rows,
       },
     }),
@@ -62,18 +62,12 @@ function selectField<T extends FieldValues>(
   name: Path<T>,
   label: string,
   options: { label: string; value: string | number }[],
-  props?: {
-    placeholder?: string;
-    description?: string;
-    isDisabled?: boolean;
-    className?: string;
-  }
 ): ZodFormFieldConfig<T> {
   return {
-    name,
     label,
-    type: "select",
+    name,
     options,
+    type: "select",
   };
 }
 
@@ -84,16 +78,16 @@ function checkboxField<T extends FieldValues>(
     description?: string;
     isDisabled?: boolean;
     className?: string;
-  }
+  },
 ): ZodFormFieldConfig<T> {
   return {
-    name,
     label,
+    name,
     type: "checkbox",
     ...(props && {
       checkboxProps: {
-        disabled: props.isDisabled,
         className: props.className,
+        disabled: props.isDisabled,
       },
     }),
   };
@@ -106,16 +100,16 @@ function switchField<T extends FieldValues>(
     description?: string;
     isDisabled?: boolean;
     className?: string;
-  }
+  },
 ): ZodFormFieldConfig<T> {
   return {
-    name,
     label,
+    name,
     type: "switch",
     ...(props && {
       switchProps: {
-        disabled: props.isDisabled,
         className: props.className,
+        disabled: props.isDisabled,
       },
     }),
   };
@@ -130,17 +124,17 @@ function radioField<T extends FieldValues>(
     isDisabled?: boolean;
     className?: string;
     orientation?: "horizontal" | "vertical";
-  }
+  },
 ): ZodFormFieldConfig<T> | ZodFormFieldConfig<any> {
   return {
-    name,
     label,
-    type: "radio",
+    name,
     radioOptions: options,
+    type: "radio",
     ...(props && {
       radioProps: {
-        isDisabled: props.isDisabled,
         className: props.className,
+        isDisabled: props.isDisabled,
         orientation: props.orientation,
       },
     }),
@@ -157,19 +151,19 @@ function sliderField<T extends FieldValues>(
     description?: string;
     isDisabled?: boolean;
     className?: string;
-  }
+  },
 ): ZodFormFieldConfig<T> {
   return {
-    name,
     label,
+    name,
     type: "slider",
     ...(props && {
       sliderProps: {
-        min: props.min || 0,
-        max: props.max || 100,
-        step: props.step || 1,
-        disabled: props.isDisabled || false,
         className: props.className || "",
+        disabled: props.isDisabled || false,
+        max: props.max || 100,
+        min: props.min || 0,
+        step: props.step || 1,
       },
     }),
   };
@@ -183,17 +177,17 @@ function dateField<T extends FieldValues>(
     description?: string;
     isDisabled?: boolean;
     className?: string;
-  }
+  },
 ): ZodFormFieldConfig<T> {
   return {
-    name,
     label,
+    name,
     type: "date",
     ...(props && {
       dateProps: {
-        placeholder: props.placeholder || "",
-        disabled: props.isDisabled || false,
         className: props.className || "",
+        disabled: props.isDisabled || false,
+        placeholder: props.placeholder || "",
       },
     }),
   };
@@ -208,18 +202,18 @@ function fileField<T extends FieldValues>(
     description?: string;
     isDisabled?: boolean;
     className?: string;
-  }
+  },
 ): ZodFormFieldConfig<T> {
   return {
-    name,
     label,
+    name,
     type: "file",
     ...(props && {
       fileProps: {
         accept: props.accept || "",
-        multiple: props.multiple || false,
-        disabled: props.isDisabled || false,
         className: props.className || "",
+        disabled: props.isDisabled || false,
+        multiple: props.multiple || false,
       },
     }),
   };
@@ -232,16 +226,16 @@ function fontPickerField<T extends FieldValues>(
     description?: string;
     isDisabled?: boolean;
     className?: string;
-  }
+  },
 ): ZodFormFieldConfig<T> {
   return {
-    name,
     label,
+    name,
     type: "fontPicker",
     ...(props && {
       fontPickerProps: {
-        disabled: props.isDisabled || false,
         className: props.className || "",
+        disabled: props.isDisabled || false,
       },
     }),
   };
@@ -256,39 +250,39 @@ export function createField<T extends FieldValues>(
   name: Path<T>,
   label: string,
   optionsOrProps?: any,
-  props?: any
+  props?: any,
 ): ZodFormFieldConfig<T> {
   switch (type) {
     case "input":
       return inputField(name, label, optionsOrProps);
-    
+
     case "textarea":
       return textareaField(name, label, optionsOrProps);
-    
+
     case "select":
-      return selectField(name, label, optionsOrProps, props);
-    
+      return selectField(name, label, optionsOrProps);
+
     case "checkbox":
       return checkboxField(name, label, optionsOrProps);
-    
+
     case "switch":
       return switchField(name, label, optionsOrProps);
-    
+
     case "radio":
       return radioField(name, label, optionsOrProps, props);
-    
+
     case "slider":
       return sliderField(name, label, optionsOrProps);
-    
+
     case "date":
       return dateField(name, label, optionsOrProps);
-    
+
     case "file":
       return fileField(name, label, optionsOrProps);
-    
+
     case "fontPicker":
       return fontPickerField(name, label, optionsOrProps);
-    
+
     default:
       throw new Error(`Unknown field type: ${type}`);
   }
@@ -307,66 +301,67 @@ export class AdvancedFieldBuilder<T extends FieldValues> {
     type: "input",
     name: Path<T>,
     label: string,
-    props?: Parameters<typeof createField<T>>[3]
+    props?: Parameters<typeof createField<T>>[3],
   ): this;
   field(
     type: "textarea",
     name: Path<T>,
     label: string,
-    props?: Parameters<typeof createField<T>>[3]
+    props?: Parameters<typeof createField<T>>[3],
   ): this;
   field(
     type: "select",
     name: Path<T>,
     label: string,
     options: { label: string; value: string | number }[],
-    props?: Parameters<typeof createField<T>>[4]
+    props?: Parameters<typeof createField<T>>[4],
   ): this;
   field(
     type: "checkbox",
     name: Path<T>,
     label: string,
-    props?: Parameters<typeof createField<T>>[3]
+    props?: Parameters<typeof createField<T>>[3],
   ): this;
   field(
     type: "switch",
     name: Path<T>,
     label: string,
-    props?: Parameters<typeof createField<T>>[3]
+    props?: Parameters<typeof createField<T>>[3],
   ): this;
   field(
     type: "radio",
     name: Path<T>,
     label: string,
     options: { label: string; value: string | number }[],
-    props?: Parameters<typeof createField<T>>[4]
+    props?: Parameters<typeof createField<T>>[4],
   ): this;
   field(
     type: "slider",
     name: Path<T>,
     label: string,
-    props?: Parameters<typeof createField<T>>[3]
+    props?: Parameters<typeof createField<T>>[3],
   ): this;
   field(
     type: "date",
     name: Path<T>,
     label: string,
-    props?: Parameters<typeof createField<T>>[3]
+    props?: Parameters<typeof createField<T>>[3],
   ): this;
   field(
     type: "file",
     name: Path<T>,
     label: string,
-    props?: Parameters<typeof createField<T>>[3]
+    props?: Parameters<typeof createField<T>>[3],
   ): this;
   field(
     type: string,
     name: Path<T>,
     label: string,
     optionsOrProps?: any,
-    props?: any
+    props?: any,
   ): this {
     this.fields.push(createField(type, name, label, optionsOrProps, props));
+
     return this;
   }
 
@@ -376,14 +371,15 @@ export class AdvancedFieldBuilder<T extends FieldValues> {
   conditionalField(
     name: Path<T>,
     condition: (formData: Partial<T>) => boolean,
-    field: ZodFormFieldConfig<T>
+    field: ZodFormFieldConfig<T>,
   ): this {
     this.fields.push({
-      name,
-      type: "conditional",
       condition,
       field,
+      name,
+      type: "conditional",
     } as ZodFormFieldConfig<T>);
+
     return this;
   }
 
@@ -399,18 +395,19 @@ export class AdvancedFieldBuilder<T extends FieldValues> {
       max?: number;
       addButtonText?: string;
       removeButtonText?: string;
-    }
+    },
   ): this {
     this.fields.push({
-      name,
-      label,
-      type: "fieldArray",
-      fields,
-      min: options?.min,
-      max: options?.max,
       addButtonText: options?.addButtonText,
+      fields,
+      label,
+      max: options?.max,
+      min: options?.min,
+      name,
       removeButtonText: options?.removeButtonText,
+      type: "fieldArray",
     } as ZodFormFieldConfig<T>);
+
     return this;
   }
 
@@ -424,16 +421,17 @@ export class AdvancedFieldBuilder<T extends FieldValues> {
     options?: {
       title?: string;
       description?: string;
-    }
+    },
   ): this {
     this.fields.push({
-      name,
-      type: "dynamicSection",
       condition,
-      fields,
-      title: options?.title,
       description: options?.description,
+      fields,
+      name,
+      title: options?.title,
+      type: "dynamicSection",
     } as ZodFormFieldConfig<T>);
+
     return this;
   }
 
@@ -458,72 +456,73 @@ export class FieldArrayItemBuilder<TItem extends FieldValues> {
     type: "input",
     name: Path<TItem>,
     label: string,
-    props?: Parameters<typeof createField<TItem>>[3]
+    props?: Parameters<typeof createField<TItem>>[3],
   ): this;
   field(
     type: "textarea",
     name: Path<TItem>,
     label: string,
-    props?: Parameters<typeof createField<TItem>>[3]
+    props?: Parameters<typeof createField<TItem>>[3],
   ): this;
   field(
     type: "select",
     name: Path<TItem>,
     label: string,
     options: { label: string; value: string | number }[],
-    props?: Parameters<typeof createField<TItem>>[4]
+    props?: Parameters<typeof createField<TItem>>[4],
   ): this;
   field(
     type: "checkbox",
     name: Path<TItem>,
     label: string,
-    props?: Parameters<typeof createField<TItem>>[3]
+    props?: Parameters<typeof createField<TItem>>[3],
   ): this;
   field(
     type: "switch",
     name: Path<TItem>,
     label: string,
-    props?: Parameters<typeof createField<TItem>>[3]
+    props?: Parameters<typeof createField<TItem>>[3],
   ): this;
   field(
     type: "radio",
     name: Path<TItem>,
     label: string,
     options: { label: string; value: string | number }[],
-    props?: Parameters<typeof createField<TItem>>[4]
+    props?: Parameters<typeof createField<TItem>>[4],
   ): this;
   field(
     type: "slider",
     name: Path<TItem>,
     label: string,
-    props?: Parameters<typeof createField<TItem>>[3]
+    props?: Parameters<typeof createField<TItem>>[3],
   ): this;
   field(
     type: "date",
     name: Path<TItem>,
     label: string,
-    props?: Parameters<typeof createField<TItem>>[3]
+    props?: Parameters<typeof createField<TItem>>[3],
   ): this;
   field(
     type: "file",
     name: Path<TItem>,
     label: string,
-    props?: Parameters<typeof createField<TItem>>[3]
+    props?: Parameters<typeof createField<TItem>>[3],
   ): this;
   field(
     type: "fontPicker",
     name: Path<TItem>,
     label: string,
-    props?: Parameters<typeof createField<TItem>>[3]
+    props?: Parameters<typeof createField<TItem>>[3],
   ): this;
   field(
     type: string,
     name: Path<TItem>,
     label: string,
     optionsOrProps?: any,
-    props?: any
+    props?: any,
   ): this {
     this.fields.push(createField(type, name, label, optionsOrProps, props));
+
     return this;
   }
 
@@ -538,25 +537,44 @@ export class FieldArrayItemBuilder<TItem extends FieldValues> {
 /**
  * Create a field array item builder for strongly-typed array fields
  */
-export function createFieldArrayItemBuilder<TItem extends FieldValues>(): FieldArrayItemBuilder<TItem> {
+export function createFieldArrayItemBuilder<
+  TItem extends FieldValues,
+>(): FieldArrayItemBuilder<TItem> {
   return new FieldArrayItemBuilder<TItem>();
 }
 
 /**
  * Field Array Builder for constructing field arrays with proper paths
  */
-export class FieldArrayBuilder<T extends FieldValues, TArrayName extends Path<T>> {
+export class FieldArrayBuilder<
+  T extends FieldValues,
+  TArrayName extends Path<T>,
+> {
   private fields: ZodFormFieldConfig<any>[] = [];
-  
+
   constructor(private arrayName: TArrayName) {}
-  
-  field(type: string, name: string, label: string, optionsOrProps?: any, props?: any): this {
+
+  field(
+    type: string,
+    name: string,
+    label: string,
+    optionsOrProps?: any,
+    props?: any,
+  ): this {
     const fullPath = `${this.arrayName}.${name}` as Path<T>;
-    const fieldConfig = createField(type, fullPath, label, optionsOrProps, props);
+    const fieldConfig = createField(
+      type,
+      fullPath,
+      label,
+      optionsOrProps,
+      props,
+    );
+
     this.fields.push(fieldConfig as ZodFormFieldConfig<any>);
+
     return this;
   }
-  
+
   build(): ZodFormFieldConfig<any>[] {
     return this.fields;
   }
@@ -565,17 +583,18 @@ export class FieldArrayBuilder<T extends FieldValues, TArrayName extends Path<T>
 /**
  * Create a field array builder that constructs proper paths for array items
  */
-export function createFieldArrayBuilder<T extends FieldValues, TArrayName extends Path<T>>(
-  arrayName: TArrayName
-): FieldArrayBuilder<T, TArrayName> {
+export function createFieldArrayBuilder<
+  T extends FieldValues,
+  TArrayName extends Path<T>,
+>(arrayName: TArrayName): FieldArrayBuilder<T, TArrayName> {
   return new FieldArrayBuilder<T, TArrayName>(arrayName);
 }
 
 /**
  * Create a new advanced field builder
  */
-export function createAdvancedBuilder<T extends FieldValues>(): AdvancedFieldBuilder<T> {
+export function createAdvancedBuilder<
+  T extends FieldValues,
+>(): AdvancedFieldBuilder<T> {
   return new AdvancedFieldBuilder<T>();
 }
-
-

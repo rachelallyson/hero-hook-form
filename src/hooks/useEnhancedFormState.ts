@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import type { FieldErrors, FieldValues, Path, UseFormReturn } from "react-hook-form";
+import type { FieldValues, Path, UseFormReturn } from "react-hook-form";
 
 export interface EnhancedFormState<T extends FieldValues> {
   status: "idle" | "submitting" | "success" | "error";
@@ -30,23 +30,28 @@ export interface UseEnhancedFormStateOptions<T extends FieldValues> {
 
 export function useEnhancedFormState<T extends FieldValues>(
   form: UseFormReturn<T>,
-  options: UseEnhancedFormStateOptions<T> = {}
+  options: UseEnhancedFormStateOptions<T> = {},
 ): EnhancedFormState<T> {
   const {
-    onSuccess,
-    onError,
-    successMessage = "Form submitted successfully!",
-    errorMessage = "An error occurred. Please try again.",
     autoReset = true,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    errorMessage: _errorMessage = "An error occurred. Please try again.",
+    onError,
+    onSuccess,
     resetDelay = 3000,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    successMessage: _successMessage = "Form submitted successfully!",
   } = options;
 
-  const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [status, setStatus] = useState<
+    "idle" | "submitting" | "success" | "error"
+  >("idle");
   const [error, setError] = useState<string | undefined>(undefined);
   const [submittedData, setSubmittedData] = useState<T | undefined>(undefined);
 
-  const { formState, getValues } = form;
-  const { errors, touchedFields, dirtyFields, isSubmitting } = formState;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { formState, getValues: _getValues } = form;
+  const { dirtyFields, errors, isSubmitting, touchedFields } = formState;
 
   // Update submission state
   useEffect(() => {
@@ -68,19 +73,25 @@ export function useEnhancedFormState<T extends FieldValues>(
     }
   }, [status, autoReset, resetDelay]);
 
-  const handleSuccess = useCallback((data: T) => {
-    setStatus("success");
-    setSubmittedData(data);
-    setError(undefined);
-    onSuccess?.(data);
-  }, [onSuccess]);
+  const handleSuccess = useCallback(
+    (data: T) => {
+      setStatus("success");
+      setSubmittedData(data);
+      setError(undefined);
+      onSuccess?.(data);
+    },
+    [onSuccess],
+  );
 
-  const handleError = useCallback((errorMessage: string) => {
-    setStatus("error");
-    setError(errorMessage);
-    setSubmittedData(undefined);
-    onError?.(errorMessage);
-  }, [onError]);
+  const handleError = useCallback(
+    (errorMessage: string) => {
+      setStatus("error");
+      setError(errorMessage);
+      setSubmittedData(undefined);
+      onError?.(errorMessage);
+    },
+    [onError],
+  );
 
   const reset = useCallback(() => {
     setStatus("idle");
@@ -89,18 +100,18 @@ export function useEnhancedFormState<T extends FieldValues>(
   }, []);
 
   return {
-    status,
+    dirtyFields: new Set(Object.keys(dirtyFields)) as Set<Path<T>>,
+    error,
+    errorCount: Object.keys(errors).length,
+    handleError,
+    handleSuccess,
+    hasErrors: Object.keys(errors).length > 0,
+    isError: status === "error",
     isSubmitting,
     isSuccess: status === "success",
-    isError: status === "error",
-    error,
+    reset,
+    status,
     submittedData,
     touchedFields: new Set(Object.keys(touchedFields)) as Set<Path<T>>,
-    dirtyFields: new Set(Object.keys(dirtyFields)) as Set<Path<T>>,
-    hasErrors: Object.keys(errors).length > 0,
-    errorCount: Object.keys(errors).length,
-    handleSuccess,
-    handleError,
-    reset,
   };
 }

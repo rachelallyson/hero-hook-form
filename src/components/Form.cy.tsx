@@ -134,9 +134,9 @@ describe("ConfigurableForm", () => {
       .find("textarea")
       .type("Test message");
 
-    // Select country - skip for now since select field doesn't have options in test config
-    // cy.contains("label", "Country").parent().find("button").click();
-    // cy.contains("United States").click();
+    // Select country
+    cy.contains("label", "Country").parent().find("button").click();
+    cy.get("[role=option]").contains("United States").click();
 
     // Check terms
     cy.contains("label", "I agree to the terms")

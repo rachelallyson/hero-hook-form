@@ -1,0 +1,714 @@
+---
+title: Examples
+description: Practical copy-paste snippets for common tasks.
+---
+
+### Input + Select
+
+```tsx
+import { ZodForm, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
+import { z } from "zod";
+
+const schema = z.object({
+  name: z.string().min(2),
+  country: z.string().min(1),
+});
+
+export default function Example() {
+  return (
+    <ZodForm
+      config={{
+        schema,
+        fields: [
+          FormFieldHelpers.input("name", "Name"),
+          FormFieldHelpers.select("country", "Country", [
+            { label: "US", value: "US" },
+            { label: "CA", value: "CA" },
+          ]),
+        ],
+      }}
+      onSubmit={(d) => console.log(d)}
+    />
+  );
+}
+```
+
+### Radio group
+
+```tsx
+FormFieldHelpers.radio("plan", "Plan", [
+  { label: "Free", value: "free" },
+  { label: "Pro", value: "pro" },
+]);
+```
+
+### Checkbox + Conditional input
+
+```tsx
+FormFieldHelpers.checkbox("enable", "Enable");
+{
+  type: "conditional",
+  name: "email-cond",
+  condition: (v) => v.enable === true,
+  field: FormFieldHelpers.input("email", "Email"),
+}
+```
+
+### File input
+
+```tsx
+{ type: "file", name: "avatar", label: "Avatar", multiple: false, accept: "image/*" }
+```
+
+### Date input
+
+```tsx
+{ type: "date", name: "dob", label: "Date of Birth" }
+```
+
+### Slider
+
+```tsx
+{ type: "slider", name: "volume", label: "Volume", defaultValue: 50 }
+```
+
+### Switch
+
+```tsx
+{ type: "switch", name: "enabled", label: "Enabled", defaultValue: true }
+```
+
+### Font picker (optional)
+
+```tsx
+{ type: "fontPicker", name: "font", label: "Font" }
+```
+# Recipe Examples
+
+Copy-paste examples for common form patterns and use cases.
+
+## Basic Contact Form
+
+### Input → Output
+
+**Context**: Simple contact form with validation
+
+**Code**:
+```tsx
+import { ZodForm, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
+import { z } from "zod";
+
+const schema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Please enter a valid email"),
+  message: z.string().min(10, "Message must be at least 10 characters"),
+});
+
+export function ContactForm() {
+  const handleSubmit = async (data) => {
+    console.log("Form submitted:", data);
+    // Handle form submission
+  };
+
+  return (
+    <ZodForm
+      config={{
+        schema,
+        fields: [
+          FormFieldHelpers.input("name", "Name"),
+          FormFieldHelpers.input("email", "Email", "email"),
+          FormFieldHelpers.textarea("message", "Message"),
+        ],
+      }}
+      onSubmit={handleSubmit}
+      title="Contact Us"
+      subtitle="Send us a message and we'll get back to you"
+    />
+  );
+}
+```
+
+**Expected Result**: A contact form with name, email, and message fields with validation.
+
+## User Registration Form
+
+### Input → Output
+
+**Context**: User registration with password confirmation
+
+**Code**:
+```tsx
+import { ZodForm, FormFieldHelpers, createPasswordSchema } from "@rachelallyson/hero-hook-form";
+import { z } from "zod";
+
+const schema = z.object({
+  firstName: z.string().min(2, "First name must be at least 2 characters"),
+  lastName: z.string().min(2, "Last name must be at least 2 characters"),
+  email: z.string().email("Please enter a valid email"),
+  password: createPasswordSchema({
+    minLength: 8,
+    requireUppercase: true,
+    requireNumbers: true,
+  }),
+  confirmPassword: z.string(),
+  terms: z.boolean().refine(val => val === true, "You must agree to the terms"),
+}).refine(data => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+
+export function RegistrationForm() {
+  const handleSubmit = async (data) => {
+    console.log("User registered:", data);
+    // Handle registration
+  };
+
+  return (
+    <ZodForm
+      config={{
+        schema,
+        fields: [
+          FormFieldHelpers.input("firstName", "First Name"),
+          FormFieldHelpers.input("lastName", "Last Name"),
+          FormFieldHelpers.input("email", "Email", "email"),
+          FormFieldHelpers.input("password", "Password", "password"),
+          FormFieldHelpers.input("confirmPassword", "Confirm Password", "password"),
+          FormFieldHelpers.checkbox("terms", "I agree to the terms and conditions"),
+        ],
+      }}
+      onSubmit={handleSubmit}
+      title="Create Account"
+      subtitle="Join our community today"
+    />
+  );
+}
+```
+
+**Expected Result**: A registration form with password validation and terms agreement.
+
+## Dynamic Address Form
+
+### Input → Output
+
+**Context**: Form with dynamic address fields
+
+**Code**:
+```tsx
+import { ZodForm, FieldArrayField, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
+import { z } from "zod";
+
+const addressSchema = z.object({
+  street: z.string().min(1, "Street is required"),
+  city: z.string().min(1, "City is required"),
+  state: z.string().min(1, "State is required"),
+  zipCode: z.string().min(5, "ZIP code must be at least 5 characters"),
+});
+
+const schema = z.object({
+  name: z.string().min(2, "Name is required"),
+  addresses: z.array(addressSchema).min(1, "At least one address is required"),
+});
+
+export function AddressForm() {
+  const handleSubmit = async (data) => {
+    console.log("Addresses submitted:", data);
+    // Handle form submission
+  };
+
+  return (
+    <ZodForm
+      config={{
+        schema,
+        fields: [
+          FormFieldHelpers.input("name", "Name"),
+          FieldArrayField({
+            name: "addresses",
+            fields: [
+              FormFieldHelpers.input("street", "Street Address"),
+              FormFieldHelpers.input("city", "City"),
+              FormFieldHelpers.input("state", "State"),
+              FormFieldHelpers.input("zipCode", "ZIP Code"),
+            ],
+            addButtonText: "Add Address",
+            removeButtonText: "Remove Address",
+            min: 1,
+            max: 5,
+          }),
+        ],
+      }}
+      onSubmit={handleSubmit}
+      title="Address Information"
+      subtitle="Add your addresses"
+    />
+  );
+}
+```
+
+**Expected Result**: A form with dynamic address fields that can be added/removed.
+
+## Conditional Survey Form
+
+### Input → Output
+
+**Context**: Survey form with conditional questions
+
+**Code**:
+```tsx
+import { ZodForm, ConditionalField, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
+import { z } from "zod";
+
+const schema = z.object({
+  age: z.number().min(18, "You must be at least 18 years old"),
+  hasExperience: z.boolean(),
+  experience: z.string().optional(),
+  isStudent: z.boolean(),
+  schoolName: z.string().optional(),
+  interests: z.array(z.string()).min(1, "Select at least one interest"),
+});
+
+export function SurveyForm() {
+  const handleSubmit = async (data) => {
+    console.log("Survey submitted:", data);
+    // Handle form submission
+  };
+
+  return (
+    <ZodForm
+      config={{
+        schema,
+        fields: [
+          FormFieldHelpers.input("age", "Age", "number"),
+          FormFieldHelpers.checkbox("hasExperience", "Do you have experience in this field?"),
+          ConditionalField({
+            name: "experience",
+            label: "Please describe your experience",
+            type: "textarea",
+            condition: (values) => values.hasExperience === true,
+          }),
+          FormFieldHelpers.checkbox("isStudent", "Are you currently a student?"),
+          ConditionalField({
+            name: "schoolName",
+            label: "School Name",
+            type: "input",
+            condition: (values) => values.isStudent === true,
+                }),
+          FormFieldHelpers.select("interests", "Interests", [
+            { label: "Select interests", value: "" },
+            { label: "Technology", value: "technology" },
+            { label: "Design", value: "design" },
+            { label: "Business", value: "business" },
+          ]),
+        ],
+      }}
+      onSubmit={handleSubmit}
+      title="Survey"
+      subtitle="Help us understand your background"
+    />
+  );
+}
+```
+
+**Expected Result**: A survey form with conditional questions that appear based on user responses.
+
+## Product Configuration Form
+
+### Input → Output
+
+**Context**: Product configuration with multiple field types
+
+**Code**:
+```tsx
+import { ZodForm, FormFieldHelpers, DynamicSectionField } from "@rachelallyson/hero-hook-form";
+import { z } from "zod";
+
+const schema = z.object({
+  productName: z.string().min(1, "Product name is required"),
+  category: z.string().min(1, "Category is required"),
+  price: z.number().min(0, "Price must be positive"),
+  isDigital: z.boolean(),
+  file: z.any().optional(),
+    description: z.string().min(10, "Description must be at least 10 characters"),
+  tags: z.array(z.string()).min(1, "At least one tag is required"),
+  isActive: z.boolean(),
+  startDate: z.date().optional(),
+  endDate: z.date().optional(),
+});
+
+export function ProductConfigForm() {
+  const handleSubmit = async (data) => {
+    console.log("Product configured:", data);
+    // Handle form submission
+  };
+
+  return (
+    <ZodForm
+      config={{
+        schema,
+        fields: [
+          FormFieldHelpers.input("productName", "Product Name"),
+          FormFieldHelpers.select("category", "Category", [
+            { label: "Select category", value: "" },
+            { label: "Electronics", value: "electronics" },
+            { label: "Clothing", value: "clothing" },
+            { label: "Books", value: "books" },
+          ]),
+          FormFieldHelpers.input("price", "Price", "number"),
+          FormFieldHelpers.switch("isDigital", "Digital Product"),
+          DynamicSectionField({
+            name: "digitalSection",
+            title: "Digital Product Settings",
+            condition: (values) => values.isDigital === true,
+            fields: [
+              FormFieldHelpers.file("file", "Upload File", {
+                accept: ".pdf,.doc,.docx",
+                multiple: false,
+              }),
+            ],
+          }),
+          FormFieldHelpers.textarea("description", "Description"),
+          FormFieldHelpers.select("tags", "Tags", [
+            { label: "Select tags", value: "" },
+            { label: "New", value: "new" },
+            { label: "Popular", value: "popular" },
+            { label: "Sale", value: "sale" },
+          ]),
+          FormFieldHelpers.switch("isActive", "Active"),
+          DynamicSectionField({
+            name: "scheduleSection",
+            title: "Schedule Settings",
+            condition: (values) => values.isActive === true,
+            fields: [
+              FormFieldHelpers.date("startDate", "Start Date"),
+              FormFieldHelpers.date("endDate", "End Date"),
+            ],
+          }),
+        ],
+      }}
+      onSubmit={handleSubmit}
+      title="Product Configuration"
+      subtitle="Configure your product settings"
+      layout="grid"
+      columns={2}
+    />
+  );
+}
+```
+
+**Expected Result**: A comprehensive product configuration form with conditional sections.
+
+## Settings Form with Validation
+
+### Input → Output
+
+**Context**: User settings form with complex validation
+
+**Code**:
+```tsx
+import { ZodForm, FormFieldHelpers, createEmailSchema, createPhoneSchema } from "@rachelallyson/hero-hook-form";
+import { z } from "zod";
+
+const schema = z.object({
+  // Personal Information
+  firstName: z.string().min(2, "First name must be at least 2 characters"),
+  lastName: z.string().min(2, "Last name must be at least 2 characters"),
+  email: createEmailSchema("Email address"),
+  phone: createPhoneSchema("Phone number").optional(),
+  
+  // Preferences
+  theme: z.enum(["light", "dark", "system"], {
+    required_error: "Please select a theme",
+  }),
+  language: z.string().min(1, "Language is required"),
+  timezone: z.string().min(1, "Timezone is required"),
+  
+  // Notifications
+  emailNotifications: z.boolean(),
+  pushNotifications: z.boolean(),
+  smsNotifications: z.boolean(),
+  
+  // Privacy
+  profileVisibility: z.enum(["public", "private", "friends"]),
+  dataSharing: z.boolean(),
+  
+  // Security
+  twoFactorAuth: z.boolean(),
+  sessionTimeout: z.number().min(5).max(480), // 5 minutes to 8 hours
+});
+
+export function SettingsForm() {
+  const handleSubmit = async (data) => {
+    console.log("Settings updated:", data);
+    // Handle form submission
+  };
+
+  return (
+    <ZodForm
+      config={{
+        schema,
+        fields: [
+          // Personal Information Section
+          FormFieldHelpers.input("firstName", "First Name"),
+          FormFieldHelpers.input("lastName", "Last Name"),
+          FormFieldHelpers.input("email", "Email", "email"),
+          FormFieldHelpers.input("phone", "Phone", "tel"),
+          
+          // Preferences Section
+          FormFieldHelpers.select("theme", "Theme", [
+            { label: "Light", value: "light" },
+            { label: "Dark", value: "dark" },
+            { label: "System", value: "system" },
+          ]),
+          FormFieldHelpers.select("language", "Language", [
+            { label: "English", value: "en" },
+            { label: "Spanish", value: "es" },
+            { label: "French", value: "fr" },
+          ]),
+          FormFieldHelpers.select("timezone", "Timezone", [
+            { label: "UTC-8 (PST)", value: "UTC-8" },
+            { label: "UTC-5 (EST)", value: "UTC-5" },
+            { label: "UTC+0 (GMT)", value: "UTC+0" },
+          ]),
+          
+          // Notifications Section
+          FormFieldHelpers.checkbox("emailNotifications", "Email Notifications"),
+          FormFieldHelpers.checkbox("pushNotifications", "Push Notifications"),
+          FormFieldHelpers.checkbox("smsNotifications", "SMS Notifications"),
+          
+          // Privacy Section
+          FormFieldHelpers.select("profileVisibility", "Profile Visibility", [
+            { label: "Public", value: "public" },
+            { label: "Private", value: "private" },
+            { label: "Friends Only", value: "friends" },
+          ]),
+          FormFieldHelpers.checkbox("dataSharing", "Allow data sharing for analytics"),
+          
+          // Security Section
+          FormFieldHelpers.checkbox("twoFactorAuth", "Enable Two-Factor Authentication"),
+          FormFieldHelpers.slider("sessionTimeout", "Session Timeout (minutes)", {
+            min: 5,
+            max: 480,
+            step: 5,
+          }),
+        ],
+      }}
+      onSubmit={handleSubmit}
+      title="Account Settings"
+      subtitle="Manage your account preferences"
+      layout="grid"
+      columns={2}
+      showResetButton={true}
+      resetButtonText="Reset to Defaults"
+    />
+  );
+}
+```
+
+**Expected Result**: A comprehensive settings form with multiple sections and complex validation.
+
+## Multi-Step Wizard Form
+
+### Input → Output
+
+**Context**: Multi-step form wizard for complex data collection
+
+**Code**:
+```tsx
+import { useState } from "react";
+import { ZodForm, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
+import { z } from "zod";
+
+const step1Schema = z.object({
+  firstName: z.string().min(2, "First name is required"),
+  lastName: z.string().min(2, "Last name is required"),
+  email: z.string().email("Valid email is required"),
+});
+
+const step2Schema = z.object({
+  company: z.string().min(1, "Company is required"),
+  position: z.string().min(1, "Position is required"),
+  experience: z.number().min(0, "Experience must be positive"),
+});
+
+const step3Schema = z.object({
+  interests: z.array(z.string()).min(1, "Select at least one interest"),
+  goals: z.string().min(10, "Goals must be at least 10 characters"),
+  newsletter: z.boolean(),
+});
+
+const steps = [
+  {
+    title: "Personal Information",
+    schema: step1Schema,
+    fields: [
+      FormFieldHelpers.input("firstName", "First Name"),
+      FormFieldHelpers.input("lastName", "Last Name"),
+      FormFieldHelpers.input("email", "Email", "email"),
+    ],
+  },
+  {
+    title: "Professional Information",
+    schema: step2Schema,
+    fields: [
+      FormFieldHelpers.input("company", "Company"),
+      FormFieldHelpers.input("position", "Position"),
+      FormFieldHelpers.input("experience", "Years of Experience", "number"),
+    ],
+  },
+  {
+    title: "Preferences",
+    schema: step3Schema,
+    fields: [
+      FormFieldHelpers.select("interests", "Interests", [
+        { label: "Select interests", value: "" },
+        { label: "Technology", value: "technology" },
+        { label: "Design", value: "design" },
+        { label: "Business", value: "business" },
+      ]),
+      FormFieldHelpers.textarea("goals", "Career Goals"),
+      FormFieldHelpers.checkbox("newsletter", "Subscribe to newsletter"),
+    ],
+  },
+];
+
+export function WizardForm() {
+  const [currentStep, setCurrentStep] = useState(0);
+  const [formData, setFormData] = useState({});
+
+  const handleStepSubmit = async (data) => {
+    const newFormData = { ...formData, ...data };
+    setFormData(newFormData);
+    
+    if (currentStep < steps.length - 1) {
+      setCurrentStep(currentStep + 1);
+    } else {
+      console.log("Wizard completed:", newFormData);
+      // Handle final submission
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const currentStepData = steps[currentStep];
+
+  return (
+    <div className="max-w-2xl mx-auto">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-2">Registration Wizard</h1>
+        <p className="text-gray-600">
+          Step {currentStep + 1} of {steps.length}: {currentStepData.title}
+        </p>
+        <div className="w-full bg-gray-200 rounded-full h-2 mt-4">
+          <div
+            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+            style={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
+          />
+        </div>
+      </div>
+
+    <ZodForm
+        key={currentStep} // Force re-render on step change
+      config={{
+          schema: currentStepData.schema,
+          fields: currentStepData.fields,
+          defaultValues: formData,
+        }}
+        onSubmit={handleStepSubmit}
+        title={currentStepData.title}
+        submitButtonText={currentStep === steps.length - 1 ? "Complete" : "Next"}
+        showResetButton={false}
+      />
+
+      {currentStep > 0 && (
+        <button
+          type="button"
+          onClick={handlePrevious}
+          className="mt-4 px-4 py-2 text-gray-600 hover:text-gray-800"
+        >
+          ← Previous
+        </button>
+      )}
+    </div>
+  );
+}
+```
+
+**Expected Result**: A multi-step wizard form with progress indicator and navigation.
+
+## Form with Server Error Handling
+
+### Input → Output
+
+**Context**: Form with comprehensive server error handling
+
+**Code**:
+```tsx
+import { ZodForm, FormFieldHelpers, applyServerErrors } from "@rachelallyson/hero-hook-form";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+
+const schema = z.object({
+  username: z.string().min(3, "Username must be at least 3 characters"),
+  email: z.string().email("Please enter a valid email"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+});
+
+export function ServerErrorForm() {
+  const form = useForm({
+    resolver: zodResolver(schema),
+  });
+
+  const handleSubmit = async (data) => {
+    try {
+      const response = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        
+        if (errorData.fieldErrors) {
+          // Apply field-specific errors
+          applyServerErrors(form, errorData.fieldErrors);
+        } else if (errorData.message) {
+          // Set form-level error
+          form.setError("root", { message: errorData.message });
+        }
+        return;
+      }
+      
+      // Success
+      console.log("Registration successful");
+    } catch (error) {
+      console.error("Registration error:", error);
+      form.setError("root", { 
+        message: "Network error. Please try again." 
+      });
+    }
+  };
+
+  return (
+    <ZodForm
+      config={{
+        schema,
+        fields: [
+          FormFieldHelpers.input("username", "Username"),
+          FormFieldHelpers.input("email", "Email", "email"),
+          FormFieldHelpers.input("password", "Password", "password"),
+        ],
+      }}
+      onSubmit={handleSubmit}
+      title="Create Account"
+      subtitle="Join our community"
+      errorDisplay="inline"
+    />
+  );
+}
+```
+
+**Expected Result**: A form that handles both client and server-side validation errors gracefully.

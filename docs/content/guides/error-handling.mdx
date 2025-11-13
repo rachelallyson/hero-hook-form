@@ -1,0 +1,457 @@
+---
+title: Error Handling
+description: Client and server error strategies.
+---
+
+### Client-side validation
+
+- Use Zod via `ZodForm` or RHF `rules` when not using Zod.
+- Debounce text validations with `useDebouncedValidation`.
+
+### Server-side errors
+
+```tsx
+import { applyServerErrors } from "@rachelallyson/hero-hook-form";
+
+async function onSubmit(data, form) {
+  const res = await fetch("/api/submit", { method: "POST", body: JSON.stringify(data) });
+  if (!res.ok) {
+    const { errors } = await res.json(); // [{ field, message }]
+    applyServerErrors(form, errors);
+    return;
+  }
+}
+```
+
+### Display options
+
+- Inline field errors (default)
+- Global status via `FormStatus` (loading/success/error)
+- Optional UI: toast or modal per your app
+# Error Handling
+
+Master validation and error management in Hero Hook Form.
+
+## Validation Types
+
+### Client-Side Validation
+
+Client-side validation happens in the browser before form submission using Zod schemas.
+
+```tsx
+import { z } from "zod";
+
+const schema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string()
+    .min(8, "Password must be at least 8 characters")
+    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+    .regex(/[0-9]/, "Password must contain at least one number"),
+  confirmPassword: z.string(),
+}).refine(data => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+```
+
+### Server-Side Validation
+
+Server-side validation occurs after form submission and requires manual error handling.
+
+```tsx
+import { applyServerErrors } from "@rachelallyson/hero-hook-form";
+
+const handleSubmit = async (data) => {
+  try {
+    const response = await fetch("/api/submit", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      // Apply server errors to form
+      applyServerErrors(form, errorData.fieldErrors);
+      return;
+    }
+    
+    // Success
+    console.log("Form submitted successfully");
+  } catch (error) {
+    console.error("Submission error:", error);
+  }
+};
+```
+
+## Error Display Options
+
+### Inline Errors (Default)
+
+Errors are displayed directly below each field.
+
+```tsx
+<ZodForm
+  config={{ schema, fields }}
+  errorDisplay="inline" // Default
+/>
+```
+
+### Toast Notifications
+
+Errors are displayed as toast notifications.
+
+```tsx
+<ZodForm
+  config={{ schema, fields }}
+  errorDisplay="toast"
+/>
+```
+
+### Modal Errors
+
+Errors are displayed in a modal dialog.
+
+```tsx
+<ZodForm
+  config={{ schema, fields }}
+  errorDisplay="modal"
+/>
+```
+
+### Custom Error Handling
+
+Handle errors programmatically without automatic display.
+
+```tsx
+<ZodForm
+  config={{ schema, fields }}
+  errorDisplay="none"
+  onError={(errors) => {
+    console.log("Validation errors:", errors);
+    // Custom error handling logic
+  }}
+/>
+```
+
+## Validation Patterns
+
+### Required Fields
+
+```tsx
+const schema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Email is required and must be valid"),
+});
+```
+
+### Optional Fields with Validation
+
+```tsx
+const schema = z.object({
+  name: z.string().min(1, "Name is required"),
+  phone: z.string().optional().refine(
+    (val) => !val || val.length >= 10,
+    "Phone must be at least 10 digits"
+  ),
+});
+```
+
+### Conditional Validation
+
+```tsx
+const schema = z.object({
+  hasPhone: z.boolean(),
+  phone: z.string().optional(),
+}).refine(data => {
+  if (data.hasPhone && !data.phone) {
+    return false;
+  }
+  return true;
+}, {
+  message: "Phone is required when 'Has Phone' is checked",
+  path: ["phone"],
+});
+```
+
+### Cross-Field Validation
+
+```tsx
+const schema = z.object({
+  password: z.string().min(8),
+  confirmPassword: z.string(),
+  startDate: z.date(),
+  endDate: z.date(),
+}).refine(data => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+}).refine(data => data.endDate > data.startDate, {
+  message: "End date must be after start date",
+  path: ["endDate"],
+});
+```
+
+## Common Validation Schemas
+
+### Email Validation
+
+```tsx
+import { createEmailSchema } from "@rachelallyson/hero-hook-form";
+
+const emailSchema = createEmailSchema("Email address");
+```
+
+### Password Validation
+
+```tsx
+import { createPasswordSchema } from "@rachelallyson/hero-hook-form";
+  
+const passwordSchema = createPasswordSchema({
+  minLength: 8,
+  requireUppercase: true,
+  requireNumbers: true,
+  requireSpecialChars: true,
+});
+```
+
+### Phone Validation
+
+```tsx
+import { createPhoneSchema } from "@rachelallyson/hero-hook-form";
+
+const phoneSchema = createPhoneSchema("Phone number");
+```
+
+### URL Validation
+
+```tsx
+import { createUrlSchema } from "@rachelallyson/hero-hook-form";
+
+const urlSchema = createUrlSchema("Website URL");
+```
+
+## Error Recovery
+
+### Retry Logic
+
+```tsx
+const handleSubmit = async (data) => {
+  let retries = 3;
+  
+  while (retries > 0) {
+    try {
+      await submitToServer(data);
+      break; // Success
+    } catch (error) {
+      retries--;
+      if (retries === 0) {
+        // Final failure
+        setError("submit", { message: "Submission failed after multiple attempts" });
+      } else {
+        // Wait before retry
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+    }
+  }
+};
+```
+
+### Backoff Strategy
+
+```tsx
+const handleSubmit = async (data) => {
+  const backoffDelays = [1000, 2000, 4000]; // Exponential backoff
+  
+  for (let i = 0; i < backoffDelays.length; i++) {
+    try {
+      await submitToServer(data);
+      break; // Success
+    } catch (error) {
+      if (i === backoffDelays.length - 1) {
+        // Final failure
+        throw error;
+      }
+      // Wait before retry
+      await new Promise(resolve => setTimeout(resolve, backoffDelays[i]));
+    }
+  }
+};
+```
+
+## Error States
+
+### Form-Level Error State
+
+```tsx
+import { useEnhancedFormState } from "@rachelallyson/hero-hook-form";
+
+function MyForm() {
+  const formState = useEnhancedFormState();
+
+  return (
+    <div>
+      {formState.isSubmitting && <div>Submitting...</div>}
+      {formState.isSubmitted && formState.isSuccess && <div>Success!</div>}
+      {formState.error && <div>Error: {formState.error}</div>}
+    </div>
+  );
+}
+```
+
+### Field-Level Error State
+
+```tsx
+import { useHeroForm } from "@rachelallyson/hero-hook-form";
+
+function MyField({ name }) {
+  const { formState } = useHeroForm();
+  const fieldError = formState.errors[name];
+
+  return (
+    <div>
+      <input name={name} />
+      {fieldError && <span className="error">{fieldError.message}</span>}
+    </div>
+  );
+}
+```
+
+## Custom Error Messages
+
+### Field-Specific Messages
+
+```tsx
+const schema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters long"),
+  age: z.number().min(18, "You must be at least 18 years old"),
+});
+```
+
+### Contextual Messages
+
+```tsx
+const schema = z.object({
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  confirmPassword: z.string(),
+}).refine(data => data.password === data.confirmPassword, {
+  message: "The passwords you entered don't match. Please try again.",
+  path: ["confirmPassword"],
+});
+```
+
+### Dynamic Messages
+
+```tsx
+const createPasswordSchema = (minLength) => z.string().min(
+  minLength, 
+  `Password must be at least ${minLength} characters`
+);
+```
+
+## Testing Error Handling
+
+### Testing Validation Errors
+
+```tsx
+import { createFormTestUtils } from "@rachelallyson/hero-hook-form";
+
+const testUtils = createFormTestUtils(form);
+
+// Test required field validation
+testUtils.setFieldValue("email", "");
+await testUtils.triggerValidation("email");
+expect(testUtils.getField("email").error).toBeDefined();
+
+// Test email format validation
+testUtils.setFieldValue("email", "invalid-email");
+await testUtils.triggerValidation("email");
+expect(testUtils.getField("email").error.message).toContain("valid email");
+```
+
+### Testing Server Errors
+
+```tsx
+// Mock server error response
+const mockError = {
+  fieldErrors: {
+    email: "Email already exists",
+    password: "Password is too weak",
+  },
+};
+
+// Apply server errors
+applyServerErrors(form, mockError.fieldErrors);
+
+// Verify errors are applied
+expect(testUtils.getField("email").error.message).toBe("Email already exists");
+expect(testUtils.getField("password").error.message).toBe("Password is too weak");
+```
+
+## Best Practices
+
+### 1. Provide Clear Error Messages
+
+```tsx
+// Good: Clear and actionable
+"Password must be at least 8 characters and contain at least one number"
+
+// Avoid: Generic or unclear
+"Invalid password"
+```
+
+### 2. Validate on Appropriate Events
+
+```tsx
+// Validate on blur for better UX
+<InputField
+  name="email"
+  label="Email"
+  inputProps={{
+    onBlur: () => form.trigger("email"), // Validate on blur
+        }}
+      />
+```
+
+### 3. Handle Network Errors Gracefully
+
+```tsx
+const handleSubmit = async (data) => {
+  try {
+    await submitToServer(data);
+  } catch (error) {
+    if (error.name === "NetworkError") {
+      setError("submit", { message: "Network error. Please check your connection." });
+    } else {
+      setError("submit", { message: "An unexpected error occurred." });
+    }
+  }
+};
+```
+
+### 4. Provide Recovery Options
+
+```tsx
+{formState.error && (
+  <div className="error-container">
+    <p>{formState.error}</p>
+    <button onClick={() => form.reset()}>Try Again</button>
+  </div>
+)}
+```
+
+### 5. Test Error Scenarios
+
+```tsx
+// Test all validation rules
+it("validates required fields", () => {
+  // Test required field validation
+});
+
+it("validates email format", () => {
+  // Test email format validation
+});
+
+it("handles server errors", () => {
+  // Test server error handling
+});
+```

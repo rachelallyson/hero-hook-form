@@ -1,0 +1,5 @@
+- [31merror[0m [nextra] Error validating nextraConfig
+ ⨯ Failed to load next.config.mjs, see more info here https://nextjs.org/docs/messages/next-config-error
+✖ Unrecognized keys: "theme", "themeConfig"
+- [31merror[0m [nextra] Error validating nextraConfig
+[?25h

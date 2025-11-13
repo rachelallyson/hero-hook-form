@@ -1,0 +1,353 @@
+---
+title: Quickstart
+description: Install and build a form in 5 minutes.
+---
+
+### Install
+
+```bash
+npm i @rachelallyson/hero-hook-form zod @hookform/resolvers
+```
+
+### Minimal Zod form
+
+```tsx
+import { ZodForm, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
+import { z } from "zod";
+
+const schema = z.object({
+  email: z.string().email(),
+  name: z.string().min(2),
+});
+
+export default function ContactForm() {
+  return (
+    <ZodForm
+      config={{
+        schema,
+        fields: [
+          FormFieldHelpers.input("name", "Name"),
+          FormFieldHelpers.input("email", "Email", "email"),
+        ],
+      }}
+      onSubmit={(data) => console.log(data)}
+    />
+  );
+}
+```
+
+### Expected output
+
+- Invalid inputs show error messages; valid submission logs typed data.
+
+### Optional providers
+
+```tsx
+import { FormProvider } from "@rachelallyson/hero-hook-form";
+
+export function App() {
+  return (
+    <FormProvider>
+      <ContactForm />
+    </FormProvider>
+  );
+}
+```
+# Quick Start Guide
+
+Get up and running with Hero Hook Form in 5 minutes.
+
+## Installation
+
+```bash
+npm install @rachelallyson/hero-hook-form
+```
+
+### Peer Dependencies
+
+Make sure you have the required peer dependencies installed:
+
+```bash
+npm install react react-dom react-hook-form @heroui/react zod @hookform/resolvers
+```
+
+## Basic Setup
+
+### 1. Wrap Your App
+
+```tsx
+import { HeroHookFormProvider } from "@rachelallyson/hero-hook-form";
+
+function App() {
+  return (
+    <HeroHookFormProvider>
+      <YourForms />
+    </HeroHookFormProvider>
+  );
+}
+```
+
+### 2. Create Your First Form
+
+```tsx
+import { ZodForm, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
+import { z } from "zod";
+
+const schema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Please enter a valid email"),
+  message: z.string().min(10, "Message must be at least 10 characters"),
+});
+
+export function ContactForm() {
+  const handleSubmit = async (data) => {
+    console.log("Form submitted:", data);
+    // Handle form submission
+  };
+
+  return (
+    <ZodForm
+      config={{
+        schema,
+        fields: [
+          FormFieldHelpers.input("name", "Name"),
+          FormFieldHelpers.input("email", "Email", "email"),
+          FormFieldHelpers.textarea("message", "Message"),
+        ],
+      }}
+      onSubmit={handleSubmit}
+      title="Contact Us"
+      subtitle="Send us a message and we'll get back to you"
+    />
+  );
+}
+```
+
+## Form Building Patterns
+
+### Method 1: Helper Functions (Recommended)
+
+```tsx
+import { FormFieldHelpers } from "@rachelallyson/hero-hook-form";
+
+const fields = [
+  FormFieldHelpers.input("firstName", "First Name"),
+  FormFieldHelpers.input("lastName", "Last Name"),
+  FormFieldHelpers.input("email", "Email", "email"),
+  FormFieldHelpers.textarea("message", "Message", "Tell us about your project..."),
+  FormFieldHelpers.select("country", "Country", [
+    { label: "Select a country", value: "" },
+    { label: "United States", value: "us" },
+    { label: "Canada", value: "ca" },
+  ]),
+  FormFieldHelpers.checkbox("newsletter", "Subscribe to newsletter"),
+];
+```
+
+### Method 2: Builder Pattern
+
+```tsx
+import { createBasicFormBuilder } from "@rachelallyson/hero-hook-form";
+
+const fields = createBasicFormBuilder()
+  .input("firstName", "First Name")
+  .input("lastName", "Last Name")
+  .input("email", "Email", "email")
+  .textarea("message", "Message", "Tell us about your project...")
+  .select("country", "Country", [
+    { label: "Select a country", value: "" },
+    { label: "United States", value: "us" },
+    { label: "Canada", value: "ca" },
+  ])
+  .checkbox("newsletter", "Subscribe to newsletter")
+  .build();
+```
+
+### Method 3: Common Fields
+
+```tsx
+import { CommonFields } from "@rachelallyson/hero-hook-form";
+
+const fields = [
+  ...CommonFields.personal(), // firstName, lastName, email
+  FormFieldHelpers.textarea("message", "Message"),
+  ...CommonFields.terms(), // newsletter, terms
+];
+```
+
+## Advanced Features
+
+### Type-Inferred Forms
+
+```tsx
+import { defineInferredForm, field } from "@rachelallyson/hero-hook-form";
+
+const form = defineInferredForm({
+  name: field.string("Name").min(2),
+  email: field.email("Email"),
+  age: field.number("Age").min(18),
+  newsletter: field.boolean("Subscribe to newsletter"),
+});
+
+// Use the form
+<ZodForm config={form} onSubmit={handleSubmit} />
+```
+
+### Dynamic Forms
+
+```tsx
+import { ConditionalField, FieldArrayField } from "@rachelallyson/hero-hook-form";
+
+const fields = [
+  FormFieldHelpers.input("name", "Name"),
+  FormFieldHelpers.checkbox("hasPhone", "I have a phone number"),
+  ConditionalField({
+    name: "phone",
+    label: "Phone Number",
+    type: "input",
+    condition: (values) => values.hasPhone,
+  }),
+  FieldArrayField({
+    name: "addresses",
+    fields: [
+      FormFieldHelpers.input("street", "Street"),
+      FormFieldHelpers.input("city", "City"),
+    ],
+    addButtonText: "Add Address",
+  }),
+];
+```
+
+### Custom Validation
+
+```tsx
+import { z } from "zod";
+
+const schema = z.object({
+  password: z.string().min(8),
+  confirmPassword: z.string(),
+}).refine(data => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+```
+
+## Form Layouts
+
+### Vertical Layout (Default)
+```tsx
+<ZodForm
+  config={{ schema, fields }}
+  layout="vertical"
+  spacing="4"
+/>
+```
+
+### Grid Layout
+```tsx
+<ZodForm
+  config={{ schema, fields }}
+  layout="grid"
+  columns={2}
+  spacing="4"
+/>
+```
+
+### Horizontal Layout
+```tsx
+<ZodForm
+  config={{ schema, fields }}
+  layout="horizontal"
+  spacing="4"
+/>
+```
+
+## Error Handling
+
+### Client-Side Validation
+```tsx
+const schema = z.object({
+  email: z.string().email("Please enter a valid email"),
+  name: z.string().min(2, "Name must be at least 2 characters"),
+});
+```
+
+### Server-Side Errors
+```tsx
+import { applyServerErrors } from "@rachelallyson/hero-hook-form";
+
+const handleSubmit = async (data) => {
+  try {
+    await submitToServer(data);
+  } catch (error) {
+    // Apply server errors to form
+    applyServerErrors(form, error.fieldErrors);
+  }
+};
+```
+
+### Custom Error Display
+```tsx
+<ZodForm
+  config={{ schema, fields }}
+  errorDisplay="toast" // or "modal", "inline", "none"
+  onError={(errors) => console.log("Validation errors:", errors)}
+/>
+```
+
+## Performance Optimization
+
+### Debounced Validation
+```tsx
+import { useDebouncedValidation } from "@rachelallyson/hero-hook-form";
+
+function MyComponent() {
+  const { debouncedValue, isDebouncing } = useDebouncedValidation(
+    value,
+    { delay: 300 }
+  );
+  
+  // Use debouncedValue for expensive operations
+}
+```
+
+### Memoized Components
+```tsx
+import { memo } from "react";
+
+const MyField = memo(({ name, label }) => {
+  return <InputField name={name} label={label} />;
+});
+```
+
+## Testing
+
+### Form Test Utilities
+```tsx
+import { createFormTestUtils } from "@rachelallyson/hero-hook-form";
+
+const testUtils = createFormTestUtils(form);
+
+// Test form submission
+await testUtils.submitForm();
+
+// Get field value
+const fieldValue = testUtils.getField("fieldName");
+
+// Set field value
+testUtils.setFieldValue("fieldName", "new value");
+```
+
+### Cypress Integration
+```tsx
+import { simulateFormSubmission } from "@rachelallyson/hero-hook-form/cypress";
+
+cy.get('[data-testid="form"]').then(simulateFormSubmission);
+```
+
+## Next Steps
+
+- **[Dynamic Forms Guide](./dynamic-forms)** - Learn about conditional fields and field arrays
+- **[Error Handling Guide](./error-handling)** - Master validation and error management
+- **[API Reference](../api)** - Explore the complete API
+- **[Recipes](../recipes/examples)** - Copy-paste examples for common patterns

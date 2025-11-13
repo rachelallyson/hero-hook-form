@@ -1,0 +1,324 @@
+---
+title: Troubleshooting
+description: Common errors and exact fixes.
+---
+
+### Symptom: RHF type mismatch
+
+- Cause: Field names or `defaultValues` don’t match schema/type.
+- Fix: Align `defaultValues` and field names with Zod schema and `Path<T>` types.
+
+### Symptom: Errors not visible
+
+- Cause: Custom UI doesn’t render error props.
+- Fix: Ensure fields receive `isInvalid`/`errorMessage` and render messages.
+
+### Symptom: Server errors not applied
+
+- Cause: Errors not mapped back to RHF.
+- Fix: Use `applyServerErrors(form, errors)` with `{ field, message }[]`.
+# Troubleshooting
+
+Common issues and their solutions when working with Hero Hook Form.
+
+## Form Not Rendering
+
+### Symptom
+Form fields are not appearing or form is blank.
+
+### Cause
+Missing `HeroHookFormProvider` wrapper or incorrect field configuration.
+
+### Fix
+```tsx
+// Wrap your app with the provider
+import { HeroHookFormProvider } from "@rachelallyson/hero-hook-form";
+
+function App() {
+  return (
+    <HeroHookFormProvider>
+      <YourForms />
+    </HeroHookFormProvider>
+  );
+}
+
+// Ensure proper field configuration
+const fields = [
+  {
+    name: "email",
+    type: "input",
+    label: "Email",
+  },
+];
+```
+
+## TypeScript Errors
+
+### Symptom
+TypeScript compilation errors with form types.
+
+### Cause
+Missing type definitions or incorrect generic usage.
+
+### Fix
+```tsx
+// Define your form data type
+interface ContactFormData {
+    name: string;
+    email: string;
+  message: string;
+}
+
+// Use with form
+const form = useForm<ContactFormData>();
+
+// Or use Zod inference
+const schema = z.object({
+  name: z.string(),
+  email: z.string().email(),
+  message: z.string(),
+});
+
+type ContactFormData = z.infer<typeof schema>;
+```
+
+## Validation Not Working
+
+### Symptom
+Form validation is not triggering or error messages not showing.
+
+### Cause
+Missing Zod schema or incorrect resolver setup.
+
+### Fix
+```tsx
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const form = useForm({
+  resolver: zodResolver(schema), // Add resolver
+  mode: "onBlur", // Trigger validation on blur
+});
+
+// Ensure schema is properly defined
+const schema = z.object({
+  email: z.string().email("Invalid email"),
+});
+```
+
+## Field Not Updating
+
+### Symptom
+Field values are not updating when user types.
+
+### Cause
+Missing `onValueChange` handler or incorrect field configuration.
+
+### Fix
+```tsx
+// Use proper field configuration
+const fields = [
+  {
+    name: "email",
+    type: "input",
+    label: "Email",
+    inputProps: {
+      type: "email",
+    },
+  },
+];
+
+// Or use helper functions
+const fields = [
+  FormFieldHelpers.input("email", "Email", "email"),
+];
+```
+
+## Server Errors Not Displaying
+
+### Symptom
+Server validation errors are not showing in the form.
+
+### Cause
+Not using `applyServerErrors` or incorrect error format.
+
+### Fix
+```tsx
+import { applyServerErrors } from "@rachelallyson/hero-hook-form";
+
+const handleSubmit = async (data) => {
+  try {
+    const response = await fetch("/api/submit", {
+      method: "POST",
+      body: JSON.stringify(data),
+});
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      // Apply server errors to form
+      applyServerErrors(form, errorData.fieldErrors);
+    }
+  } catch (error) {
+    console.error("Error:", error);
+  }
+};
+```
+
+## Performance Issues
+
+### Symptom
+Form is slow or laggy with many fields.
+
+### Cause
+Missing memoization or excessive re-renders.
+
+### Fix
+```tsx
+import { memo } from "react";
+
+// Memoize field components
+const MemoizedField = memo(InputField);
+
+// Use debounced validation
+import { useDebouncedValidation } from "@rachelallyson/hero-hook-form";
+
+const { debouncedValue } = useDebouncedValidation(value, { delay: 300 });
+```
+
+## Conditional Fields Not Working
+
+### Symptom
+Conditional fields are not showing/hiding properly.
+
+### Cause
+Incorrect condition function or missing dependencies.
+
+### Fix
+```tsx
+// Ensure condition function is correct
+ConditionalField({
+  name: "phone",
+  label: "Phone",
+  type: "input",
+  condition: (values) => values.hasPhone === true, // Explicit comparison
+});
+
+// Check dependencies
+const fields = [
+  FormFieldHelpers.checkbox("hasPhone", "Has Phone"),
+  ConditionalField({
+    name: "phone",
+    label: "Phone",
+    type: "input",
+    condition: (values) => values.hasPhone,
+    dependsOn: "hasPhone", // Add dependency
+  }),
+];
+```
+
+## Field Array Issues
+
+### Symptom
+Field arrays are not adding/removing items correctly.
+
+### Cause
+Incorrect field array configuration or missing keys.
+
+### Fix
+```tsx
+// Ensure proper field array configuration
+FieldArrayField({
+  name: "addresses",
+  fields: [
+    FormFieldHelpers.input("street", "Street"),
+    FormFieldHelpers.input("city", "City"),
+  ],
+  addButtonText: "Add Address",
+  removeButtonText: "Remove Address",
+  min: 1,
+  max: 5,
+});
+
+// Use proper keys in rendering
+{fields.map((field, index) => (
+  <FormField
+    key={`${field.name}-${index}`} // Unique key
+    config={field}
+    form={form}
+  />
+))}
+```
+
+## Styling Issues
+
+### Symptom
+Form fields don't match HeroUI styling.
+
+### Cause
+Missing HeroUI provider or incorrect CSS imports.
+
+### Fix
+```tsx
+// Ensure HeroUI provider is set up
+import { HeroUIProvider } from "@heroui/react";
+
+function App() {
+  return (
+    <HeroUIProvider>
+      <HeroHookFormProvider>
+        <YourForms />
+      </HeroHookFormProvider>
+    </HeroUIProvider>
+  );
+}
+
+// Import HeroUI styles
+import "@heroui/react/dist/index.css";
+```
+
+## Testing Issues
+
+### Symptom
+Form tests are failing or not working properly.
+
+### Cause
+Missing test utilities or incorrect test setup.
+
+### Fix
+```tsx
+import { createFormTestUtils } from "@rachelallyson/hero-hook-form";
+
+// Create test utilities
+const testUtils = createFormTestUtils(form);
+
+// Use proper test methods
+await testUtils.submitForm();
+const fieldValue = testUtils.getField("fieldName");
+testUtils.setFieldValue("fieldName", "new value");
+```
+
+## Common Error Messages
+
+### "Cannot read property 'register' of undefined"
+**Fix**: Ensure form is properly initialized with `useForm()`.
+
+### "Field 'name' is required"
+**Fix**: Add `name` property to field configuration.
+
+### "Schema validation failed"
+**Fix**: Check Zod schema definition and error messages.
+
+### "Component is not a function"
+**Fix**: Ensure proper imports and component registration.
+
+## Getting Help
+
+If you're still experiencing issues:
+
+1. Check the [API Reference](../api) for detailed documentation
+2. Look at the [Examples](../recipes/examples) for working code
+3. Search [GitHub Issues](https://github.com/rachelallyson/hero-hook-form/issues)
+4. Create a new issue with:
+   - Code example
+   - Error message
+   - Expected behavior
+   - Actual behavior

@@ -1,0 +1,468 @@
+---
+title: Configuration
+description: Providers and configuration notes.
+---
+
+### Providers
+
+- `FormProvider` and `ConfigProvider` are available for global behavior and theming as needed.
+
+### Environment variables
+
+Skipped config — not applicable (feature not present in repo).
+# Configuration Reference
+
+Complete reference for all configuration options in Hero Hook Form.
+
+## Form Configuration
+
+### Basic Form Config
+
+```tsx
+interface FormConfig<T extends FieldValues> {
+  fields: FormFieldConfig<T>[];
+  layout?: "vertical" | "horizontal" | "grid";
+  columns?: 1 | 2 | 3 | 4;
+  spacing?: "sm" | "md" | "lg" | "xl";
+  title?: string;
+  subtitle?: string;
+  showResetButton?: boolean;
+  resetButtonText?: string;
+  submitButtonText?: string;
+  className?: string;
+  defaultValues?: Partial<T>;
+}
+```
+
+### Zod Form Config
+
+```tsx
+interface ZodFormConfig<T extends FieldValues> extends UseFormProps<T> {
+  schema: ZodSchema<T>;
+  fields: ZodFormFieldConfig<T>[];
+  onError?: (errors: FieldErrors<T>) => void;
+  errorDisplay?: "inline" | "toast" | "modal" | "none";
+  render?: (formState: FormState) => React.ReactNode;
+}
+```
+
+## Field Configuration
+
+### Base Field Config
+
+```tsx
+interface BaseFormFieldConfig<T extends FieldValues> {
+  name: Path<T>;
+  label?: string;
+  description?: string;
+  className?: string;
+  isDisabled?: boolean;
+  rules?: RegisterOptions<T, Path<T>>;
+  
+  // Conditional rendering
+  condition?: (values: Partial<T>) => boolean;
+  dependsOn?: Path<T>;
+  dependsOnValue?: unknown;
+  
+  // Grouping
+  group?: string;
+  
+  // Accessibility
+  ariaLabel?: string;
+  ariaDescribedBy?: string;
+}
+```
+
+### Field Types
+
+#### Input Field
+
+```tsx
+interface StringFieldConfig<T extends FieldValues> extends BaseFormFieldConfig<T> {
+  type: "input" | "textarea" | "select";
+  defaultValue?: string;
+  inputProps?: Omit<ComponentProps<typeof Input>, "value" | "onValueChange" | "label" | "isInvalid" | "errorMessage" | "isDisabled">;
+  textareaProps?: Omit<ComponentProps<typeof Textarea>, "value" | "onValueChange" | "label" | "isInvalid" | "errorMessage" | "isDisabled">;
+  selectProps?: Omit<ComponentProps<typeof Select>, "selectedKeys" | "onSelectionChange" | "label" | "isInvalid" | "errorMessage" | "isDisabled">;
+  options?: { label: string; value: string | number }[];
+}
+```
+
+#### Boolean Field
+
+```tsx
+interface BooleanFieldConfig<T extends FieldValues> extends BaseFormFieldConfig<T> {
+  type: "checkbox" | "switch";
+  defaultValue?: boolean;
+  checkboxProps?: Omit<ComponentProps<typeof Checkbox>, "isSelected" | "onValueChange" | "isInvalid" | "errorMessage" | "isDisabled">;
+  switchProps?: Omit<ComponentProps<typeof Switch>, "isSelected" | "onValueChange" | "isInvalid" | "errorMessage" | "isDisabled">;
+}
+```
+
+#### Radio Field
+
+```tsx
+interface RadioFieldConfig<T extends FieldValues> extends BaseFormFieldConfig<T> {
+  type: "radio";
+  defaultValue?: string;
+  radioProps?: Omit<ComponentProps<typeof RadioGroup>, "value" | "onValueChange" | "label">;
+  radioOptions?: { label: string; value: string | number }[];
+}
+```
+
+#### Specialized Fields
+
+```tsx
+// Slider Field
+interface SliderFieldConfig<T extends FieldValues> extends BaseFormFieldConfig<T> {
+  type: "slider";
+  defaultValue?: number;
+  sliderProps?: Record<string, string | number | boolean>;
+}
+
+// Date Field
+interface DateFieldConfig<T extends FieldValues> extends BaseFormFieldConfig<T> {
+  type: "date";
+  defaultValue?: CalendarDate | null;
+  dateProps?: Record<string, string | number | boolean>;
+}
+
+// File Field
+interface FileFieldConfig<T extends FieldValues> extends BaseFormFieldConfig<T> {
+  type: "file";
+  defaultValue?: FileList | null;
+  fileProps?: Record<string, string | number | boolean>;
+  multiple?: boolean;
+  accept?: string;
+}
+
+// Font Picker Field
+interface FontPickerFieldConfig<T extends FieldValues> extends BaseFormFieldConfig<T> {
+  type: "fontPicker";
+  defaultValue?: string;
+  fontPickerProps?: Record<string, string | number | boolean>;
+}
+```
+
+#### Dynamic Fields
+
+```tsx
+// Conditional Field
+interface ConditionalFieldConfig<T extends FieldValues> extends BaseFormFieldConfig<T> {
+  type: "conditional";
+  condition: (formData: Partial<T>) => boolean;
+  field: ZodFormFieldConfig<T>;
+}
+
+// Field Array
+interface FieldArrayConfig<T extends FieldValues> extends BaseFormFieldConfig<T> {
+  type: "fieldArray";
+  fields: ZodFormFieldConfig<T>[];
+  min?: number;
+  max?: number;
+  addButtonText?: string;
+  removeButtonText?: string;
+}
+
+// Dynamic Section
+interface DynamicSectionConfig<T extends FieldValues> extends BaseFormFieldConfig<T> {
+  type: "dynamicSection";
+  title?: string;
+  description?: string;
+  condition: (formData: Partial<T>) => boolean;
+  fields: ZodFormFieldConfig<T>[];
+}
+```
+
+## Layout Options
+
+### Vertical Layout (Default)
+
+```tsx
+<ZodForm
+  config={{
+    schema,
+    fields,
+    layout: "vertical", // Default
+    spacing: "md", // "sm" | "md" | "lg" | "xl"
+  }}
+/>
+```
+
+### Grid Layout
+
+```tsx
+<ZodForm
+  config={{
+    schema,
+    fields,
+    layout: "grid",
+    columns: 2, // 1 | 2 | 3 | 4
+    spacing: "md",
+  }}
+/>
+```
+
+### Horizontal Layout
+
+```tsx
+<ZodForm
+  config={{
+    schema,
+    fields,
+    layout: "horizontal",
+    spacing: "md",
+  }}
+/>
+```
+
+## Validation Configuration
+
+### Zod Schema Options
+
+```tsx
+const schema = z.object({
+  // Required field
+  name: z.string().min(1, "Name is required"),
+  
+  // Optional field with validation
+  email: z.string().email("Invalid email").optional(),
+  
+  // Conditional validation
+  phone: z.string().optional().refine(
+    (val) => !val || val.length >= 10,
+    "Phone must be at least 10 digits"
+  ),
+  
+  // Cross-field validation
+  password: z.string().min(8),
+  confirmPassword: z.string(),
+}).refine(data => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+```
+
+### Validation Helpers
+
+```tsx
+import {
+  createEmailSchema,
+  createPasswordSchema,
+  createPhoneSchema,
+  createUrlSchema,
+  createMinLengthSchema,
+  createMaxLengthSchema,
+} from "@rachelallyson/hero-hook-form";
+
+const schema = z.object({
+  email: createEmailSchema("Email address"),
+  password: createPasswordSchema({
+    minLength: 8,
+    requireUppercase: true,
+    requireNumbers: true,
+  }),
+  phone: createPhoneSchema("Phone number"),
+  website: createUrlSchema("Website URL"),
+  bio: createMinLengthSchema(10, "Bio").pipe(
+    createMaxLengthSchema(500, "Bio")
+  ),
+});
+```
+
+## Error Display Configuration
+
+### Error Display Types
+
+```tsx
+type ErrorDisplay = "inline" | "toast" | "modal" | "none";
+
+<ZodForm
+  config={{ schema, fields }}
+  errorDisplay="inline" // Default
+/>
+```
+
+### Custom Error Handling
+
+```tsx
+<ZodForm
+  config={{
+    schema,
+    fields,
+    onError: (errors) => {
+      console.log("Validation errors:", errors);
+      // Custom error handling logic
+    },
+  }}
+  errorDisplay="none"
+/>
+```
+
+## Performance Configuration
+
+### Debounced Validation
+
+```tsx
+import { useDebouncedValidation } from "@rachelallyson/hero-hook-form";
+
+function MyComponent() {
+  const { debouncedValue, isDebouncing } = useDebouncedValidation(
+    value,
+    { delay: 300 } // 300ms delay
+  );
+}
+```
+
+### Memoization
+
+```tsx
+import { memo } from "react";
+
+const MemoizedField = memo(InputField);
+
+// Use in form
+const fields = [
+  {
+    name: "email",
+    type: "input",
+    label: "Email",
+    component: MemoizedField,
+  },
+];
+```
+
+## Testing Configuration
+
+### Form Test Utils
+
+```tsx
+import { createFormTestUtils } from "@rachelallyson/hero-hook-form";
+
+const testUtils = createFormTestUtils(form, {
+  // Test configuration options
+  timeout: 5000,
+  retries: 3,
+});
+```
+
+### Cypress Integration
+
+```tsx
+import { simulateFormSubmission } from "@rachelallyson/hero-hook-form/cypress";
+
+cy.get('[data-testid="form"]').then(simulateFormSubmission({
+  // Cypress configuration
+  timeout: 10000,
+  retries: 2,
+}));
+```
+
+## Provider Configuration
+
+### HeroHookFormProvider
+
+```tsx
+import { HeroHookFormProvider } from "@rachelallyson/hero-hook-form";
+
+<HeroHookFormProvider
+  // Provider configuration
+  theme="light" // "light" | "dark" | "system"
+  locale="en" // "en" | "es" | "fr" | etc.
+>
+  <YourForms />
+</HeroHookFormProvider>
+```
+
+### ConfigProvider
+
+```tsx
+import { ConfigProvider } from "@rachelallyson/hero-hook-form";
+
+<ConfigProvider
+  defaults={{
+  input: {
+    variant: "bordered",
+    size: "md",
+  },
+    button: {
+    color: "primary",
+    size: "md",
+  },
+  }}
+>
+  <YourForms />
+</ConfigProvider>
+```
+
+## Environment Variables
+
+### Development
+
+```bash
+# .env.local
+NEXT_PUBLIC_FORM_DEBUG=true
+NEXT_PUBLIC_VALIDATION_DELAY=300
+```
+
+### Production
+
+```bash
+# .env.production
+NEXT_PUBLIC_FORM_DEBUG=false
+NEXT_PUBLIC_VALIDATION_DELAY=500
+```
+
+## TypeScript Configuration
+
+### tsconfig.json
+
+```json
+{
+  "compilerOptions": {
+    "strict": true,
+    "strictNullChecks": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
+  }
+}
+```
+
+### Type Definitions
+
+```tsx
+// Custom form data type
+interface ContactFormData {
+  name: string;
+  email: string;
+  message: string;
+}
+
+// Use with form
+const form = useForm<ContactFormData>();
+```
+
+## Best Practices
+
+### 1. Use TypeScript
+
+Always use TypeScript for better type safety and developer experience.
+
+### 2. Define Clear Schemas
+
+Create clear, descriptive Zod schemas with helpful error messages.
+
+### 3. Handle Errors Gracefully
+
+Implement proper error handling for both client and server-side validation.
+
+### 4. Optimize Performance
+
+Use memoization and debouncing for better performance with large forms.
+
+### 5. Test Thoroughly
+
+Write comprehensive tests for all form functionality and edge cases.

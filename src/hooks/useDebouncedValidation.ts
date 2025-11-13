@@ -11,10 +11,12 @@ export interface UseDebouncedValidationOptions {
 
 export function useDebouncedValidation<T extends Record<string, any>>(
   form: UseFormReturn<T>,
-  options: UseDebouncedValidationOptions = {}
+  options: UseDebouncedValidationOptions = {},
 ) {
-  const { delay = 300, fields, enabled = true } = options;
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const { delay = 300, enabled = true, fields } = options;
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
   const lastValuesRef = useRef<Partial<T>>({});
 
   const debouncedTrigger = useCallback(() => {
@@ -33,13 +35,15 @@ export function useDebouncedValidation<T extends Record<string, any>>(
 
       // Check if any watched fields have changed
       const hasChanges = fields
-        ? fields.some(field => currentValues[field] !== lastValues[field])
-        : Object.keys(currentValues).some(key => currentValues[key] !== lastValues[key]);
+        ? fields.some((field) => currentValues[field] !== lastValues[field])
+        : Object.keys(currentValues).some(
+            (key) => currentValues[key] !== lastValues[key],
+          );
 
       if (hasChanges) {
         // Update last values
         lastValuesRef.current = { ...currentValues };
-        
+
         // Trigger validation for specific fields or all fields
         if (fields && fields.length > 0) {
           await form.trigger(fields as any);
@@ -77,10 +81,12 @@ export function useDebouncedValidation<T extends Record<string, any>>(
 export function useDebouncedFieldValidation<T extends Record<string, any>>(
   form: UseFormReturn<T>,
   fieldName: keyof T,
-  options: { delay?: number; enabled?: boolean } = {}
+  options: { delay?: number; enabled?: boolean } = {},
 ) {
   const { delay = 300, enabled = true } = options;
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
 
   const debouncedFieldTrigger = useCallback(() => {
     if (!enabled) return;

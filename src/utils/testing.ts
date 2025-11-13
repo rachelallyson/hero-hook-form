@@ -4,7 +4,6 @@ import type {
   Path,
   UseFormReturn,
 } from "react-hook-form";
-
 import type { FormTestUtils } from "../types";
 
 /**

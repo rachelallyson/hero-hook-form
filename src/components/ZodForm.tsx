@@ -32,8 +32,6 @@ interface ZodFormProps<T extends FieldValues> {
   submitButtonText?: string;
   subtitle?: string;
   title?: string;
-  // Enhanced error handling
-  errorDisplay?: "inline" | "toast" | "modal" | "none";
   // Form state access
   render?: (formState: {
     form: UseFormReturn<T>;
@@ -49,7 +47,6 @@ export function ZodForm<T extends FieldValues>({
   className,
   columns = 1,
   config,
-  errorDisplay = "inline",
   layout = "vertical",
   onError,
   onSubmit,
@@ -65,9 +62,9 @@ export function ZodForm<T extends FieldValues>({
 }: ZodFormProps<T>) {
   const form = useZodForm(config);
   const enhancedState = useEnhancedFormState(form, {
-    onSuccess: onSuccess,
-    onError: (error: string) => onError?.({ message: error, field: "form" }),
     autoReset: true,
+    onError: (error: string) => onError?.({ field: "form", message: error }),
+    onSuccess: onSuccess,
     resetDelay: 3000,
   });
 
@@ -80,13 +77,16 @@ export function ZodForm<T extends FieldValues>({
           await onSubmit(formData);
           enhancedState.handleSuccess(formData);
         },
-        (errors) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        (_errors) => {
           // Error handler - form has validation errors
           enhancedState.handleError("Please fix the validation errors above");
-        }
+        },
       )();
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "An error occurred";
+      const errorMessage =
+        error instanceof Error ? error.message : "An error occurred";
+
       enhancedState.handleError(errorMessage);
     }
   };
@@ -114,10 +114,10 @@ export function ZodForm<T extends FieldValues>({
               config={field}
               form={form}
               submissionState={{
-                isSubmitting: enhancedState.isSubmitting,
-                isSubmitted: enhancedState.status !== "idle",
-                isSuccess: enhancedState.isSuccess,
                 error: enhancedState.error,
+                isSubmitted: enhancedState.status !== "idle",
+                isSubmitting: enhancedState.isSubmitting,
+                isSuccess: enhancedState.isSuccess,
               }}
             />
           ))}
@@ -134,10 +134,10 @@ export function ZodForm<T extends FieldValues>({
               config={field}
               form={form}
               submissionState={{
-                isSubmitting: enhancedState.isSubmitting,
-                isSubmitted: enhancedState.status !== "idle",
-                isSuccess: enhancedState.isSuccess,
                 error: enhancedState.error,
+                isSubmitted: enhancedState.status !== "idle",
+                isSubmitting: enhancedState.isSubmitting,
+                isSuccess: enhancedState.isSuccess,
               }}
             />
           ))}
@@ -154,10 +154,10 @@ export function ZodForm<T extends FieldValues>({
             config={field}
             form={form}
             submissionState={{
-              isSubmitting: enhancedState.isSubmitting,
-              isSubmitted: enhancedState.status !== "idle",
-              isSuccess: enhancedState.isSuccess,
               error: enhancedState.error,
+              isSubmitted: enhancedState.status !== "idle",
+              isSubmitting: enhancedState.isSubmitting,
+              isSuccess: enhancedState.isSuccess,
             }}
           />
         ))}
@@ -204,8 +204,8 @@ export function ZodForm<T extends FieldValues>({
       )}
 
       {/* Enhanced Form Status */}
-      <FormStatus 
-        state={enhancedState} 
+      <FormStatus
+        state={enhancedState}
         onDismiss={() => enhancedState.reset()}
         showDetails={true}
       />

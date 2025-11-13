@@ -48,7 +48,7 @@ export * from "./utils/performance.js";
 
 // Enhanced validation patterns
 export * from "./builders/validation-helpers.js";
-export { 
+export {
   createEmailSchema,
   createMinLengthSchema,
   createMaxLengthSchema,
@@ -59,5 +59,5 @@ export {
   createNumberRangeSchema,
   createPastDateSchema,
   createRequiredCheckboxSchema,
-  crossFieldValidation
+  crossFieldValidation,
 } from "./utils/validation.js";

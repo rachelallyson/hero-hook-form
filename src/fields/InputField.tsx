@@ -63,54 +63,54 @@ function CoercedInput<TFieldValues extends FieldValues>(props: {
   );
 }
 
-export const InputField = React.memo(<TFieldValues extends FieldValues>(
+export const InputField = React.memo(
+  <TFieldValues extends FieldValues>(props: InputFieldProps<TFieldValues>) => {
+    const {
+      className,
+      control,
+      description,
+      inputProps,
+      isDisabled,
+      label,
+      name,
+      rules,
+      transform,
+    } = props;
+
+    return (
+      <Controller<TFieldValues, Path<TFieldValues>>
+        control={control}
+        name={name}
+        render={({ field, fieldState }) => (
+          <div className={className}>
+            <CoercedInput<TFieldValues>
+              description={description}
+              disabled={isDisabled}
+              errorMessage={fieldState.error?.message}
+              field={{
+                ...field,
+                onChange: (value: string) => {
+                  // Handle number inputs by converting to number
+                  if (inputProps?.type === "number") {
+                    const numValue = value === "" ? undefined : Number(value);
+
+                    field.onChange(
+                      transform ? transform(String(numValue)) : numValue,
+                    );
+                  } else {
+                    field.onChange(transform ? transform(value) : value);
+                  }
+                },
+              }}
+              inputProps={inputProps}
+              label={label}
+            />
+          </div>
+        )}
+        rules={rules}
+      />
+    );
+  },
+) as <TFieldValues extends FieldValues>(
   props: InputFieldProps<TFieldValues>,
-) => {
-  const {
-    className,
-    control,
-    description,
-    inputProps,
-    isDisabled,
-    label,
-    name,
-    rules,
-    transform,
-  } = props;
-
-  return (
-    <Controller<TFieldValues, Path<TFieldValues>>
-      control={control}
-      name={name}
-      render={({ field, fieldState }) => (
-        <div className={className}>
-          <CoercedInput<TFieldValues>
-            description={description}
-            disabled={isDisabled}
-            errorMessage={fieldState.error?.message}
-            field={{
-              ...field,
-              onChange: (value: string) => {
-                // Handle number inputs by converting to number
-                if (inputProps?.type === "number") {
-                  const numValue = value === "" ? undefined : Number(value);
-
-                  field.onChange(
-                    transform ? transform(String(numValue)) : numValue,
-                  );
-                } else {
-                  field.onChange(transform ? transform(value) : value);
-                }
-              },
-            }}
-            inputProps={inputProps}
-            label={label}
-          />
-        </div>
-      )}
-      rules={rules}
-    />
-  );
-}) as <TFieldValues extends FieldValues>(
-  props: InputFieldProps<TFieldValues>
 ) => React.JSX.Element;

@@ -1,0 +1,158 @@
+---
+title: Hero Hook Form
+description: Typed form helpers that combine React Hook Form and HeroUI components.
+---
+
+### Overview
+
+Hero Hook Form provides typed form building for React with React Hook Form and HeroUI. Build accessible, performant forms using components, hooks, builders, and Zod integration.
+
+- Install: `npm i @rachelallyson/hero-hook-form`
+- API reference is generated from TypeScript (see Reference → API).
+
+### Start here
+
+- Concepts: ./concepts
+- Quickstart: ./guides/quickstart
+- Dynamic Forms: ./guides/dynamic-forms
+- Error Handling: ./guides/error-handling
+- API Reference: ./api/README
+- Recipes: ./recipes/examples
+- Troubleshooting: ./troubleshooting
+
+### Live Demo
+
+- Quickstart demo: /demo/quickstart
+- Zod demo: /demo/zod
+- Full demos: /demo (imported from example app)
+
+### What’s included
+
+- Components: `Form`, `FormField`, `ZodForm`, field components, `FormStatus`
+- Hooks: `useFormHelper`, `useHeroForm`, `useEnhancedFormState`, `useDebouncedValidation`, `useInferredForm`
+- Builders: `builders/index`, `builders/validation-helpers`
+- Utils: `applyServerErrors`, `validation`, `performance`, `testing`
+- Zod integration: `components/ZodForm`, `zod-integration`
+# Hero Hook Form
+
+**Typed form helpers that combine React Hook Form and HeroUI components.**
+
+Hero Hook Form provides a comprehensive solution for building accessible, performant forms in React applications. It combines the power of React Hook Form with HeroUI's beautiful design system, offering type-safe form building with minimal boilerplate.
+
+## Quick Start
+
+```tsx
+import { ZodForm, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
+import { z } from "zod";
+
+const schema = z.object({
+  email: z.string().email(),
+  name: z.string().min(2),
+});
+
+export function ContactForm() {
+  return (
+    <ZodForm
+      config={{
+        schema,
+        fields: [
+          FormFieldHelpers.input("name", "Name"),
+          FormFieldHelpers.input("email", "Email", "email"),
+        ],
+      }}
+      onSubmit={(data) => console.log(data)}
+    />
+  );
+}
+```
+
+## Key Features
+
+- **🎯 Type Safety** - Full TypeScript support with automatic type inference
+- **🎨 HeroUI Integration** - Beautiful, accessible components out of the box
+- **⚡ Performance** - Optimized with React.memo and debounced validation
+- **🔧 Flexible APIs** - Multiple form building patterns to suit your needs
+- **📝 Zod Integration** - Seamless schema validation with Zod
+- **🔄 Dynamic Forms** - Conditional fields, field arrays, and dynamic sections
+- **🧪 Testing Ready** - Built-in testing utilities for Cypress
+
+## Form Building Patterns
+
+### 1. Helper Functions (Recommended)
+```tsx
+const fields = [
+  FormFieldHelpers.input("name", "Name"),
+  FormFieldHelpers.textarea("message", "Message"),
+  FormFieldHelpers.select("country", "Country", options),
+];
+```
+
+### 2. Builder Pattern
+```tsx
+const fields = createBasicFormBuilder()
+  .input("name", "Name")
+  .textarea("message", "Message")
+  .select("country", "Country", options)
+  .build();
+```
+
+### 3. Type-Inferred Forms
+```tsx
+const form = defineInferredForm({
+  name: field.string("Name"),
+  email: field.email("Email"),
+  age: field.number("Age"),
+});
+```
+
+## What's New in v2.0
+
+- **Dynamic Form Sections** - Conditional fields and field arrays
+- **Enhanced Performance** - Memoized components and debounced validation
+- **Type-Inferred Forms** - Alternative API with automatic schema generation
+- **Form State Management** - Enhanced state tracking and status components
+- **Validation Patterns** - Cross-field validation and common patterns
+
+## Getting Started
+
+1. **Install the package**:
+   ```bash
+   npm install @rachelallyson/hero-hook-form
+   ```
+
+2. **Set up your provider**:
+   ```tsx
+   import { HeroHookFormProvider } from "@rachelallyson/hero-hook-form";
+   
+   function App() {
+     return (
+       <HeroHookFormProvider>
+         <YourForms />
+       </HeroHookFormProvider>
+     );
+   }
+   ```
+
+3. **Create your first form**:
+   ```tsx
+   import { ZodForm, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
+   ```
+
+## Documentation Structure
+
+- **[Concepts](./concepts)** - Core mental models and architecture
+- **[Quick Start Guide](./guides/quickstart)** - Get up and running in 5 minutes
+- **[Dynamic Forms](./guides/dynamic-forms)** - Conditional fields and field arrays
+- **[Error Handling](./guides/error-handling)** - Validation and error management
+- **[API Reference](./api)** - Complete API documentation
+- **[Recipes](./recipes/examples)** - Copy-paste examples for common patterns
+
+## Community
+
+- **GitHub**: [rachelallyson/hero-hook-form](https://github.com/rachelallyson/hero-hook-form)
+- **Issues**: [Report bugs or request features](https://github.com/rachelallyson/hero-hook-form/issues)
+- **Discussions**: [Community discussions](https://github.com/rachelallyson/hero-hook-form/discussions)
+
+## License
+
+ISC License - see [LICENSE](https://github.com/rachelallyson/hero-hook-form/blob/main/LICENSE) for details.

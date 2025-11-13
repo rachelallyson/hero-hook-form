@@ -11,6 +11,11 @@
 # next.js
 /.next/
 /out/
+
+# Next.js build outputs (documentation site)
+docs/.next/
+docs/out/
+docs/node_modules/
 /dist/
 cypress/screenshots/
 cypress/videos/
@@ -44,3 +49,5 @@ bun.lockb
 
 # npm configuration
 .npmrc
+/docs/api
+/docs/content/api

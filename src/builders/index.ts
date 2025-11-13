@@ -8,7 +8,20 @@ export * from "./AdvancedFormBuilder";
 export * from "./TypeInferredBuilder";
 
 // Re-export for convenience
-export { createBasicFormBuilder, FormFieldHelpers, CommonFields } from "./BasicFormBuilder";
-export { createField, createAdvancedBuilder, createFieldArrayItemBuilder, createFieldArrayBuilder } from "./AdvancedFormBuilder";
-export { createTypeInferredBuilder, defineInferredForm, field } from "./TypeInferredBuilder";
+export {
+  createBasicFormBuilder,
+  FormFieldHelpers,
+  CommonFields,
+} from "./BasicFormBuilder";
+export {
+  createField,
+  createAdvancedBuilder,
+  createFieldArrayItemBuilder,
+  createFieldArrayBuilder,
+} from "./AdvancedFormBuilder";
+export {
+  createTypeInferredBuilder,
+  defineInferredForm,
+  field,
+} from "./TypeInferredBuilder";
 export { createNestedPathBuilder } from "./NestedPathBuilder";

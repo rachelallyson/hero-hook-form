@@ -13,7 +13,7 @@ let fontPickerLoaded = false;
 let fontPickerLoading = false;
 
 // Store callbacks to notify components when loading completes
-const loadingCallbacks: Array<() => void> = [];
+const loadingCallbacks: (() => void)[] = [];
 
 // Font picker props type - matches the font picker package interface
 interface FontPickerProps {
@@ -52,8 +52,8 @@ export function FontPickerField<
     error: string | null;
   }>({
     component: FontPickerComponent,
-    loading: false,
     error: null,
+    loading: false,
   });
 
   // Load font picker component dynamically
@@ -62,68 +62,76 @@ export function FontPickerField<
     if (fontPickerLoaded && FontPickerComponent) {
       setFontPickerState({
         component: FontPickerComponent,
-        loading: false,
         error: null,
+        loading: false,
       });
+
       return;
     }
 
     // If already loading, wait for it to complete
     if (fontPickerLoading) {
-      setFontPickerState(prev => ({ ...prev, loading: true }));
-      
+      setFontPickerState((prev) => ({ ...prev, loading: true }));
+
       // Register callback to be notified when loading completes
       const callback = () => {
         if (fontPickerLoaded && FontPickerComponent) {
           setFontPickerState({
             component: FontPickerComponent,
-            loading: false,
             error: null,
+            loading: false,
           });
         } else {
           setFontPickerState({
             component: null,
-            loading: false,
             error: "Font picker package not found",
+            loading: false,
           });
         }
       };
+
       loadingCallbacks.push(callback);
+
       return;
     }
 
     const loadFontPicker = async () => {
       fontPickerLoading = true;
-      setFontPickerState(prev => ({ ...prev, loading: true }));
+      setFontPickerState((prev) => ({ ...prev, loading: true }));
 
       try {
-        const fontPickerModule = await import("@rachelallyson/heroui-font-picker");
-        
+        const fontPickerModule = await import(
+          "@rachelallyson/heroui-font-picker"
+        );
+
         // The font picker package exports FontPicker as the main component
-        // Use any type to avoid TypeScript issues with incomplete definitions
-        FontPickerComponent = (fontPickerModule as any).FontPicker || (fontPickerModule as any).default;
-        
+        // Handle dynamic import where the export structure may vary (named export vs default)
+        FontPickerComponent =
+          (fontPickerModule as { FontPicker?: React.ComponentType<any> })
+            .FontPicker ||
+          (fontPickerModule as { default?: React.ComponentType<any> }).default;
+
         fontPickerLoaded = true;
         fontPickerLoading = false; // Reset loading flag
         setFontPickerState({
           component: FontPickerComponent,
-          loading: false,
           error: null,
+          loading: false,
         });
-        
+
         // Notify all waiting components
-        loadingCallbacks.forEach(callback => callback());
+        loadingCallbacks.forEach((callback) => callback());
         loadingCallbacks.length = 0; // Clear the callbacks
-      } catch (error) {
+      } catch {
         fontPickerLoading = false; // Reset loading flag on error too
         setFontPickerState({
           component: null,
-          loading: false,
           error: "Font picker package not found",
+          loading: false,
         });
-        
+
         // Notify all waiting components
-        loadingCallbacks.forEach(callback => callback());
+        loadingCallbacks.forEach((callback) => callback());
         loadingCallbacks.length = 0; // Clear the callbacks
       }
     };
@@ -145,9 +153,7 @@ export function FontPickerField<
             <p className="text-sm text-muted-foreground">{description}</p>
           )}
           <div className="p-4 border border-default-200 bg-default-50 rounded-medium">
-            <p className="text-default-600 text-sm">
-              Loading font picker...
-            </p>
+            <p className="text-default-600 text-sm">Loading font picker...</p>
           </div>
         </div>
       </div>
@@ -169,8 +175,9 @@ export function FontPickerField<
           )}
           <div className="p-4 border border-warning-200 bg-warning-50 rounded-medium">
             <p className="text-warning-800 text-sm">
-              Font picker requires the @rachelallyson/heroui-font-picker package. 
-              Please install it as a peer dependency for advanced font selection features.
+              Font picker requires the @rachelallyson/heroui-font-picker
+              package. Please install it as a peer dependency for advanced font
+              selection features.
             </p>
           </div>
         </div>

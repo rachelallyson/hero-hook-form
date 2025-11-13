@@ -1,0 +1,467 @@
+---
+title: Dynamic Forms
+description: Conditional fields, field arrays, and dynamic sections.
+---
+
+### Conditional fields
+
+```tsx
+import { ZodForm, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
+import { z } from "zod";
+
+const schema = z.object({
+  newsletter: z.boolean().default(false),
+  email: z.string().email().optional(),
+});
+
+export default function DynamicExample() {
+  return (
+    <ZodForm
+      config={{
+        schema,
+        fields: [
+          FormFieldHelpers.checkbox("newsletter", "Subscribe?"),
+          {
+            type: "conditional",
+            name: "email-conditional",
+            condition: (v) => !!v.newsletter,
+            field: FormFieldHelpers.input("email", "Email"),
+          },
+        ],
+      }}
+      onSubmit={(data) => console.log(data)}
+    />
+  );
+}
+```
+
+### Field arrays
+
+```tsx
+import { ZodForm } from "@rachelallyson/hero-hook-form";
+import { z } from "zod";
+
+const schema = z.object({
+  tags: z.array(z.string().min(1)).min(1),
+});
+
+export default function ArrayExample() {
+  return (
+    <ZodForm
+      config={{
+        schema,
+        fields: [
+          {
+            type: "fieldArray",
+            name: "tags",
+            label: "Tags",
+            fields: [
+              { type: "input", name: "tags[].value", label: "Tag" } as any,
+            ],
+            min: 1,
+            addButtonText: "Add tag",
+            removeButtonText: "Remove",
+          },
+        ],
+      }}
+      onSubmit={(d) => console.log(d)}
+    />
+  );
+}
+```
+
+### Dynamic sections
+
+- Use `type: "dynamicSection"` with a `condition` and nested `fields` to render grouped fields based on form state.
+# Dynamic Forms
+
+Learn how to create forms that adapt based on user input and data.
+
+## Conditional Fields
+
+Show or hide fields based on form data using the `ConditionalField` component.
+
+### Basic Conditional Field
+
+```tsx
+import { ConditionalField, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
+
+const fields = [
+          FormFieldHelpers.checkbox("hasPhone", "I have a phone number"),
+          ConditionalField({
+            name: "phone",
+            label: "Phone Number",
+    type: "input",
+            condition: (values) => values.hasPhone === true,
+  }),
+];
+```
+
+### Complex Conditions
+
+```tsx
+const fields = [
+  FormFieldHelpers.select("userType", "User Type", [
+              { label: "Individual", value: "individual" },
+              { label: "Business", value: "business" },
+  ]),
+          ConditionalField({
+            name: "businessName",
+    label: "Business Name",
+    type: "input",
+            condition: (values) => values.userType === "business",
+  }),
+  ConditionalField({
+    name: "taxId",
+    label: "Tax ID",
+    type: "input",
+    condition: (values) => values.userType === "business" && values.businessName,
+  }),
+];
+```
+
+### Multiple Conditions
+
+```tsx
+const fields = [
+  FormFieldHelpers.checkbox("isVip", "VIP Customer"),
+  FormFieldHelpers.checkbox("wantsNewsletter", "Subscribe to newsletter"),
+                ConditionalField({
+    name: "vipCode",
+    label: "VIP Code",
+    type: "input",
+    condition: (values) => values.isVip && values.wantsNewsletter,
+          }),
+];
+```
+
+## Field Arrays
+
+Create dynamic repeating field groups with the `FieldArrayField` component.
+
+### Basic Field Array
+
+```tsx
+import { FieldArrayField, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
+
+const fields = [
+  FormFieldHelpers.input("name", "Name"),
+  FieldArrayField({
+    name: "addresses",
+    fields: [
+      FormFieldHelpers.input("street", "Street Address"),
+      FormFieldHelpers.input("city", "City"),
+      FormFieldHelpers.input("zipCode", "ZIP Code"),
+    ],
+    addButtonText: "Add Address",
+    removeButtonText: "Remove Address",
+  }),
+];
+```
+
+### Field Array with Validation
+
+```tsx
+import { z } from "zod";
+
+const schema = z.object({
+  name: z.string().min(2),
+  addresses: z.array(z.object({
+    street: z.string().min(1, "Street is required"),
+    city: z.string().min(1, "City is required"),
+    zipCode: z.string().min(5, "ZIP code must be at least 5 characters"),
+  })).min(1, "At least one address is required"),
+});
+```
+
+### Field Array with Min/Max
+
+```tsx
+FieldArrayField({
+  name: "skills",
+        fields: [
+    FormFieldHelpers.input("name", "Skill Name"),
+    FormFieldHelpers.select("level", "Level", [
+      { label: "Beginner", value: "beginner" },
+      { label: "Intermediate", value: "intermediate" },
+      { label: "Advanced", value: "advanced" },
+    ]),
+  ],
+  min: 1,
+  max: 5,
+  addButtonText: "Add Skill",
+  removeButtonText: "Remove Skill",
+})
+```
+
+## Dynamic Sections
+
+Group related conditional fields together with the `DynamicSectionField` component.
+
+### Basic Dynamic Section
+
+```tsx
+import { DynamicSectionField, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
+
+const fields = [
+  FormFieldHelpers.checkbox("hasEmergencyContact", "Has Emergency Contact"),
+          DynamicSectionField({
+    name: "emergencyContact",
+    title: "Emergency Contact Information",
+    description: "Please provide emergency contact details",
+    condition: (values) => values.hasEmergencyContact === true,
+            fields: [
+      FormFieldHelpers.input("name", "Contact Name"),
+      FormFieldHelpers.input("relationship", "Relationship"),
+      FormFieldHelpers.input("phone", "Phone Number", "tel"),
+      FormFieldHelpers.input("email", "Email", "email"),
+                ],
+              }),
+];
+```
+
+### Nested Dynamic Sections
+
+```tsx
+const fields = [
+  FormFieldHelpers.select("accountType", "Account Type", [
+              { label: "Personal", value: "personal" },
+              { label: "Business", value: "business" },
+  ]),
+          DynamicSectionField({
+            name: "businessInfo",
+            title: "Business Information",
+            condition: (values) => values.accountType === "business",
+            fields: [
+      FormFieldHelpers.input("businessName", "Business Name"),
+      FormFieldHelpers.input("taxId", "Tax ID"),
+          DynamicSectionField({
+        name: "billingAddress",
+        title: "Billing Address",
+        condition: (values) => values.businessName && values.taxId,
+            fields: [
+          FormFieldHelpers.input("street", "Street Address"),
+          FormFieldHelpers.input("city", "City"),
+          FormFieldHelpers.input("state", "State"),
+          FormFieldHelpers.input("zipCode", "ZIP Code"),
+            ],
+          }),
+        ],
+  }),
+];
+```
+
+## Advanced Patterns
+
+### Multi-Step Forms
+
+```tsx
+const steps = [
+  {
+    id: "personal",
+    title: "Personal Information",
+    fields: [
+      FormFieldHelpers.input("firstName", "First Name"),
+      FormFieldHelpers.input("lastName", "Last Name"),
+      FormFieldHelpers.input("email", "Email", "email"),
+    ],
+  },
+  {
+    id: "address",
+    title: "Address Information",
+    fields: [
+      FormFieldHelpers.input("street", "Street Address"),
+      FormFieldHelpers.input("city", "City"),
+      FormFieldHelpers.input("zipCode", "ZIP Code"),
+    ],
+  },
+  {
+    id: "preferences",
+    title: "Preferences",
+    fields: [
+      FormFieldHelpers.checkbox("newsletter", "Subscribe to newsletter"),
+      FormFieldHelpers.checkbox("notifications", "Enable notifications"),
+    ],
+  },
+];
+```
+
+### Dependent Dropdowns
+
+```tsx
+const fields = [
+  FormFieldHelpers.select("country", "Country", [
+    { label: "Select Country", value: "" },
+    { label: "United States", value: "us" },
+    { label: "Canada", value: "ca" },
+  ]),
+  ConditionalField({
+    name: "state",
+    label: "State/Province",
+    type: "select",
+    condition: (values) => values.country === "us",
+    selectProps: {
+      options: [
+        { label: "Select State", value: "" },
+        { label: "California", value: "ca" },
+        { label: "New York", value: "ny" },
+      ],
+    },
+  }),
+  ConditionalField({
+    name: "province",
+    label: "Province",
+    type: "select",
+    condition: (values) => values.country === "ca",
+    selectProps: {
+      options: [
+        { label: "Select Province", value: "" },
+        { label: "Ontario", value: "on" },
+        { label: "Quebec", value: "qc" },
+      ],
+    },
+  }),
+];
+```
+
+### Dynamic Validation
+
+```tsx
+import { z } from "zod";
+
+const schema = z.object({
+  hasPhone: z.boolean(),
+  phone: z.string().optional(),
+  hasAddress: z.boolean(),
+  address: z.object({
+    street: z.string(),
+    city: z.string(),
+    zipCode: z.string(),
+  }).optional(),
+}).refine(data => {
+  if (data.hasPhone && !data.phone) {
+    return false;
+  }
+  if (data.hasAddress && (!data.address?.street || !data.address?.city)) {
+    return false;
+  }
+  return true;
+}, {
+  message: "Required fields are missing",
+});
+```
+
+## Performance Considerations
+
+### Memoized Conditional Fields
+
+```tsx
+import { memo } from "react";
+
+const MemoizedConditionalField = memo(ConditionalField);
+
+// Use in your form
+const fields = [
+  MemoizedConditionalField({
+    name: "phone",
+    label: "Phone",
+    type: "input",
+    condition: (values) => values.hasPhone,
+  }),
+];
+```
+
+### Debounced Field Arrays
+
+```tsx
+import { useDebouncedValidation } from "@rachelallyson/hero-hook-form";
+
+function DynamicFieldArray({ fields, ...props }) {
+  const { debouncedValue } = useDebouncedValidation(fields, { delay: 300 });
+
+  return (
+    <FieldArrayField
+      {...props}
+      fields={debouncedValue}
+    />
+  );
+}
+```
+
+## Testing Dynamic Forms
+
+### Testing Conditional Fields
+
+```tsx
+import { createFormTestUtils } from "@rachelallyson/hero-hook-form";
+
+const testUtils = createFormTestUtils(form);
+
+// Test conditional field visibility
+testUtils.setFieldValue("hasPhone", true);
+cy.get('[data-testid="phone-field"]').should("be.visible");
+
+testUtils.setFieldValue("hasPhone", false);
+cy.get('[data-testid="phone-field"]').should("not.exist");
+```
+
+### Testing Field Arrays
+
+```tsx
+// Test adding items
+cy.get('[data-testid="add-address"]').click();
+cy.get('[data-testid="addresses[0].street"]').type("123 Main St");
+    
+// Test removing items
+cy.get('[data-testid="remove-address-0"]').click();
+cy.get('[data-testid="addresses[0].street"]').should("not.exist");
+```
+
+## Best Practices
+
+### 1. Keep Conditions Simple
+```tsx
+// Good: Simple condition
+condition: (values) => values.hasPhone
+
+// Avoid: Complex conditions
+condition: (values) => values.hasPhone && values.userType === "premium" && values.isActive
+```
+
+### 2. Use Meaningful Field Names
+```tsx
+// Good: Clear naming
+name: "emergencyContactPhone"
+
+// Avoid: Unclear naming
+name: "phone2"
+```
+
+### 3. Provide Clear Labels
+```tsx
+// Good: Descriptive labels
+label: "Emergency Contact Phone Number"
+
+// Avoid: Generic labels
+label: "Phone"
+```
+
+### 4. Handle Edge Cases
+```tsx
+// Always provide fallback values
+const condition = (values) => {
+  return values?.hasPhone === true && values?.phone?.length > 0;
+};
+```
+
+### 5. Test All Conditions
+```tsx
+// Test both true and false states
+it("shows phone field when hasPhone is true", () => {
+  // Test visible state
+});
+
+it("hides phone field when hasPhone is false", () => {
+  // Test hidden state
+});
+```

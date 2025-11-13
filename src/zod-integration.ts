@@ -1,7 +1,11 @@
-import type { DefaultValues, FieldValues, Resolver, FieldErrors } from "react-hook-form";
+import type {
+  DefaultValues,
+  FieldErrors,
+  FieldValues,
+  Resolver,
+} from "react-hook-form";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-
 import type { ZodFormConfig, ZodFormFieldConfig } from "./types";
 
 /**
@@ -10,7 +14,7 @@ import type { ZodFormConfig, ZodFormFieldConfig } from "./types";
 function createZodResolver<T extends FieldValues>(
   schema: z.ZodSchema<T>,
 ): Resolver<T> {
-  return async (values, context) => {
+  return async (values) => {
     try {
       const result = await schema.parseAsync(values);
 
@@ -61,8 +65,10 @@ export function createZodFormConfig<TFieldValues extends FieldValues>(
   defaultValues?: Partial<TFieldValues>,
 ): ZodFormConfig<TFieldValues> {
   return {
-    schema,
     fields,
-    ...(defaultValues && { defaultValues: defaultValues as DefaultValues<TFieldValues> }),
+    schema,
+    ...(defaultValues && {
+      defaultValues: defaultValues as DefaultValues<TFieldValues>,
+    }),
   };
 }

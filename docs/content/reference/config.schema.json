@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Hero Hook Form Configuration",
+  "type": "object",
+  "description": "This package does not require runtime configuration.",
+  "additionalProperties": false,
+  "properties": {}
+}

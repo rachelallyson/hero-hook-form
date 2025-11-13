@@ -11,13 +11,18 @@ export class BasicFormBuilder<T extends FieldValues> {
   /**
    * Add an input field
    */
-  input(name: Path<T>, label: string, type: "text" | "email" | "tel" | "password" = "text"): this {
+  input(
+    name: Path<T>,
+    label: string,
+    type: "text" | "email" | "tel" | "password" = "text",
+  ): this {
     this.fields.push({
-      name,
-      label,
-      type: "input",
       inputProps: { type },
+      label,
+      name,
+      type: "input",
     });
+
     return this;
   }
 
@@ -26,24 +31,30 @@ export class BasicFormBuilder<T extends FieldValues> {
    */
   textarea(name: Path<T>, label: string, placeholder?: string): this {
     this.fields.push({
-      name,
       label,
-      type: "textarea",
+      name,
       textareaProps: { placeholder },
+      type: "textarea",
     });
+
     return this;
   }
 
   /**
    * Add a select field
    */
-  select(name: Path<T>, label: string, options: { label: string; value: string | number }[]): this {
+  select(
+    name: Path<T>,
+    label: string,
+    options: { label: string; value: string | number }[],
+  ): this {
     this.fields.push({
-      name,
       label,
-      type: "select",
+      name,
       options,
+      type: "select",
     });
+
     return this;
   }
 
@@ -52,10 +63,11 @@ export class BasicFormBuilder<T extends FieldValues> {
    */
   checkbox(name: Path<T>, label: string): this {
     this.fields.push({
-      name,
       label,
+      name,
       type: "checkbox",
     });
+
     return this;
   }
 
@@ -64,10 +76,11 @@ export class BasicFormBuilder<T extends FieldValues> {
    */
   switch(name: Path<T>, label: string): this {
     this.fields.push({
-      name,
       label,
+      name,
       type: "switch",
     });
+
     return this;
   }
 
@@ -82,7 +95,9 @@ export class BasicFormBuilder<T extends FieldValues> {
 /**
  * Create a new simple form field builder
  */
-export function createBasicFormBuilder<T extends FieldValues>(): BasicFormBuilder<T> {
+export function createBasicFormBuilder<
+  T extends FieldValues,
+>(): BasicFormBuilder<T> {
   return new BasicFormBuilder<T>();
 }
 
@@ -91,31 +106,29 @@ export function createBasicFormBuilder<T extends FieldValues>(): BasicFormBuilde
  */
 export const FormFieldHelpers = {
   /**
+   * Create a checkbox field
+   */
+  checkbox: <T extends FieldValues>(
+    name: Path<T>,
+    label: string,
+  ): ZodFormFieldConfig<T> => ({
+    label,
+    name,
+    type: "checkbox",
+  }),
+
+  /**
    * Create an input field
    */
   input: <T extends FieldValues>(
     name: Path<T>,
     label: string,
-    type: "text" | "email" | "tel" | "password" = "text"
+    type: "text" | "email" | "tel" | "password" = "text",
   ): ZodFormFieldConfig<T> => ({
-    name,
-    label,
-    type: "input",
     inputProps: { type },
-  }),
-
-  /**
-   * Create a textarea field
-   */
-  textarea: <T extends FieldValues>(
-    name: Path<T>,
-    label: string,
-    placeholder?: string
-  ): ZodFormFieldConfig<T> => ({
-    name,
     label,
-    type: "textarea",
-    textareaProps: { placeholder },
+    name,
+    type: "input",
   }),
 
   /**
@@ -124,30 +137,38 @@ export const FormFieldHelpers = {
   select: <T extends FieldValues>(
     name: Path<T>,
     label: string,
-    options: { label: string; value: string | number }[]
+    options: { label: string; value: string | number }[],
   ): ZodFormFieldConfig<T> => ({
-    name,
     label,
-    type: "select",
+    name,
     options,
-  }),
-
-  /**
-   * Create a checkbox field
-   */
-  checkbox: <T extends FieldValues>(name: Path<T>, label: string): ZodFormFieldConfig<T> => ({
-    name,
-    label,
-    type: "checkbox",
+    type: "select",
   }),
 
   /**
    * Create a switch field
    */
-  switch: <T extends FieldValues>(name: Path<T>, label: string): ZodFormFieldConfig<T> => ({
-    name,
+  switch: <T extends FieldValues>(
+    name: Path<T>,
+    label: string,
+  ): ZodFormFieldConfig<T> => ({
     label,
+    name,
     type: "switch",
+  }),
+
+  /**
+   * Create a textarea field
+   */
+  textarea: <T extends FieldValues>(
+    name: Path<T>,
+    label: string,
+    placeholder?: string,
+  ): ZodFormFieldConfig<T> => ({
+    label,
+    name,
+    textareaProps: { placeholder },
+    type: "textarea",
   }),
 };
 
@@ -155,6 +176,25 @@ export const FormFieldHelpers = {
  * Common field collections
  */
 export const CommonFields = {
+  /**
+   * Address fields
+   */
+  address: <T extends FieldValues>() => [
+    FormFieldHelpers.input<T>("street" as Path<T>, "Street Address"),
+    FormFieldHelpers.input<T>("city" as Path<T>, "City"),
+    FormFieldHelpers.input<T>("state" as Path<T>, "State/Province"),
+    FormFieldHelpers.input<T>("zipCode" as Path<T>, "ZIP/Postal Code"),
+    FormFieldHelpers.select<T>("country" as Path<T>, "Country", [
+      { label: "Select a country", value: "" },
+      { label: "United States", value: "us" },
+      { label: "Canada", value: "ca" },
+      { label: "United Kingdom", value: "uk" },
+      { label: "Australia", value: "au" },
+      { label: "Germany", value: "de" },
+      { label: "France", value: "fr" },
+    ]),
+  ],
+
   /**
    * Personal information fields
    */
@@ -166,34 +206,20 @@ export const CommonFields = {
   ],
 
   /**
-   * Address fields
-   */
-  address: <T extends FieldValues>() => [
-    FormFieldHelpers.input<T>("street" as Path<T>, "Street Address"),
-    FormFieldHelpers.input<T>("city" as Path<T>, "City"),
-    FormFieldHelpers.input<T>("state" as Path<T>, "State/Province"),
-    FormFieldHelpers.input<T>("zipCode" as Path<T>, "ZIP/Postal Code"),
-    FormFieldHelpers.select<T>(
-      "country" as Path<T>,
-      "Country",
-      [
-        { label: "Select a country", value: "" },
-        { label: "United States", value: "us" },
-        { label: "Canada", value: "ca" },
-        { label: "United Kingdom", value: "uk" },
-        { label: "Australia", value: "au" },
-        { label: "Germany", value: "de" },
-        { label: "France", value: "fr" },
-      ]
-    ),
-  ],
-
-  /**
    * Terms and conditions fields
    */
   terms: <T extends FieldValues>() => [
-    FormFieldHelpers.checkbox<T>("terms" as Path<T>, "I agree to the terms and conditions"),
-    FormFieldHelpers.checkbox<T>("privacy" as Path<T>, "I agree to the privacy policy"),
-    FormFieldHelpers.checkbox<T>("newsletter" as Path<T>, "Subscribe to newsletter"),
+    FormFieldHelpers.checkbox<T>(
+      "terms" as Path<T>,
+      "I agree to the terms and conditions",
+    ),
+    FormFieldHelpers.checkbox<T>(
+      "privacy" as Path<T>,
+      "I agree to the privacy policy",
+    ),
+    FormFieldHelpers.checkbox<T>(
+      "newsletter" as Path<T>,
+      "Subscribe to newsletter",
+    ),
   ],
 };

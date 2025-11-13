@@ -1,7 +1,7 @@
 "use client";
 
-import { z } from "zod";
 import type { FieldValues, Path } from "react-hook-form";
+import { z } from "zod";
 import type { ZodFormFieldConfig } from "../types";
 
 /**
@@ -25,26 +25,39 @@ export class TypeInferredBuilder<T extends FieldValues> {
       minLength?: number;
       maxLength?: number;
       pattern?: string;
-    }
+    },
   ): this {
-    const { minLength, maxLength, pattern, ...fieldOptions } = options || {};
-    
+    const { maxLength, minLength, pattern, ...fieldOptions } = options || {};
+
     // Build Zod schema
     let zodType: z.ZodString = z.string();
-    if (minLength) zodType = zodType.min(minLength, `${label} must be at least ${minLength} characters`);
-    if (maxLength) zodType = zodType.max(maxLength, `${label} must be no more than ${maxLength} characters`);
-    if (pattern) zodType = zodType.regex(new RegExp(pattern), `${label} format is invalid`);
-    
+
+    if (minLength)
+      zodType = zodType.min(
+        minLength,
+        `${label} must be at least ${minLength} characters`,
+      );
+    if (maxLength)
+      zodType = zodType.max(
+        maxLength,
+        `${label} must be no more than ${maxLength} characters`,
+      );
+    if (pattern)
+      zodType = zodType.regex(
+        new RegExp(pattern),
+        `${label} format is invalid`,
+      );
+
     this.schemaFields[name as string] = zodType;
-    
+
     // Build form field
     this.formFields.push({
-      name,
-      label,
-      type: "input",
       inputProps: { type: "text", ...fieldOptions },
+      label,
+      name,
+      type: "input",
     });
-    
+
     return this;
   }
 
@@ -59,19 +72,21 @@ export class TypeInferredBuilder<T extends FieldValues> {
       description?: string;
       isDisabled?: boolean;
       className?: string;
-    }
+    },
   ): this {
     // Build Zod schema
-    this.schemaFields[name as string] = z.string().email(`Please enter a valid email address`);
-    
+    this.schemaFields[name as string] = z
+      .string()
+      .email(`Please enter a valid email address`);
+
     // Build form field
     this.formFields.push({
-      name,
-      label,
-      type: "input",
       inputProps: { type: "email", ...options },
+      label,
+      name,
+      type: "input",
     });
-    
+
     return this;
   }
 
@@ -89,25 +104,28 @@ export class TypeInferredBuilder<T extends FieldValues> {
       min?: number;
       max?: number;
       step?: number;
-    }
+    },
   ): this {
-    const { min, max, step, ...fieldOptions } = options || {};
-    
+    const { max, min, step, ...fieldOptions } = options || {};
+
     // Build Zod schema
     let zodType: z.ZodNumber = z.number();
-    if (min !== undefined) zodType = zodType.min(min, `${label} must be at least ${min}`);
-    if (max !== undefined) zodType = zodType.max(max, `${label} must be no more than ${max}`);
-    
+
+    if (min !== undefined)
+      zodType = zodType.min(min, `${label} must be at least ${min}`);
+    if (max !== undefined)
+      zodType = zodType.max(max, `${label} must be no more than ${max}`);
+
     this.schemaFields[name as string] = zodType;
-    
+
     // Build form field
     this.formFields.push({
-      name,
+      inputProps: { max, min, step, type: "number", ...fieldOptions },
       label,
+      name,
       type: "input",
-      inputProps: { type: "number", min, max, step, ...fieldOptions },
     });
-    
+
     return this;
   }
 
@@ -124,24 +142,29 @@ export class TypeInferredBuilder<T extends FieldValues> {
       className?: string;
       rows?: number;
       minLength?: number;
-    }
+    },
   ): this {
     const { minLength, ...fieldOptions } = options || {};
-    
+
     // Build Zod schema
     let zodType: z.ZodString = z.string();
-    if (minLength) zodType = zodType.min(minLength, `${label} must be at least ${minLength} characters`);
-    
+
+    if (minLength)
+      zodType = zodType.min(
+        minLength,
+        `${label} must be at least ${minLength} characters`,
+      );
+
     this.schemaFields[name as string] = zodType;
-    
+
     // Build form field
     this.formFields.push({
-      name,
       label,
-      type: "textarea",
+      name,
       textareaProps: fieldOptions,
+      type: "textarea",
     });
-    
+
     return this;
   }
 
@@ -152,24 +175,20 @@ export class TypeInferredBuilder<T extends FieldValues> {
     name: Path<T>,
     label: string,
     options: { label: string; value: string | number }[],
-    fieldOptions?: {
-      placeholder?: string;
-      description?: string;
-      isDisabled?: boolean;
-      className?: string;
-    }
   ): this {
     // Build Zod schema
-    this.schemaFields[name as string] = z.string().min(1, `Please select a ${label.toLowerCase()}`);
-    
+    this.schemaFields[name as string] = z
+      .string()
+      .min(1, `Please select a ${label.toLowerCase()}`);
+
     // Build form field
     this.formFields.push({
-      name,
       label,
-      type: "select",
+      name,
       options,
+      type: "select",
     });
-    
+
     return this;
   }
 
@@ -184,25 +203,29 @@ export class TypeInferredBuilder<T extends FieldValues> {
       isDisabled?: boolean;
       className?: string;
       required?: boolean;
-    }
+    },
   ): this {
     const { required = false, ...fieldOptions } = options || {};
-    
+
     // Build Zod schema
     let zodType: z.ZodBoolean = z.boolean();
+
     if (required) {
-      zodType = zodType.refine((val) => val === true, `You must agree to ${label.toLowerCase()}`);
+      zodType = zodType.refine(
+        (val) => val === true,
+        `You must agree to ${label.toLowerCase()}`,
+      );
     }
     this.schemaFields[name as string] = zodType;
-    
+
     // Build form field
     this.formFields.push({
-      name,
-      label,
-      type: "checkbox",
       checkboxProps: fieldOptions,
+      label,
+      name,
+      type: "checkbox",
     });
-    
+
     return this;
   }
 
@@ -216,19 +239,19 @@ export class TypeInferredBuilder<T extends FieldValues> {
       description?: string;
       isDisabled?: boolean;
       className?: string;
-    }
+    },
   ): this {
     // Build Zod schema
     this.schemaFields[name as string] = z.boolean().optional();
-    
+
     // Build form field
     this.formFields.push({
-      name,
       label,
-      type: "switch",
+      name,
       switchProps: options,
+      type: "switch",
     });
-    
+
     return this;
   }
 
@@ -244,20 +267,22 @@ export class TypeInferredBuilder<T extends FieldValues> {
       isDisabled?: boolean;
       className?: string;
       orientation?: "horizontal" | "vertical";
-    }
+    },
   ): this {
     // Build Zod schema
-    this.schemaFields[name as string] = z.string().min(1, `Please select a ${label.toLowerCase()}`);
-    
+    this.schemaFields[name as string] = z
+      .string()
+      .min(1, `Please select a ${label.toLowerCase()}`);
+
     // Build form field
     this.formFields.push({
-      name,
       label,
-      type: "radio",
+      name,
       radioOptions: options,
       radioProps: fieldOptions,
+      type: "radio",
     });
-    
+
     return this;
   }
 
@@ -274,25 +299,28 @@ export class TypeInferredBuilder<T extends FieldValues> {
       description?: string;
       isDisabled?: boolean;
       className?: string;
-    }
+    },
   ): this {
-    const { min = 0, max = 100, step = 1, ...fieldOptions } = options || {};
-    
+    const { max = 100, min = 0, step = 1, ...fieldOptions } = options || {};
+
     // Build Zod schema
     let zodType: z.ZodNumber = z.number();
-    if (min !== undefined) zodType = zodType.min(min, `${label} must be at least ${min}`);
-    if (max !== undefined) zodType = zodType.max(max, `${label} must be no more than ${max}`);
-    
+
+    if (min !== undefined)
+      zodType = zodType.min(min, `${label} must be at least ${min}`);
+    if (max !== undefined)
+      zodType = zodType.max(max, `${label} must be no more than ${max}`);
+
     this.schemaFields[name as string] = zodType;
-    
+
     // Build form field
     this.formFields.push({
-      name,
       label,
+      name,
+      sliderProps: { max, min, step, ...fieldOptions },
       type: "slider",
-      sliderProps: { min, max, step, ...fieldOptions },
     });
-    
+
     return this;
   }
 
@@ -307,19 +335,21 @@ export class TypeInferredBuilder<T extends FieldValues> {
       description?: string;
       isDisabled?: boolean;
       className?: string;
-    }
+    },
   ): this {
     // Build Zod schema
-    this.schemaFields[name as string] = z.string().min(1, `${label} is required`);
-    
+    this.schemaFields[name as string] = z
+      .string()
+      .min(1, `${label} is required`);
+
     // Build form field
     this.formFields.push({
-      name,
-      label,
-      type: "date",
       dateProps: options,
+      label,
+      name,
+      type: "date",
     });
-    
+
     return this;
   }
 
@@ -335,19 +365,19 @@ export class TypeInferredBuilder<T extends FieldValues> {
       description?: string;
       isDisabled?: boolean;
       className?: string;
-    }
+    },
   ): this {
     // Build Zod schema
     this.schemaFields[name as string] = z.any().optional();
-    
+
     // Build form field
     this.formFields.push({
-      name,
-      label,
-      type: "file",
       fileProps: options,
+      label,
+      name,
+      type: "file",
     });
-    
+
     return this;
   }
 
@@ -359,8 +389,8 @@ export class TypeInferredBuilder<T extends FieldValues> {
     fields: ZodFormFieldConfig<T>[];
   } {
     return {
-      schema: z.object(this.schemaFields) as z.ZodSchema<T>,
       fields: this.formFields,
+      schema: z.object(this.schemaFields) as z.ZodSchema<T>,
     };
   }
 }
@@ -368,7 +398,9 @@ export class TypeInferredBuilder<T extends FieldValues> {
 /**
  * Create a new type-inferred form builder
  */
-export function createTypeInferredBuilder<T extends FieldValues>(): TypeInferredBuilder<T> {
+export function createTypeInferredBuilder<
+  T extends FieldValues,
+>(): TypeInferredBuilder<T> {
   return new TypeInferredBuilder<T>();
 }
 
@@ -376,13 +408,15 @@ export function createTypeInferredBuilder<T extends FieldValues>(): TypeInferred
  * Define a form with type inference
  */
 export function defineInferredForm<T extends FieldValues>(
-  fieldDefinitions: (builder: TypeInferredBuilder<T>) => TypeInferredBuilder<T>
+  fieldDefinitions: (builder: TypeInferredBuilder<T>) => TypeInferredBuilder<T>,
 ): {
   schema: z.ZodSchema<T>;
   fields: ZodFormFieldConfig<T>[];
 } {
   const builder = createTypeInferredBuilder<T>();
+
   fieldDefinitions(builder);
+
   return builder.build();
 }
 
@@ -390,104 +424,114 @@ export function defineInferredForm<T extends FieldValues>(
  * Field type builders for individual field creation
  */
 export const field = {
-  text: <T extends FieldValues>(
+  checkbox: <T extends FieldValues>(
     name: Path<T>,
     label: string,
-    options?: Parameters<TypeInferredBuilder<T>['text']>[2]
+    options?: Parameters<TypeInferredBuilder<T>["checkbox"]>[2],
   ) => {
     const builder = new TypeInferredBuilder<T>();
-    return builder.text(name, label, options);
+
+    return builder.checkbox(name, label, options);
+  },
+
+  date: <T extends FieldValues>(
+    name: Path<T>,
+    label: string,
+    options?: Parameters<TypeInferredBuilder<T>["date"]>[2],
+  ) => {
+    const builder = new TypeInferredBuilder<T>();
+
+    return builder.date(name, label, options);
   },
 
   email: <T extends FieldValues>(
     name: Path<T>,
     label: string,
-    options?: Parameters<TypeInferredBuilder<T>['email']>[2]
+    options?: Parameters<TypeInferredBuilder<T>["email"]>[2],
   ) => {
     const builder = new TypeInferredBuilder<T>();
+
     return builder.email(name, label, options);
+  },
+
+  file: <T extends FieldValues>(
+    name: Path<T>,
+    label: string,
+    options?: Parameters<TypeInferredBuilder<T>["file"]>[2],
+  ) => {
+    const builder = new TypeInferredBuilder<T>();
+
+    return builder.file(name, label, options);
   },
 
   number: <T extends FieldValues>(
     name: Path<T>,
     label: string,
-    options?: Parameters<TypeInferredBuilder<T>['number']>[2]
+    options?: Parameters<TypeInferredBuilder<T>["number"]>[2],
   ) => {
     const builder = new TypeInferredBuilder<T>();
+
     return builder.number(name, label, options);
-  },
-
-  textarea: <T extends FieldValues>(
-    name: Path<T>,
-    label: string,
-    options?: Parameters<TypeInferredBuilder<T>['textarea']>[2]
-  ) => {
-    const builder = new TypeInferredBuilder<T>();
-    return builder.textarea(name, label, options);
-  },
-
-  select: <T extends FieldValues>(
-    name: Path<T>,
-    label: string,
-    options: { label: string; value: string | number }[],
-    fieldOptions?: Parameters<TypeInferredBuilder<T>['select']>[3]
-  ) => {
-    const builder = new TypeInferredBuilder<T>();
-    return builder.select(name, label, options, fieldOptions);
-  },
-
-  checkbox: <T extends FieldValues>(
-    name: Path<T>,
-    label: string,
-    options?: Parameters<TypeInferredBuilder<T>['checkbox']>[2]
-  ) => {
-    const builder = new TypeInferredBuilder<T>();
-    return builder.checkbox(name, label, options);
-  },
-
-  switch: <T extends FieldValues>(
-    name: Path<T>,
-    label: string,
-    options?: Parameters<TypeInferredBuilder<T>['switch']>[2]
-  ) => {
-    const builder = new TypeInferredBuilder<T>();
-    return builder.switch(name, label, options);
   },
 
   radio: <T extends FieldValues>(
     name: Path<T>,
     label: string,
     options: { label: string; value: string | number }[],
-    fieldOptions?: Parameters<TypeInferredBuilder<T>['radio']>[3]
+    fieldOptions?: Parameters<TypeInferredBuilder<T>["radio"]>[3],
   ) => {
     const builder = new TypeInferredBuilder<T>();
+
     return builder.radio(name, label, options, fieldOptions);
+  },
+
+  select: <T extends FieldValues>(
+    name: Path<T>,
+    label: string,
+    options: { label: string; value: string | number }[],
+  ) => {
+    const builder = new TypeInferredBuilder<T>();
+
+    return builder.select(name, label, options);
   },
 
   slider: <T extends FieldValues>(
     name: Path<T>,
     label: string,
-    options?: Parameters<TypeInferredBuilder<T>['slider']>[2]
+    options?: Parameters<TypeInferredBuilder<T>["slider"]>[2],
   ) => {
     const builder = new TypeInferredBuilder<T>();
+
     return builder.slider(name, label, options);
   },
 
-  date: <T extends FieldValues>(
+  switch: <T extends FieldValues>(
     name: Path<T>,
     label: string,
-    options?: Parameters<TypeInferredBuilder<T>['date']>[2]
+    options?: Parameters<TypeInferredBuilder<T>["switch"]>[2],
   ) => {
     const builder = new TypeInferredBuilder<T>();
-    return builder.date(name, label, options);
+
+    return builder.switch(name, label, options);
   },
 
-  file: <T extends FieldValues>(
+  text: <T extends FieldValues>(
     name: Path<T>,
     label: string,
-    options?: Parameters<TypeInferredBuilder<T>['file']>[2]
+    options?: Parameters<TypeInferredBuilder<T>["text"]>[2],
   ) => {
     const builder = new TypeInferredBuilder<T>();
-    return builder.file(name, label, options);
+
+    return builder.text(name, label, options);
+  },
+
+  textarea: <T extends FieldValues>(
+    name: Path<T>,
+    label: string,
+    options?: Parameters<TypeInferredBuilder<T>["textarea"]>[2],
+  ) => {
+    const builder = new TypeInferredBuilder<T>();
+
+    return builder.textarea(name, label, options);
   },
 };

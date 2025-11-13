@@ -1,0 +1,112 @@
+---
+title: LLM Context Map
+description: High-signal map for AI assistants working in this repo.
+---
+
+### Start here
+
+- Index: ./index
+- Concepts: ./concepts
+- Config: ./reference/config
+- API (TypeDoc): ./api/README
+- Source entry: ../../src/index.ts
+
+### Invariants
+
+- Prefer public exports from `src/index.ts`. Do not deep import internal files.
+- React Hook Form v7 is foundational; re-exports `useFormContext`, `UseFormReturn` are available.
+- Zod integration is optional; only use when `zod` and `@hookform/resolvers` are installed.
+- No CLI, no HTTP endpoints, no Prisma. Do not invent env vars or routes.
+- Docs source lives in `docs/content/`; API docs are generated into `docs/content/api/`.
+
+### Public surface
+
+- Components: `Form`, `FormField`, `ZodForm`, fields (`CheckboxField`, `InputField`, `RadioGroupField`, `SelectField`, `SliderField`, `SwitchField`, `TextareaField`, `DateField`, `FileField`, `FontPickerField`, `ConditionalField`, `FieldArrayField`, `DynamicSectionField`), `SubmitButton`, `FormStatus`
+- Providers: `ConfigProvider`, `FormProvider`
+- Hooks: `useFormHelper`, `useHeroForm`, `useEnhancedFormState`, `useDebouncedValidation`, `useInferredForm`, plus `useFormContext`, `UseFormReturn`
+- Builders and validation helpers: `builders/index`, `builders/validation-helpers`, and named helpers like `createEmailSchema`, `createRequiredSchema`, `crossFieldValidation`
+- Utils: `applyServerErrors`, `validation`, `performance`, `testing`
+- Types: `types` (see `src/types.ts` and API docs)
+
+### Common tasks
+
+- Quickstart with ZodForm: ./guides/quickstart
+- Build dynamic forms (conditional fields, arrays): ./guides/dynamic-forms
+- Handle validation and server errors: ./guides/error-handling
+
+### Don’ts
+
+- Don’t invent configuration keys or env vars.
+- Don’t deep import into `src/**`—use public exports from `src/index.ts`.
+- Don’t assume HTTP/REST/GraphQL—none exist here.
+
+### Regenerating API docs
+
+- From repo root: `npm run docs:api` (outputs to `docs/content/api/`)
+# LLM Context
+
+This file provides essential context for AI assistants working with the Hero Hook Form codebase.
+
+## Start Here
+
+- **Main Entry**: [docs/content/index.mdx](./index.mdx) - Package overview and quick start
+- **Core Concepts**: [docs/content/concepts.mdx](./concepts.mdx) - Architecture and mental models
+- **API Reference**: [docs/content/api/](./api/) - Complete API documentation
+- **Source Code**: [src/index.ts](../../src/index.ts) - Public exports and main entry point
+
+## Invariants
+
+- **Form State**: All forms use React Hook Form's `UseFormReturn` interface
+- **Type Safety**: All field configurations are fully typed with TypeScript
+- **HeroUI Integration**: All components use HeroUI's design system and props
+- **Validation**: Zod schemas are required for `ZodForm` components
+- **Performance**: Components are memoized with `React.memo` for optimal performance
+- **Accessibility**: All form fields include proper ARIA attributes and keyboard navigation
+
+## Public Surface
+
+### Core Components
+- `Form` - Basic form component with field configuration
+- `ZodForm` - Form component with Zod schema validation
+- `FormField` - Individual field component
+- `FormStatus` - Form state display component
+
+### Field Components
+- `InputField`, `TextareaField`, `SelectField` - Text input fields
+- `CheckboxField`, `SwitchField`, `RadioGroupField` - Boolean/choice fields
+- `DateField`, `FileField`, `SliderField` - Specialized input fields
+- `FontPickerField` - Font selection field
+- `ConditionalField`, `FieldArrayField`, `DynamicSectionField` - Dynamic fields
+
+### Hooks
+- `useHeroForm` - Enhanced form hook with defaults
+- `useFormHelper` - Form state management hook
+- `useEnhancedFormState` - Advanced form state tracking
+- `useDebouncedValidation` - Debounced field validation
+
+### Form Builders
+- `createBasicFormBuilder` - Simple form builder
+- `createAdvancedBuilder` - Advanced form builder with all features
+- `createTypeInferredBuilder` - Type-inferred form builder
+- `FormFieldHelpers` - Helper functions for field creation
+- `CommonFields` - Pre-built field collections
+
+### Utilities
+- `applyServerErrors` - Server-side error handling
+- `createZodFormConfig` - Zod form configuration helper
+- Validation utilities: `createEmailSchema`, `createPasswordSchema`, etc.
+
+## Common Tasks
+
+- **Basic Form**: Use `ZodForm` with `FormFieldHelpers` for simple forms
+- **Dynamic Forms**: Use `ConditionalField` and `FieldArrayField` for conditional/repeating fields
+- **Type-Inferred Forms**: Use `defineInferredForm` for automatic schema generation
+- **Custom Validation**: Use Zod schemas with cross-field validation helpers
+
+## Don'ts
+
+- Don't use `isDisabled` prop - use `disabled` for consistency with HeroUI
+- Don't deep import from internal modules - use public exports from `src/index.ts`
+- Don't bypass form validation - always use proper schema validation
+- Don't forget to wrap forms in `HeroHookFormProvider` for styling defaults
+- Don't use `rules` property in `ZodFormFieldConfig` - validation is handled by Zod schemas

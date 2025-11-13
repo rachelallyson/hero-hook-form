@@ -1,0 +1,287 @@
+---
+title: Concepts
+description: Core architecture, data flow, and invariants.
+---
+
+### Architecture
+
+- React Hook Form (RHF) manages form state and validation.
+- HeroUI components are wrapped as typed field components for accessibility and consistency.
+- Use three patterns: helper-based, builder-based, or schema-first with Zod (`ZodForm`).
+- Providers (`FormProvider`, `ConfigProvider`) compose global behavior when needed.
+
+### Data flow
+
+- Register fields with RHF; field components bind to RHF control.
+- For Zod forms, Zod schema validates inputs via `@hookform/resolvers`.
+- Submit handlers receive typed data. Map server errors back with `applyServerErrors`.
+
+### Invariants
+
+- Field names must match your form value type (`Path<T>` semantics).
+- Zod schema (when used) must match the same shape as your fields.
+- Conditional fields should be optional in the schema or guarded in validation.
+- `defaultValues` must align with both schema and field defaults.
+
+### Performance
+
+- Field components are memoized to minimize re-renders.
+- Use `useDebouncedValidation` for text inputs to avoid noisy validation.
+- Prefer RHF controls; only use fully controlled components when necessary.
+
+### Error handling
+
+- Client-side: Zod or RHF rules.
+- Server-side: use `applyServerErrors(form, errors)` to set field errors.
+- Use `FormStatus` for global loading/success/error feedback.
+# Core Concepts
+
+Understanding the mental models and architecture of Hero Hook Form.
+
+## Architecture Overview
+
+Hero Hook Form is built on three core pillars:
+
+1. **React Hook Form** - Form state management and validation
+2. **HeroUI Components** - Beautiful, accessible UI components
+3. **TypeScript** - Type safety and developer experience
+
+## Form Lifecycle
+
+### 1. Initialization
+```tsx
+// Form is created with schema and field configuration
+const form = useForm({
+  resolver: zodResolver(schema),
+  defaultValues: { name: "", email: "" }
+});
+```
+
+### 2. Rendering
+```tsx
+// Fields are rendered based on configuration
+<FormField config={fieldConfig} form={form} />
+```
+
+### 3. Validation
+```tsx
+// Validation happens on blur, change, or submit
+const isValid = await form.trigger();
+```
+
+### 4. Submission
+```tsx
+// Form data is validated and submitted
+const handleSubmit = (data) => {
+  // Process validated data
+};
+```
+
+## Data Model
+
+### Form Configuration
+```tsx
+interface FormConfig<T> {
+  fields: FormFieldConfig<T>[];
+  layout?: "vertical" | "horizontal" | "grid";
+  defaultValues?: Partial<T>;
+}
+```
+
+### Field Configuration
+```tsx
+interface FormFieldConfig<T> {
+  name: Path<T>;
+  type: "input" | "textarea" | "select" | "checkbox" | "switch" | "radio";
+  label?: string;
+  description?: string;
+  // ... type-specific props
+}
+```
+
+### Form State
+```tsx
+interface FormState {
+  isSubmitting: boolean;
+  isSubmitted: boolean;
+  isSuccess: boolean;
+  errors: FieldErrors<T>;
+  values: T;
+}
+```
+
+## Field Types
+
+### Text Fields
+- **Input** - Single-line text input
+- **Textarea** - Multi-line text input
+- **Select** - Dropdown selection
+
+### Boolean Fields
+- **Checkbox** - Checkbox input
+- **Switch** - Toggle switch
+
+### Choice Fields
+- **Radio** - Radio button group
+- **Select** - Dropdown selection
+
+### Specialized Fields
+- **Date** - Date picker
+- **File** - File upload
+- **Slider** - Numeric slider
+- **FontPicker** - Font selection
+
+### Dynamic Fields
+- **Conditional** - Show/hide based on form data
+- **FieldArray** - Dynamic repeating fields
+- **DynamicSection** - Grouped conditional fields
+
+## Validation Patterns
+
+### Schema-First Validation
+```tsx
+const schema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8),
+});
+```
+
+### Cross-Field Validation
+```tsx
+const schema = z.object({
+  password: z.string(),
+  confirmPassword: z.string(),
+}).refine(data => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+```
+
+### Conditional Validation
+```tsx
+const schema = z.object({
+  hasPhone: z.boolean(),
+  phone: z.string().optional(),
+}).refine(data => !data.hasPhone || data.phone, {
+  message: "Phone is required",
+  path: ["phone"],
+});
+```
+
+## Performance Considerations
+
+### Memoization
+All field components are wrapped with `React.memo` to prevent unnecessary re-renders.
+
+### Debounced Validation
+Use `useDebouncedValidation` for expensive validation operations:
+
+```tsx
+const { debouncedValue, isDebouncing } = useDebouncedValidation(
+  value,
+  { delay: 300 }
+);
+```
+
+### Batched Updates
+Use `useBatchedFieldUpdates` for multiple field updates:
+
+```tsx
+const { batchUpdate } = useBatchedFieldUpdates();
+batchUpdate([
+  { name: "field1", value: "value1" },
+  { name: "field2", value: "value2" },
+]);
+```
+
+## Error Handling
+
+### Client-Side Errors
+- Field-level validation errors
+- Form-level validation errors
+- Custom validation rules
+
+### Server-Side Errors
+```tsx
+import { applyServerErrors } from "@rachelallyson/hero-hook-form";
+
+// Apply server errors to form
+applyServerErrors(form, {
+  field1: "Server error message",
+  field2: "Another error",
+});
+```
+
+### Error Display
+- Inline field errors
+- Toast notifications
+- Modal error dialogs
+- Custom error components
+
+## Accessibility
+
+### ARIA Attributes
+All form fields include proper ARIA attributes:
+- `aria-label` for field labels
+- `aria-describedby` for field descriptions
+- `aria-invalid` for validation state
+- `aria-required` for required fields
+
+### Keyboard Navigation
+- Tab order follows logical form flow
+- Enter key submits forms
+- Escape key cancels forms
+- Arrow keys navigate radio groups
+
+### Screen Reader Support
+- Field labels are properly associated
+- Error messages are announced
+- Form state changes are communicated
+- Loading states are indicated
+
+## Testing
+
+### Form Test Utilities
+```tsx
+import { createFormTestUtils } from "@rachelallyson/hero-hook-form";
+
+const testUtils = createFormTestUtils(form);
+await testUtils.submitForm();
+const fieldValue = testUtils.getField("fieldName");
+```
+
+### Cypress Integration
+```tsx
+import { simulateFormSubmission } from "@rachelallyson/hero-hook-form/cypress";
+
+cy.get('[data-testid="form"]').then(simulateFormSubmission);
+```
+
+## Best Practices
+
+### Form Design
+1. Use clear, descriptive labels
+2. Group related fields together
+3. Provide helpful descriptions
+4. Show validation errors immediately
+5. Use appropriate input types
+
+### Performance
+1. Use `React.memo` for custom components
+2. Debounce expensive validations
+3. Batch field updates when possible
+4. Avoid unnecessary re-renders
+
+### Accessibility
+1. Always provide labels
+2. Use semantic HTML
+3. Ensure keyboard navigation
+4. Test with screen readers
+5. Provide error feedback
+
+### Type Safety
+1. Define proper TypeScript interfaces
+2. Use Zod schemas for validation
+3. Leverage type inference where possible
+4. Avoid `any` types
+5. Use proper generic constraints

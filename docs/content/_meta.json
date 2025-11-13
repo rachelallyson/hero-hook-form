@@ -1,0 +1,31 @@
+{
+    "index": "Hero Hook Form",
+    "concepts": "Core Concepts",
+    "guides": {
+        "title": "Guides",
+        "pages": [
+            "quickstart",
+            "dynamic-forms",
+            "error-handling"
+        ]
+    },
+    "reference": {
+        "title": "Reference",
+        "pages": [
+            "config"
+        ]
+    },
+    "api": {
+        "title": "API Reference",
+        "pages": [
+            "README"
+        ]
+    },
+    "recipes": {
+        "title": "Recipes",
+        "pages": [
+            "examples"
+        ]
+    },
+    "troubleshooting": "Troubleshooting"
+}

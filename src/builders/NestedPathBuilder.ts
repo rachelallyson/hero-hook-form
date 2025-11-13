@@ -30,13 +30,14 @@ export class NestedPathBuilder<T extends FieldValues> {
    * Add a field with single path
    * Usage: builder.field("firstName", "First Name")
    */
-  field(name: Path<T>, label: string, type: string = "input", props?: any): this {
+  field(name: Path<T>, label: string, type = "input", props?: any): this {
     this.fields.push({
-      name,
       label,
+      name,
       type: type as any,
       ...props,
     });
+
     return this;
   }
 
@@ -44,14 +45,16 @@ export class NestedPathBuilder<T extends FieldValues> {
    * Add a field with path segments
    * Usage: builder.fieldPath(["user", "profile", "name"], "Full Name")
    */
-  fieldPath(path: string[], label: string, type: string = "input", props?: any): this {
+  fieldPath(path: string[], label: string, type = "input", props?: any): this {
     const name = path.join(".") as Path<T>;
+
     this.fields.push({
-      name,
       label,
+      name,
       type: type as any,
       ...props,
     });
+
     return this;
   }
 
@@ -59,8 +62,9 @@ export class NestedPathBuilder<T extends FieldValues> {
    * Add a field with template literal path
    * Usage: builder.field`user.profile.name`("Full Name")
    */
-  fieldTemplate(path: TemplateStringsArray, ...args: any[]): FieldTemplateBuilder<T> {
+  fieldTemplate(path: TemplateStringsArray): FieldTemplateBuilder<T> {
     const pathString = path[0];
+
     return new FieldTemplateBuilder<T>(this, pathString);
   }
 
@@ -82,7 +86,7 @@ export class NestedPathBuilder<T extends FieldValues> {
 class NestedObjectBuilder<T extends FieldValues, TPath extends Path<T>> {
   constructor(
     private parent: NestedPathBuilder<T>,
-    private path: TPath
+    private path: TPath,
   ) {}
 
   /**
@@ -91,24 +95,31 @@ class NestedObjectBuilder<T extends FieldValues, TPath extends Path<T>> {
   field<FName extends string>(
     fieldName: FName,
     label: string,
-    type: string = "input",
-    props?: any
+    type = "input",
+    props?: any,
   ): NestedObjectBuilder<T, TPath> {
     const fullPath = `${this.path}.${fieldName}` as Path<T>;
+
     (this.parent as any).fields.push({
-      name: fullPath,
       label,
+      name: fullPath,
       type: type as any,
       ...props,
     });
+
     return this;
   }
 
   /**
    * Nest deeper into the object
    */
-  nest<SubPath extends string>(subPath: SubPath): NestedObjectBuilder<T, TPath> {
-    return new NestedObjectBuilder<T, TPath>(this.parent, `${this.path}.${subPath}` as TPath);
+  nest<SubPath extends string>(
+    subPath: SubPath,
+  ): NestedObjectBuilder<T, TPath> {
+    return new NestedObjectBuilder<T, TPath>(
+      this.parent,
+      `${this.path}.${subPath}` as TPath,
+    );
   }
 
   /**
@@ -125,7 +136,7 @@ class NestedObjectBuilder<T extends FieldValues, TPath extends Path<T>> {
 class SectionBuilder<T extends FieldValues, TPath extends Path<T>> {
   constructor(
     private parent: NestedPathBuilder<T>,
-    private path: TPath
+    private path: TPath,
   ) {}
 
   /**
@@ -134,39 +145,49 @@ class SectionBuilder<T extends FieldValues, TPath extends Path<T>> {
   field<FName extends string>(
     fieldName: FName,
     label: string,
-    type: string = "input",
-    props?: any
+    type = "input",
+    props?: any,
   ): SectionBuilder<T, TPath> {
     const fullPath = `${this.path}.${fieldName}` as Path<T>;
+
     (this.parent as any).fields.push({
-      name: fullPath,
       label,
+      name: fullPath,
       type: type as any,
       ...props,
     });
+
     return this;
   }
 
   /**
    * Add multiple fields to the section
    */
-  fields(fieldDefinitions: Array<{
-    name: string;
-    label: string;
-    type?: string;
-    props?: any;
-  }>): SectionBuilder<T, TPath> {
-    fieldDefinitions.forEach(field => {
+  fields(
+    fieldDefinitions: {
+      name: string;
+      label: string;
+      type?: string;
+      props?: any;
+    }[],
+  ): SectionBuilder<T, TPath> {
+    fieldDefinitions.forEach((field) => {
       this.field(field.name, field.label, field.type, field.props);
     });
+
     return this;
   }
 
   /**
    * Nest deeper into the section
    */
-  nest<SubPath extends string>(subPath: SubPath): NestedObjectBuilder<T, TPath> {
-    return new NestedObjectBuilder<T, TPath>(this.parent, `${this.path}.${subPath}` as TPath);
+  nest<SubPath extends string>(
+    subPath: SubPath,
+  ): NestedObjectBuilder<T, TPath> {
+    return new NestedObjectBuilder<T, TPath>(
+      this.parent,
+      `${this.path}.${subPath}` as TPath,
+    );
   }
 
   /**
@@ -183,27 +204,29 @@ class SectionBuilder<T extends FieldValues, TPath extends Path<T>> {
 class FieldTemplateBuilder<T extends FieldValues> {
   constructor(
     private parent: NestedPathBuilder<T>,
-    private path: string
+    private path: string,
   ) {}
 
   /**
    * Complete the field definition
    */
-  complete(label: string, type: string = "input", props?: any): NestedPathBuilder<T> {
+  complete(label: string, type = "input", props?: any): NestedPathBuilder<T> {
     (this.parent as any).fields.push({
-      name: this.path as Path<T>,
       label,
+      name: this.path as Path<T>,
       type: type as any,
       ...props,
     });
+
     return this.parent;
   }
 }
 
-
 /**
  * Factory function for creating the nested path builder
  */
-export function createNestedPathBuilder<T extends FieldValues>(): NestedPathBuilder<T> {
+export function createNestedPathBuilder<
+  T extends FieldValues,
+>(): NestedPathBuilder<T> {
   return new NestedPathBuilder<T>();
 }
