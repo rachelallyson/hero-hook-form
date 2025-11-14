@@ -1,8 +1,14 @@
-name: Docs
+name: Deploy Docs
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'src/**'              # Rebuild docs if source changes
+      - 'typedoc.json'        # Rebuild if TypeDoc config changes
+      - 'package.json'        # Rebuild if root dependencies change
+      - '.github/workflows/**'
   workflow_dispatch:
 
 permissions:
@@ -11,7 +17,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
+  group: "pages"
   cancel-in-progress: true
 
 jobs:
@@ -24,7 +30,8 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: '20'
+          cache: 'npm'
 
       - name: Install root dependencies
         run: npm ci
@@ -55,59 +62,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
-name: Deploy Docs
-
-on:
-  push:
-    branches: [main]
-    paths:
-      - 'docs/**'
-      - 'src/**'              # Rebuild docs if source changes
-      - 'typedoc.json'        # Rebuild if TypeDoc config changes
-      - 'package.json'        # Rebuild if root dependencies change
-      - '.github/workflows/**'
-  workflow_dispatch:
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
-
-jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-      
-      # Install root dependencies (for TypeDoc and other tools)
-      - run: npm ci
-      
-      # Generate API documentation from TypeScript source
-      - run: npm run docs:api
-      
-      # Install docs dependencies separately
-      - run: cd docs && npm install
-      
-      # Build documentation site
-      - run: npm run docs:build
-      
-      # Upload build output
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: './docs/out'
-      
-      # Deploy to GitHub Pages
-      - uses: actions/deploy-pages@v4
-        id: deployment
