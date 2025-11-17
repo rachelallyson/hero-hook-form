@@ -18,12 +18,8 @@ export async function generateMetadata({ params }) {
 
 export default async function Page({ params }) {
     const { mdxPath } = await params
-    const {
-        default: MDXContent,
-        toc,
-        metadata,
-        sourceCode
-    } = await importPage(mdxPath)
+    const page = await importPage(mdxPath)
+    const { default: MDXContent } = page
 
     return <MDXContent />
 }

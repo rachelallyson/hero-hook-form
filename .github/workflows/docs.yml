@@ -49,6 +49,10 @@ jobs:
           BASE_PATH: /hero-hook-form
         run: npm run build
 
+      - name: Create .nojekyll file
+        working-directory: docs
+        run: touch out/.nojekyll
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
