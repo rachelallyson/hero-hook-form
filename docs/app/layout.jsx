@@ -18,10 +18,17 @@ function normalizePageMap(pages) {
       route: page.route?.replace(/^\/content/, '') || page.route,
       url: page.url?.replace(/^\/content/, '') || page.url,
     }
-    // Recursively normalize children if they exist
-    if (page.children) {
-      normalized.children = normalizePageMap(page.children)
+
+    // Organize demo section: filter out the nested "docs" subdirectory from demo
+    // Keep the main demo index and individual demo pages, but remove demo/docs
+    if (normalized.children) {
+      normalized.children = normalizePageMap(normalized.children).filter(child => {
+        const childRoute = child.route || child.url || ''
+        // Remove demo/docs subdirectory - it's redundant
+        return !childRoute.includes('/demo/docs')
+      })
     }
+
     return normalized
   })
 }

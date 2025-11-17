@@ -6,7 +6,12 @@
         "pages": [
             "quickstart",
             "dynamic-forms",
-            "error-handling"
+            "error-handling",
+            "performance",
+            "testing",
+            "cypress-testing",
+            "accessibility",
+            "migration-v2"
         ]
     },
     "reference": {
