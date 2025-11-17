@@ -1,6 +1,5 @@
 import '../app/globals.css'
 import 'nextra-theme-docs/style.css'
-import '@heroui/react/styles.css'
 import { Providers } from './providers'
 
 export const metadata = {
