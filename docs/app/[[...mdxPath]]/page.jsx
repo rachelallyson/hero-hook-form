@@ -3,7 +3,6 @@ import { useMDXComponents as getMDXComponents } from '../../mdx-components'
 
 const baseGenerateStaticParams = generateStaticParamsFor('mdxPath')
 
-// Disable dynamic params for static generation
 export const dynamicParams = false
 
 export async function generateStaticParams() {
@@ -18,8 +17,18 @@ export async function generateMetadata({ params }) {
 
 export default async function Page({ params }) {
     const { mdxPath } = await params
-    const page = await importPage(mdxPath)
-    const { default: MDXContent } = page
+    const {
+        default: MDXContent,
+        toc,
+        metadata,
+        sourceCode
+    } = await importPage(mdxPath)
 
-    return <MDXContent />
+    const Wrapper = getMDXComponents().wrapper
+
+    return (
+        <Wrapper toc={toc} metadata={metadata} sourceCode={sourceCode}>
+            <MDXContent />
+        </Wrapper>
+    )
 }

@@ -6,8 +6,6 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 const withNextra = nextra({
-  theme: 'nextra-theme-docs',
-  themeConfig: path.join(__dirname, 'theme.config.tsx'),
   contentDirBasePath: '/content',
   search: { codeblocks: false }
 })
