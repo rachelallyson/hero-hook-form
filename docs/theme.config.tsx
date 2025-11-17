@@ -10,4 +10,5 @@ export default {
   project: {
     link: "https://github.com/rachelallyson/hero-hook-form",
   },
+  primaryHue: { dark: 200, light: 200 },
 };
