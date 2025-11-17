@@ -51,3 +51,4 @@ bun.lockb
 .npmrc
 /docs/api
 /docs/content/api
+/.playwright-mcp

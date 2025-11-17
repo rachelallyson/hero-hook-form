@@ -15,7 +15,7 @@ const nextConfig = {
   output: 'export',
   images: { unoptimized: true },
   trailingSlash: true,
-  basePath: process.env.NODE_ENV === 'production' ? '/hero-hook-form' : '',
+  basePath: process.env.BASE_PATH || (process.env.NODE_ENV === 'production' ? '/hero-hook-form' : ''),
   experimental: {
     externalDir: true
   },
