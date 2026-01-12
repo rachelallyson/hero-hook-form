@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.0] - 2025-01-28
+
+### Added
+
+#### Next.js Server Actions Support
+
+- **ServerActionForm Component**: New component for seamless integration with Next.js Server Actions
+- **Native Form Submission**: Uses native HTML form submission with `FormData` for Server Actions
+- **Optional Client-Side Validation**: Can combine client-side Zod validation with server-side validation
+- **HeroUI Integration**: Full HeroUI component support with controlled components and hidden inputs
+- **Error Handling**: Comprehensive error display for both client and server validation errors
+- **Success Messages**: Built-in success message display (with redirect handling documentation)
+- **Callbacks**: `onError` and `onSuccess` callbacks for custom handling
+- **Default Values**: Support for pre-filling form fields with default values
+- **Documentation**: Complete guide at `docs/guides/nextjs-server-actions.md`
+
 ## [2.0.0] - 2025-01-27
 
 ### 🎉 Major Release - Enhanced Form Experience

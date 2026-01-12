@@ -50,6 +50,7 @@ export function ContactForm() {
 - **📝 Zod Integration** - Seamless schema validation with Zod
 - **🔄 Dynamic Forms** - Conditional fields, field arrays, and dynamic sections
 - **🧪 Testing Ready** - Built-in testing utilities for Cypress
+- **🚀 Next.js Server Actions** - Compatible with Next.js authentication patterns
 
 ## Form Building Patterns
 
@@ -87,13 +88,29 @@ const form = defineInferredForm({
 });
 ```
 
+### 4. Next.js Server Actions
+
+```tsx
+import { ServerActionForm, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
+import { signup } from "@/app/actions/auth";
+
+<ServerActionForm
+  action={signup}
+  fields={[
+    FormFieldHelpers.input("name", "Name"),
+    FormFieldHelpers.input("email", "Email", { type: "email" }),
+  ]}
+/>
+```
+
 ## What's Included
 
-- **Components**: `Form`, `FormField`, `ZodForm`, field components, `FormStatus`
+- **Components**: `Form`, `FormField`, `ZodForm`, `ServerActionForm`, field components, `FormStatus`
 - **Hooks**: `useFormHelper`, `useHeroForm`, `useEnhancedFormState`, `useDebouncedValidation`, `useInferredForm`
 - **Builders**: `createBasicFormBuilder`, `createAdvancedBuilder`, `createTypeInferredBuilder`
 - **Utils**: `applyServerErrors`, validation helpers, performance utilities, testing utilities
 - **Zod Integration**: `ZodForm` component with automatic schema validation
+- **Next.js Support**: `ServerActionForm` for Next.js Server Actions and authentication
 
 ## Setup
 
@@ -127,6 +144,7 @@ const form = defineInferredForm({
 
 - **Quick Start Guide**: [https://rachelallyson.github.io/hero-hook-form/guides/quickstart](https://rachelallyson.github.io/hero-hook-form/guides/quickstart)
 - **API Reference**: [https://rachelallyson.github.io/hero-hook-form/api/README](https://rachelallyson.github.io/hero-hook-form/api/README)
+- **Next.js Server Actions**: [Next.js Authentication Guide](./docs/guides/nextjs-server-actions.md) - Use with Next.js auth forms
 - **Dynamic Forms**: [https://rachelallyson.github.io/hero-hook-form/guides/dynamic-forms](https://rachelallyson.github.io/hero-hook-form/guides/dynamic-forms)
 - **Error Handling**: [https://rachelallyson.github.io/hero-hook-form/guides/error-handling](https://rachelallyson.github.io/hero-hook-form/guides/error-handling)
 - **Testing Guide**: [https://rachelallyson.github.io/hero-hook-form/guides/testing-guide](https://rachelallyson.github.io/hero-hook-form/guides/testing-guide)

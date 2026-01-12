@@ -46,6 +46,11 @@ export default function Home() {
       href: "/configurable-form-demo",
       title: "Configurable Form Demo",
     },
+    {
+      description: "Next.js Server Actions integration with authentication patterns",
+      href: "/server-action-demo",
+      title: "Server Action Demo",
+    },
   ];
 
   return (
