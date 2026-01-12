@@ -3,7 +3,7 @@
   "version": "2.0.0",
   "description": "Typed form helpers that combine React Hook Form and HeroUI components.",
   "author": "Rachel Higley",
-  "homepage": "https://github.com/rachelallyson/hero-hook-form#readme",
+  "homepage": "https://rachelallyson.github.io/hero-hook-form/",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rachelallyson/hero-hook-form.git"
