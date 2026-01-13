@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.1] - 2025-01-28
+
+### Fixed
+
+- **ServerActionForm imports**: Use `#ui` alias for HeroUI imports to support both `@heroui/react` and individual package imports
+- Ensures compatibility across different HeroUI installation patterns
+
 ## [2.1.0] - 2025-01-28
 
 ### Added
