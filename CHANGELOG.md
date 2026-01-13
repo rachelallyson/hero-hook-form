@@ -2,7 +2,41 @@
 
 All notable changes to this project will be documented in this file.
 
-## [2.1.3] - 2025-01-28
+## [2.2.0] - 2026-01-13
+
+### Added
+
+- **Content Field Type**: New `content` field type for adding headers, questions, or custom content between form fields
+  - Supports simple title/description rendering
+  - Supports custom render functions for full control
+  - Works seamlessly with all form types (ZodForm, ConfigurableForm, ServerActionForm)
+  - Does not require a schema field name, making it perfect for non-form content
+  - Added `FormFieldHelpers.content()` helper function
+  - Added `BasicFormBuilder.content()` builder method
+  - Comprehensive test coverage with 7 passing tests
+
+### Example Usage
+
+```tsx
+// Simple header
+{
+  type: "content",
+  title: "Personal Information",
+  description: "Please provide your details below."
+}
+
+// Using helper
+FormFieldHelpers.content("Section Header", "Description text")
+
+// Using builder
+createBasicFormBuilder()
+  .input("name", "Name")
+  .content("Section Header")
+  .input("email", "Email")
+  .build()
+```
+
+## [2.1.3] - 2026-01-13
 
 ### Fixed
 
@@ -21,7 +55,7 @@ All notable changes to this project will be documented in this file.
   - Tests successful form submission
   - Tests validation error handling with submission helpers
 
-## [2.1.2] - 2025-01-28
+## [2.1.2] - 2026-01-13
 
 ### Added
 
@@ -34,14 +68,14 @@ All notable changes to this project will be documented in this file.
 - **ZodForm FormProvider**: Wrapped ZodForm component with FormProvider to ensure form context is properly available
 - Fixes issues with form context not being accessible in nested components
 
-## [2.1.1] - 2025-01-28
+## [2.1.1] - 2026-01-12
 
 ### Fixed
 
 - **ServerActionForm imports**: Use `#ui` alias for HeroUI imports to support both `@heroui/react` and individual package imports
 - Ensures compatibility across different HeroUI installation patterns
 
-## [2.1.0] - 2025-01-28
+## [2.1.0] - 2026-01-12
 
 ### Added
 

@@ -1,3 +1,4 @@
+import React from "react";
 import type { FieldValues, Path } from "react-hook-form";
 import type { ZodFormFieldConfig } from "../types";
 
@@ -241,6 +242,29 @@ function fontPickerField<T extends FieldValues>(
   };
 }
 
+function contentField<T extends FieldValues>(
+  title?: string | null,
+  description?: string | null,
+  options?: {
+    render?: (field: {
+      form: any;
+      errors: any;
+      isSubmitting: boolean;
+    }) => React.ReactNode;
+    className?: string;
+    name?: Path<T>;
+  },
+): ZodFormFieldConfig<T> {
+  return {
+    className: options?.className,
+    description: description || undefined,
+    name: options?.name,
+    render: options?.render,
+    title: title || undefined,
+    type: "content",
+  };
+}
+
 /**
  * Unified field creation function
  * Takes field type as first argument and delegates to appropriate helper
@@ -282,6 +306,26 @@ export function createField<T extends FieldValues>(
 
     case "fontPicker":
       return fontPickerField(name, label, optionsOrProps);
+
+    case "content":
+      // For content fields, name and label are optional
+      // optionsOrProps can be title, description, or options object
+      if (typeof optionsOrProps === "string" || optionsOrProps === null) {
+        return contentField(optionsOrProps, props) as ZodFormFieldConfig<T>;
+      }
+      if (typeof optionsOrProps === "object" && optionsOrProps !== null) {
+        return contentField(
+          optionsOrProps.title,
+          optionsOrProps.description,
+          optionsOrProps,
+        ) as ZodFormFieldConfig<T>;
+      }
+
+      return contentField(
+        name as any,
+        label as any,
+        optionsOrProps,
+      ) as ZodFormFieldConfig<T>;
 
     default:
       throw new Error(`Unknown field type: ${type}`);

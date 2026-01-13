@@ -167,7 +167,8 @@
                         "slider",
                         "date",
                         "file",
-                        "fontPicker"
+                        "fontPicker",
+                        "content"
                     ],
                     "description": "Field type"
                 },

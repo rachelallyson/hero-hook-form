@@ -7,6 +7,7 @@ import { useWatch } from "react-hook-form";
 
 import { CheckboxField } from "../fields/CheckboxField";
 import { ConditionalField } from "../fields/ConditionalField";
+import { ContentField } from "../fields/ContentField";
 import { DateField } from "../fields/DateField";
 import { DynamicSectionField } from "../fields/DynamicSectionField";
 import { FieldArrayField } from "../fields/FieldArrayField";
@@ -40,7 +41,18 @@ export const FormField = React.memo(
     const { control } = form;
     const watchedValues = useWatch({ control });
 
-    // Handle conditional rendering
+    // Handle content fields early - they don't need conditional rendering or baseProps
+    if (config.type === "content") {
+      return (
+        <ContentField<TFieldValues>
+          config={config}
+          form={form}
+          submissionState={submissionState}
+        />
+      );
+    }
+
+    // Handle conditional rendering for other field types
     if (config.condition && !config.condition(watchedValues)) {
       return null;
     }

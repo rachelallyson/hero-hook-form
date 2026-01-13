@@ -1,3 +1,83 @@
+/**
+ * @module @rachelallyson/hero-hook-form
+ *
+ * # Hero Hook Form
+ *
+ * Typed form helpers that combine React Hook Form and HeroUI components.
+ *
+ * ## Quick Start
+ *
+ * ```tsx
+ * import { ZodForm, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
+ * import { z } from "zod";
+ *
+ * const schema = z.object({
+ *   email: z.string().email(),
+ *   name: z.string().min(2),
+ * });
+ *
+ * function ContactForm() {
+ *   return (
+ *     <ZodForm
+ *       config={{
+ *         schema,
+ *         fields: [
+ *           FormFieldHelpers.input("name", "Name"),
+ *           FormFieldHelpers.input("email", "Email", "email"),
+ *         ],
+ *       }}
+ *       onSubmit={(data) => console.log(data)}
+ *     />
+ *   );
+ * }
+ * ```
+ *
+ * ## Key Features
+ *
+ * - **Type Safety** - Full TypeScript support with automatic type inference
+ * - **HeroUI Integration** - Beautiful, accessible components out of the box
+ * - **Performance** - Optimized with React.memo and debounced validation
+ * - **Flexible APIs** - Multiple form building patterns (helpers, builders, type-inferred)
+ * - **Zod Integration** - Seamless schema validation with Zod
+ * - **Dynamic Forms** - Conditional fields, field arrays, and dynamic sections
+ * - **Testing Ready** - Built-in testing utilities for Cypress
+ *
+ * ## Form Building Patterns
+ *
+ * ### Helper Functions (Recommended)
+ * ```tsx
+ * const fields = [
+ *   FormFieldHelpers.input("name", "Name"),
+ *   FormFieldHelpers.textarea("message", "Message"),
+ *   FormFieldHelpers.select("country", "Country", options),
+ * ];
+ * ```
+ *
+ * ### Builder Pattern
+ * ```tsx
+ * import { createBasicFormBuilder } from "@rachelallyson/hero-hook-form";
+ *
+ * const fields = createBasicFormBuilder()
+ *   .input("name", "Name")
+ *   .textarea("message", "Message")
+ *   .select("country", "Country", options)
+ *   .build();
+ * ```
+ *
+ * ### Type-Inferred Forms
+ * ```tsx
+ * import { defineInferredForm, field } from "@rachelallyson/hero-hook-form";
+ *
+ * const form = defineInferredForm({
+ *   name: field.string("Name"),
+ *   email: field.email("Email"),
+ *   age: field.number("Age"),
+ * });
+ * ```
+ *
+ * @packageDocumentation
+ */
+
 export * from "./components/Form.js";
 export * from "./components/FormField.js";
 export * from "./components/ServerActionForm.js";
@@ -38,6 +118,7 @@ export * from "./hooks/useInferredForm.js";
 
 // Dynamic form components
 export * from "./fields/ConditionalField.js";
+export * from "./fields/ContentField.js";
 export * from "./fields/FieldArrayField.js";
 export * from "./fields/DynamicSectionField.js";
 

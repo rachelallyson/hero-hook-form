@@ -195,6 +195,25 @@ export interface DynamicSectionConfig<TFieldValues extends FieldValues>
   fields: ZodFormFieldConfig<TFieldValues>[];
 }
 
+// Content field config for adding headers, questions, or custom content between fields
+export interface ContentFieldConfig<TFieldValues extends FieldValues> {
+  type: "content";
+  // Optional name - if not provided, won't be part of form schema
+  name?: Path<TFieldValues>;
+  // Optional title for simple header rendering
+  title?: string;
+  // Optional description/subtitle
+  description?: string;
+  // Custom render function for full control
+  render?: (field: {
+    form: UseFormReturn<TFieldValues>;
+    errors: FieldErrors<TFieldValues>;
+    isSubmitting: boolean;
+  }) => React.ReactNode;
+  // Optional className for styling
+  className?: string;
+}
+
 // Union type for all field configs
 export type FormFieldConfig<TFieldValues extends FieldValues> =
   | StringFieldConfig<TFieldValues>
@@ -207,7 +226,8 @@ export type FormFieldConfig<TFieldValues extends FieldValues> =
   | CustomFieldConfig<TFieldValues>
   | ConditionalFieldConfig<TFieldValues>
   | FieldArrayConfig<TFieldValues>
-  | DynamicSectionConfig<TFieldValues>;
+  | DynamicSectionConfig<TFieldValues>
+  | ContentFieldConfig<TFieldValues>;
 
 // Advanced form configuration
 export interface FormConfig<TFieldValues extends FieldValues> {
@@ -236,7 +256,8 @@ export type ZodFormFieldConfig<TFieldValues extends FieldValues> =
   | Omit<CustomFieldConfig<TFieldValues>, "rules">
   | Omit<ConditionalFieldConfig<TFieldValues>, "rules">
   | Omit<FieldArrayConfig<TFieldValues>, "rules">
-  | Omit<DynamicSectionConfig<TFieldValues>, "rules">;
+  | Omit<DynamicSectionConfig<TFieldValues>, "rules">
+  | ContentFieldConfig<TFieldValues>;
 
 export interface ZodFormConfig<TFieldValues extends FieldValues>
   extends UseFormProps<TFieldValues> {

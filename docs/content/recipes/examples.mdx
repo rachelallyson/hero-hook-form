@@ -83,6 +83,25 @@ FormFieldHelpers.checkbox("enable", "Enable");
 ```tsx
 { type: "fontPicker", name: "font", label: "Font" }
 ```
+
+### Content field (headers/questions)
+
+```tsx
+// Simple header
+FormFieldHelpers.content("Section Header", "Description text")
+
+// Custom render
+FormFieldHelpers.content(null, null, {
+  render: () => <div>Custom content</div>
+})
+
+// Using builder
+createBasicFormBuilder()
+  .input("name", "Name")
+  .content("Personal Information")
+  .input("email", "Email")
+  .build()
+```
 # Recipe Examples
 
 Copy-paste examples for common form patterns and use cases.

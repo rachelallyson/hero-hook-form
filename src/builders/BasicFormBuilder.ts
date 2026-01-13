@@ -1,9 +1,36 @@
+import React from "react";
 import type { FieldValues, Path } from "react-hook-form";
 import type { ZodFormFieldConfig } from "../types";
 
 /**
- * Basic form field builder that eliminates "as const" assertions
- * Focuses on the most common use cases
+ * Basic form field builder for creating form field configurations.
+ *
+ * @description
+ * Provides a fluent API for building form field configurations. This builder
+ * focuses on the most common use cases and eliminates the need for "as const"
+ * assertions. Use this for simple forms with standard field types.
+ *
+ * @template T - The form data type
+ *
+ * @example
+ * ```tsx
+ * import { createBasicFormBuilder } from "@rachelallyson/hero-hook-form";
+ *
+ * const fields = createBasicFormBuilder()
+ *   .input("name", "Name")
+ *   .input("email", "Email", "email")
+ *   .textarea("message", "Message")
+ *   .select("country", "Country", [
+ *     { label: "US", value: "us" },
+ *     { label: "CA", value: "ca" },
+ *   ])
+ *   .checkbox("newsletter", "Subscribe to newsletter")
+ *   .build();
+ * ```
+ *
+ * @see {@link createAdvancedBuilder} for more advanced features
+ * @see {@link FormFieldHelpers} for helper function alternative
+ * @category Builders
  */
 export class BasicFormBuilder<T extends FieldValues> {
   private fields: ZodFormFieldConfig<T>[] = [];
@@ -72,6 +99,34 @@ export class BasicFormBuilder<T extends FieldValues> {
   }
 
   /**
+   * Add a content field for headers, questions, or custom content between fields
+   */
+  content(
+    title?: string | null,
+    description?: string | null,
+    options?: {
+      render?: (field: {
+        form: any;
+        errors: any;
+        isSubmitting: boolean;
+      }) => React.ReactNode;
+      className?: string;
+      name?: Path<T>;
+    },
+  ): this {
+    this.fields.push({
+      className: options?.className,
+      description: description || undefined,
+      name: options?.name,
+      render: options?.render,
+      title: title || undefined,
+      type: "content",
+    });
+
+    return this;
+  }
+
+  /**
    * Add a switch field
    */
   switch(name: Path<T>, label: string): this {
@@ -93,7 +148,40 @@ export class BasicFormBuilder<T extends FieldValues> {
 }
 
 /**
- * Create a new simple form field builder
+ * Creates a basic form builder for simple form construction.
+ *
+ * @description
+ * Provides a fluent API for building form field configurations. Best for
+ * simple forms with standard field types. Returns a builder instance with
+ * chainable methods for adding fields.
+ *
+ * @template T - The form data type
+ *
+ * @returns {BasicFormBuilder<T>} Builder instance with chainable methods
+ *
+ * @example
+ * ```tsx
+ * import { createBasicFormBuilder } from "@rachelallyson/hero-hook-form";
+ *
+ * const fields = createBasicFormBuilder()
+ *   .input("name", "Name")
+ *   .input("email", "Email", "email")
+ *   .textarea("message", "Message")
+ *   .select("country", "Country", [
+ *     { label: "US", value: "us" },
+ *     { label: "CA", value: "ca" },
+ *   ])
+ *   .checkbox("newsletter", "Subscribe to newsletter")
+ *   .build();
+ *
+ * // Use with ZodForm
+ * <ZodForm config={{ schema, fields }} onSubmit={handleSubmit} />
+ * ```
+ *
+ * @see {@link createAdvancedBuilder} for more advanced features
+ * @see {@link FormFieldHelpers} for helper function alternative
+ * @see {@link defineInferredForm} for type-inferred forms
+ * @category Builders
  */
 export function createBasicFormBuilder<
   T extends FieldValues,
@@ -102,7 +190,31 @@ export function createBasicFormBuilder<
 }
 
 /**
- * Simple helper functions for common field types
+ * Helper functions for creating form field configurations.
+ *
+ * @description
+ * Simple helper functions for common field types. This is the recommended
+ * approach for most use cases as it's straightforward and doesn't require
+ * method chaining. Each helper returns a field configuration object.
+ *
+ * @example
+ * ```tsx
+ * import { FormFieldHelpers } from "@rachelallyson/hero-hook-form";
+ *
+ * const fields = [
+ *   FormFieldHelpers.input("name", "Name"),
+ *   FormFieldHelpers.input("email", "Email", "email"),
+ *   FormFieldHelpers.textarea("message", "Message"),
+ *   FormFieldHelpers.select("country", "Country", [
+ *     { label: "US", value: "us" },
+ *     { label: "CA", value: "ca" },
+ *   ]),
+ *   FormFieldHelpers.checkbox("newsletter", "Subscribe to newsletter"),
+ * ];
+ * ```
+ *
+ * @see {@link createBasicFormBuilder} for builder pattern alternative
+ * @category Builders
  */
 export const FormFieldHelpers = {
   /**
@@ -115,6 +227,41 @@ export const FormFieldHelpers = {
     label,
     name,
     type: "checkbox",
+  }),
+
+  /**
+   * Create a content field for headers, questions, or custom content between fields
+   *
+   * @example
+   * ```tsx
+   * // Simple header
+   * FormFieldHelpers.content("Personal Information", "Please provide your details")
+   *
+   * // Custom render
+   * FormFieldHelpers.content(null, null, {
+   *   render: () => <div>Custom content</div>
+   * })
+   * ```
+   */
+  content: <T extends FieldValues>(
+    title?: string | null,
+    description?: string | null,
+    options?: {
+      render?: (field: {
+        form: any;
+        errors: any;
+        isSubmitting: boolean;
+      }) => React.ReactNode;
+      className?: string;
+      name?: Path<T>;
+    },
+  ): ZodFormFieldConfig<T> => ({
+    className: options?.className,
+    description: description || undefined,
+    name: options?.name,
+    render: options?.render,
+    title: title || undefined,
+    type: "content",
   }),
 
   /**

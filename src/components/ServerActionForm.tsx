@@ -52,11 +52,13 @@ interface ServerActionFormProps<T extends FieldValues> {
 }
 
 /**
- * ServerActionForm - A form component compatible with Next.js Server Actions
+ * ServerActionForm - A form component compatible with Next.js Server Actions.
  *
+ * @description
  * This component works with Next.js authentication patterns by using native
  * HTML form submission with Server Actions, while still providing the
- * beautiful HeroUI field components.
+ * beautiful HeroUI field components. It uses React's useActionState hook
+ * to manage form state and handle server responses.
  *
  * **Validation Options:**
  * - **Server-side only (default)**: Form submits directly to Server Action
@@ -67,22 +69,77 @@ interface ServerActionFormProps<T extends FieldValues> {
  * - If your Server Action calls `redirect()`, success messages won't display
  *   (the page navigates away). Use URL params or cookies for success messages
  *   when redirecting.
+ * - Server Actions receive FormData, not JSON, so field values are strings
+ *
+ * @template T - The form data type
+ *
+ * @param {ServerActionFormProps<T>} props - Component props
+ * @param {ServerAction<ActionState, FormData>} props.action - Next.js Server Action function
+ * @param {FormFieldConfig<T>[]} props.fields - Array of field configurations
+ * @param {z.ZodSchema<T>} [props.clientValidationSchema] - Optional Zod schema for client-side validation
+ * @param {Partial<T>} [props.defaultValues] - Default form values
+ * @param {ActionState} [props.initialState] - Initial state for useActionState
+ * @param {string} [props.title] - Optional form title
+ * @param {string} [props.subtitle] - Optional form subtitle
+ * @param {"vertical"|"horizontal"|"grid"} [props.layout="vertical"] - Form layout style
+ * @param {1|2|3} [props.columns=1] - Number of columns for grid layout
+ * @param {"2"|"4"|"6"|"8"|"lg"} [props.spacing="4"] - Spacing between form fields
+ * @param {string} [props.submitButtonText="Submit"] - Text for the submit button
+ * @param {boolean} [props.showResetButton=false] - Whether to show a reset button
+ * @param {(error: {...}) => void} [props.onError] - Error callback
+ * @param {(data: FormData) => void} [props.onSuccess] - Success callback
+ *
+ * @returns {JSX.Element} The rendered form component
  *
  * @example
+ * Server-side only validation:
  * ```tsx
- * // Server-side only validation
+ * import { ServerActionForm, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
+ * import { signup } from "@/app/actions/auth";
+ *
  * <ServerActionForm
  *   action={signup}
- *   fields={[...]}
+ *   fields={[
+ *     FormFieldHelpers.input("name", "Name"),
+ *     FormFieldHelpers.input("email", "Email", "email"),
+ *     FormFieldHelpers.input("password", "Password", "password"),
+ *   ]}
  * />
+ * ```
  *
- * // Client + Server validation
+ * @example
+ * Client + Server validation:
+ * ```tsx
+ * import { ServerActionForm, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
+ * import { signup } from "@/app/actions/auth";
+ * import { z } from "zod";
+ *
+ * const signupSchema = z.object({
+ *   name: z.string().min(2),
+ *   email: z.string().email(),
+ *   password: z.string().min(8),
+ * });
+ *
  * <ServerActionForm
  *   action={signup}
  *   clientValidationSchema={signupSchema}
- *   fields={[...]}
+ *   fields={[
+ *     FormFieldHelpers.input("name", "Name"),
+ *     FormFieldHelpers.input("email", "Email", "email"),
+ *     FormFieldHelpers.input("password", "Password", "password"),
+ *   ]}
+ *   onError={(error) => {
+ *     console.error("Form errors:", error.errors);
+ *   }}
+ *   onSuccess={(data) => {
+ *     console.log("Form submitted:", data);
+ *   }}
  * />
  * ```
+ *
+ * @see {@link ZodForm} for client-side only forms with Zod validation
+ * @see {@link ConfigurableForm} for forms without Server Actions
+ * @category Components
  */
 export function ServerActionForm<T extends FieldValues>({
   action,
@@ -339,6 +396,40 @@ function ServerActionField<T extends FieldValues>({
   errors?: Record<string, string[]>;
   field: FormFieldConfig<T>;
 }) {
+  // Handle content fields - they don't need form data
+  if (field.type === "content") {
+    const contentField = field as any;
+
+    // If custom render function is provided, use it
+    if (contentField.render) {
+      return (
+        <div className={contentField.className}>
+          {contentField.render({
+            errors: {},
+            form: null,
+            isSubmitting: false,
+          })}
+        </div>
+      );
+    }
+
+    // Otherwise, render title and/or description
+    return (
+      <div className={contentField.className}>
+        {contentField.title && (
+          <h3 className="text-lg font-semibold text-foreground mb-2">
+            {contentField.title}
+          </h3>
+        )}
+        {contentField.description && (
+          <p className="text-sm text-muted-foreground">
+            {contentField.description}
+          </p>
+        )}
+      </div>
+    );
+  }
+
   const fieldName = field.name as string;
   const fieldErrors = errors?.[fieldName];
   const clientError = clientErrors?.[fieldName];

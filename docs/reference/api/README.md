@@ -805,6 +805,12 @@ FormFieldHelpers.file("avatar", "Profile Picture", {
 FormFieldHelpers.fontPicker("font", "Choose Font", {
   googleFontsApiKey: "your_api_key",
 })
+
+// Content field (headers/questions between fields)
+FormFieldHelpers.content("Section Header", "Description text")
+FormFieldHelpers.content(null, null, {
+  render: () => <div>Custom content</div>
+})
 ```
 
 ### CommonFields
