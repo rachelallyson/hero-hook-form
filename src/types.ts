@@ -12,9 +12,11 @@ import type {
 import type {
   Autocomplete,
   Checkbox,
+  DateInput,
   Input,
   RadioGroup,
   Select,
+  Slider,
   Switch,
   Textarea,
 } from "#ui";
@@ -138,7 +140,10 @@ export interface SliderFieldConfig<TFieldValues extends FieldValues>
   extends BaseFormFieldConfig<TFieldValues> {
   type: "slider";
   defaultValue?: number;
-  sliderProps?: Record<string, string | number | boolean>;
+  sliderProps?: Omit<
+    ComponentProps<typeof Slider>,
+    "value" | "onChange" | "label" | "isDisabled"
+  >;
 }
 
 // Date field config
@@ -146,7 +151,10 @@ export interface DateFieldConfig<TFieldValues extends FieldValues>
   extends BaseFormFieldConfig<TFieldValues> {
   type: "date";
   defaultValue?: import("@internationalized/date").CalendarDate | null;
-  dateProps?: Record<string, string | number | boolean>;
+  dateProps?: Omit<
+    ComponentProps<typeof DateInput>,
+    "value" | "onChange" | "label" | "isInvalid" | "errorMessage" | "isDisabled"
+  >;
 }
 
 // File field config
@@ -154,7 +162,16 @@ export interface FileFieldConfig<TFieldValues extends FieldValues>
   extends BaseFormFieldConfig<TFieldValues> {
   type: "file";
   defaultValue?: FileList | null;
-  fileProps?: Record<string, string | number | boolean>;
+  fileProps?: Omit<
+    ComponentProps<typeof Input>,
+    | "value"
+    | "onValueChange"
+    | "label"
+    | "isInvalid"
+    | "errorMessage"
+    | "isDisabled"
+    | "type"
+  >;
   multiple?: boolean;
   accept?: string;
 }
@@ -164,7 +181,12 @@ export interface FontPickerFieldConfig<TFieldValues extends FieldValues>
   extends BaseFormFieldConfig<TFieldValues> {
   type: "fontPicker";
   defaultValue?: string;
-  fontPickerProps?: Record<string, string | number | boolean>;
+  fontPickerProps?: {
+    showFontPreview?: boolean;
+    loadAllVariants?: boolean;
+    onFontsLoaded?: (loaded: boolean) => void;
+    fontsLoadedTimeout?: number;
+  };
 }
 
 // Custom field config for advanced use cases

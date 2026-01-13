@@ -2,6 +2,8 @@ import React from "react";
 import type { FieldValues, Path } from "react-hook-form";
 import type { ZodFormFieldConfig } from "../types";
 
+import type { DateInput, Slider } from "#ui";
+
 /**
  * Helper functions for creating individual field configurations
  */
@@ -161,12 +163,14 @@ function sliderField<T extends FieldValues>(
     type: "slider",
     ...(props && {
       sliderProps: {
-        className: props.className || "",
-        disabled: props.isDisabled || false,
-        max: props.max || 100,
-        min: props.min || 0,
-        step: props.step || 1,
-      },
+        className: props.className,
+        maxValue: props.max ?? 100,
+        minValue: props.min ?? 0,
+        step: props.step ?? 1,
+      } as Omit<
+        React.ComponentProps<typeof Slider>,
+        "value" | "onChange" | "label" | "isDisabled"
+      >,
     }),
   };
 }
@@ -187,10 +191,9 @@ function dateField<T extends FieldValues>(
     type: "date",
     ...(props && {
       dateProps: {
-        className: props.className || "",
-        disabled: props.isDisabled || false,
-        placeholder: props.placeholder || "",
-      },
+        className: props.className,
+        placeholder: props.placeholder,
+      } as React.ComponentProps<typeof DateInput>,
     }),
   };
 }
@@ -228,18 +231,21 @@ function fontPickerField<T extends FieldValues>(
     description?: string;
     isDisabled?: boolean;
     className?: string;
+    fontPickerProps?: {
+      showFontPreview?: boolean;
+      loadAllVariants?: boolean;
+      onFontsLoaded?: (loaded: boolean) => void;
+      fontsLoadedTimeout?: number;
+    };
   },
 ): ZodFormFieldConfig<T> {
   return {
+    className: props?.className,
+    description: props?.description,
+    fontPickerProps: props?.fontPickerProps,
     label,
     name,
     type: "fontPicker",
-    ...(props && {
-      fontPickerProps: {
-        className: props.className || "",
-        disabled: props.isDisabled || false,
-      },
-    }),
   };
 }
 

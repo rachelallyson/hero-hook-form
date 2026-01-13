@@ -2,6 +2,47 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.6.0] - 2026-01-13
+
+### Added
+
+- **Complete Prop Support for All FormFieldHelpers**: All field helpers now accept full component props for complete customization
+  - `input()` - Added `inputProps` parameter for full Input component customization
+  - `textarea()` - Added `textareaProps` parameter (placeholder still works as shorthand)
+  - `select()` - Added `selectProps` parameter
+  - `checkbox()` - Added `checkboxProps` parameter
+  - `switch()` - Added `switchProps` parameter (description still works as shorthand)
+  - `autocomplete()` - Added `autocompleteProps` parameter (placeholder still works as shorthand)
+  - `date()` - Improved with proper `DateInput` component typing
+  - `slider()` - Improved with proper `Slider` component typing
+  - `file()` - Improved with proper `Input` component typing for file inputs
+  - `fontPicker()` - Added helper with proper `FontPickerProps` interface typing
+
+- **New Field Helpers**: Added missing helpers for complete coverage
+  - `radio()` - Radio group field helper with `radioProps` support
+  - `slider()` - Slider field helper with `sliderProps` support
+  - `file()` - File upload field helper with `fileProps` support
+  - `fontPicker()` - Font picker field helper with `fontPickerProps` support
+
+### Enhanced
+
+- **Improved Type Safety**: Replaced all `Record<string, string | number | boolean>` types with proper component types
+  - All helpers now use `Omit<ComponentProps<typeof Component>, ...>` for full type safety
+  - Removed all type assertions (`as Record`) - now using proper component types
+  - Full IntelliSense support for all component props
+  - Type-safe exclusions for form-managed props (value, onChange, label, etc.)
+
+- **Consistent API Pattern**: All helpers now follow the same pattern
+  - Simple API for basic cases: `FormFieldHelpers.input("email", "Email", "email")`
+  - Full customization when needed: `FormFieldHelpers.input("email", "Email", "email", { classNames: {...}, startContent: <Icon /> })`
+  - Backward compatible - all existing code continues to work
+
+### Fixed
+
+- **AdvancedFormBuilder**: Updated to use correct prop names (`maxValue`/`minValue` instead of `max`/`min` for Slider)
+- **TypeInferredBuilder**: Updated slider props to use correct prop names
+- **FontPicker Types**: Improved type safety with proper `FontPickerProps` interface instead of `Record`
+
 ## [2.5.1] - 2026-01-13
 
 ### Fixed

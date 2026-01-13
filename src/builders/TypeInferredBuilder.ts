@@ -317,7 +317,12 @@ export class TypeInferredBuilder<T extends FieldValues> {
     this.formFields.push({
       label,
       name,
-      sliderProps: { max, min, step, ...fieldOptions },
+      sliderProps: {
+        maxValue: max,
+        minValue: min,
+        step,
+        ...fieldOptions,
+      } as any,
       type: "slider",
     });
 

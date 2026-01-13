@@ -7,6 +7,18 @@ import type {
 } from "react-hook-form";
 import type { ZodFormFieldConfig } from "../types";
 
+import type {
+  Autocomplete,
+  Checkbox,
+  DateInput,
+  Input,
+  RadioGroup,
+  Select,
+  Slider,
+  Switch,
+  Textarea,
+} from "#ui";
+
 /**
  * Basic form field builder for creating form field configurations.
  *
@@ -250,14 +262,45 @@ export function createBasicFormBuilder<
 export const FormFieldHelpers = {
   /**
    * Create an autocomplete field
+   *
+   * @example
+   * ```tsx
+   * // Simple autocomplete
+   * FormFieldHelpers.autocomplete("country", "Country", options)
+   *
+   * // With placeholder
+   * FormFieldHelpers.autocomplete("country", "Country", options, "Search countries")
+   *
+   * // With full customization
+   * FormFieldHelpers.autocomplete("country", "Country", options, "Search countries", {
+   *   classNames: { base: "custom-autocomplete" },
+   *   allowsCustomValue: true
+   * })
+   * ```
    */
   autocomplete: <T extends FieldValues>(
     name: Path<T>,
     label: string,
     items: { label: string; value: string | number }[],
     placeholder?: string,
+    autocompleteProps?: Omit<
+      React.ComponentProps<typeof Autocomplete>,
+      | "selectedKey"
+      | "onSelectionChange"
+      | "inputValue"
+      | "onInputChange"
+      | "label"
+      | "isInvalid"
+      | "errorMessage"
+      | "isDisabled"
+      | "children"
+      | "items"
+    >,
   ): ZodFormFieldConfig<T> => ({
-    autocompleteProps: placeholder ? { placeholder } : undefined,
+    autocompleteProps: {
+      ...(placeholder && { placeholder }),
+      ...autocompleteProps,
+    },
     label,
     name,
     options: items,
@@ -266,11 +309,32 @@ export const FormFieldHelpers = {
 
   /**
    * Create a checkbox field
+   *
+   * @example
+   * ```tsx
+   * // Simple checkbox
+   * FormFieldHelpers.checkbox("newsletter", "Subscribe to newsletter")
+   *
+   * // With full customization
+   * FormFieldHelpers.checkbox("newsletter", "Subscribe to newsletter", {
+   *   classNames: { base: "custom-checkbox" },
+   *   size: "lg"
+   * })
+   * ```
    */
   checkbox: <T extends FieldValues>(
     name: Path<T>,
     label: string,
+    checkboxProps?: Omit<
+      React.ComponentProps<typeof Checkbox>,
+      | "isSelected"
+      | "onValueChange"
+      | "isInvalid"
+      | "errorMessage"
+      | "isDisabled"
+    >,
   ): ZodFormFieldConfig<T> => ({
+    checkboxProps,
     label,
     name,
     type: "checkbox",
@@ -357,11 +421,32 @@ export const FormFieldHelpers = {
 
   /**
    * Create a date field
+   *
+   * @example
+   * ```tsx
+   * // Simple date field
+   * FormFieldHelpers.date("birthDate", "Birth Date")
+   *
+   * // With full customization
+   * FormFieldHelpers.date("birthDate", "Birth Date", {
+   *   label: "Select your birth date",
+   *   granularity: "day",
+   *   minValue: new CalendarDate(1900, 1, 1)
+   * })
+   * ```
    */
   date: <T extends FieldValues>(
     name: Path<T>,
     label: string,
-    dateProps?: Record<string, string | number | boolean>,
+    dateProps?: Omit<
+      React.ComponentProps<typeof DateInput>,
+      | "value"
+      | "onChange"
+      | "label"
+      | "isInvalid"
+      | "errorMessage"
+      | "isDisabled"
+    >,
   ): ZodFormFieldConfig<T> => ({
     dateProps,
     label,
@@ -370,58 +455,309 @@ export const FormFieldHelpers = {
   }),
 
   /**
+   * Create a file upload field
+   *
+   * @example
+   * ```tsx
+   * // Simple file field
+   * FormFieldHelpers.file("avatar", "Profile Picture")
+   *
+   * // With accept and multiple
+   * FormFieldHelpers.file("avatar", "Profile Picture", {
+   *   accept: "image/*",
+   *   multiple: true
+   * })
+   *
+   * // With full customization
+   * FormFieldHelpers.file("avatar", "Profile Picture", {
+   *   accept: "image/*",
+   *   multiple: false,
+   *   fileProps: { className: "custom-file-input" }
+   * })
+   * ```
+   */
+  file: <T extends FieldValues>(
+    name: Path<T>,
+    label: string,
+    options?: {
+      accept?: string;
+      fileProps?: Omit<
+        React.ComponentProps<typeof Input>,
+        | "value"
+        | "onValueChange"
+        | "label"
+        | "isInvalid"
+        | "errorMessage"
+        | "isDisabled"
+        | "type"
+      >;
+      multiple?: boolean;
+    },
+  ): ZodFormFieldConfig<T> => ({
+    accept: options?.accept,
+    fileProps: options?.fileProps,
+    label,
+    multiple: options?.multiple,
+    name,
+    type: "file",
+  }),
+
+  /**
+   * Create a font picker field
+   *
+   * @example
+   * ```tsx
+   * // Simple font picker
+   * FormFieldHelpers.fontPicker("font", "Choose Font")
+   *
+   * // With full customization
+   * FormFieldHelpers.fontPicker("font", "Choose Font", {
+   *   showFontPreview: true,
+   *   loadAllVariants: false,
+   *   fontsLoadedTimeout: 5000
+   * })
+   * ```
+   */
+  fontPicker: <T extends FieldValues>(
+    name: Path<T>,
+    label: string,
+    fontPickerProps?: {
+      showFontPreview?: boolean;
+      loadAllVariants?: boolean;
+      onFontsLoaded?: (loaded: boolean) => void;
+      fontsLoadedTimeout?: number;
+    },
+  ): ZodFormFieldConfig<T> => ({
+    fontPickerProps,
+    label,
+    name,
+    type: "fontPicker",
+  }),
+
+  /**
    * Create an input field
+   *
+   * @example
+   * ```tsx
+   * // Simple input
+   * FormFieldHelpers.input("name", "Name")
+   *
+   * // With type
+   * FormFieldHelpers.input("email", "Email", "email")
+   *
+   * // With full customization
+   * FormFieldHelpers.input("email", "Email", "email", {
+   *   placeholder: "Enter your email",
+   *   classNames: { input: "custom-input" },
+   *   startContent: <MailIcon />,
+   *   description: "We'll never share your email"
+   * })
+   * ```
    */
   input: <T extends FieldValues>(
     name: Path<T>,
     label: string,
-    type: "text" | "email" | "tel" | "password" = "text",
+    type?: "text" | "email" | "tel" | "password",
+    inputProps?: Omit<
+      React.ComponentProps<typeof Input>,
+      | "value"
+      | "onValueChange"
+      | "label"
+      | "isInvalid"
+      | "errorMessage"
+      | "isDisabled"
+    >,
   ): ZodFormFieldConfig<T> => ({
-    inputProps: { type },
+    inputProps: {
+      type: type || "text",
+      ...inputProps,
+    },
     label,
     name,
     type: "input",
   }),
 
   /**
+   * Create a radio group field
+   *
+   * @example
+   * ```tsx
+   * // Simple radio group
+   * FormFieldHelpers.radio("gender", "Gender", [
+   *   { label: "Male", value: "male" },
+   *   { label: "Female", value: "female" }
+   * ])
+   *
+   * // With full customization
+   * FormFieldHelpers.radio("gender", "Gender", options, {
+   *   orientation: "horizontal",
+   *   classNames: { base: "custom-radio" }
+   * })
+   * ```
+   */
+  radio: <T extends FieldValues>(
+    name: Path<T>,
+    label: string,
+    options: { label: string; value: string | number }[],
+    radioProps?: Omit<
+      React.ComponentProps<typeof RadioGroup>,
+      "value" | "onValueChange" | "label"
+    >,
+  ): ZodFormFieldConfig<T> => ({
+    label,
+    name,
+    radioOptions: options,
+    radioProps,
+    type: "radio",
+  }),
+
+  /**
    * Create a select field
+   *
+   * @example
+   * ```tsx
+   * // Simple select
+   * FormFieldHelpers.select("country", "Country", options)
+   *
+   * // With full customization
+   * FormFieldHelpers.select("country", "Country", options, {
+   *   placeholder: "Select a country",
+   *   classNames: { trigger: "custom-select" },
+   *   selectionMode: "multiple"
+   * })
+   * ```
    */
   select: <T extends FieldValues>(
     name: Path<T>,
     label: string,
     options: { label: string; value: string | number }[],
+    selectProps?: Omit<
+      React.ComponentProps<typeof Select>,
+      | "selectedKeys"
+      | "onSelectionChange"
+      | "label"
+      | "isInvalid"
+      | "errorMessage"
+      | "isDisabled"
+    >,
   ): ZodFormFieldConfig<T> => ({
     label,
     name,
     options,
+    selectProps,
     type: "select",
   }),
 
   /**
+   * Create a slider field
+   *
+   * @example
+   * ```tsx
+   * // Simple slider
+   * FormFieldHelpers.slider("rating", "Rating")
+   *
+   * // With full customization
+   * FormFieldHelpers.slider("rating", "Rating", {
+   *   minValue: 1,
+   *   maxValue: 5,
+   *   step: 1,
+   *   showSteps: true,
+   *   classNames: { base: "custom-slider" }
+   * })
+   * ```
+   */
+  slider: <T extends FieldValues>(
+    name: Path<T>,
+    label: string,
+    sliderProps?: Omit<
+      React.ComponentProps<typeof Slider>,
+      "value" | "onChange" | "label" | "isDisabled"
+    >,
+  ): ZodFormFieldConfig<T> => ({
+    label,
+    name,
+    sliderProps,
+    type: "slider",
+  }),
+
+  /**
    * Create a switch field
+   *
+   * @example
+   * ```tsx
+   * // Simple switch
+   * FormFieldHelpers.switch("notifications", "Enable notifications")
+   *
+   * // With description
+   * FormFieldHelpers.switch("notifications", "Enable notifications", "Receive email notifications")
+   *
+   * // With full customization
+   * FormFieldHelpers.switch("notifications", "Enable notifications", "Receive email notifications", {
+   *   classNames: { base: "custom-switch" },
+   *   size: "lg",
+   *   color: "primary"
+   * })
+   * ```
    */
   switch: <T extends FieldValues>(
     name: Path<T>,
     label: string,
     description?: string,
+    switchProps?: Omit<
+      React.ComponentProps<typeof Switch>,
+      | "isSelected"
+      | "onValueChange"
+      | "isInvalid"
+      | "errorMessage"
+      | "isDisabled"
+    >,
   ): ZodFormFieldConfig<T> => ({
     description,
     label,
     name,
+    switchProps,
     type: "switch",
   }),
 
   /**
    * Create a textarea field
+   *
+   * @example
+   * ```tsx
+   * // Simple textarea
+   * FormFieldHelpers.textarea("message", "Message")
+   *
+   * // With placeholder
+   * FormFieldHelpers.textarea("message", "Message", "Enter your message")
+   *
+   * // With full customization
+   * FormFieldHelpers.textarea("message", "Message", "Enter your message", {
+   *   classNames: { input: "custom-textarea" },
+   *   minRows: 3,
+   *   maxRows: 10
+   * })
+   * ```
    */
   textarea: <T extends FieldValues>(
     name: Path<T>,
     label: string,
     placeholder?: string,
+    textareaProps?: Omit<
+      React.ComponentProps<typeof Textarea>,
+      | "value"
+      | "onValueChange"
+      | "label"
+      | "isInvalid"
+      | "errorMessage"
+      | "isDisabled"
+    >,
   ): ZodFormFieldConfig<T> => ({
     label,
     name,
-    textareaProps: { placeholder },
+    textareaProps: {
+      ...(placeholder && { placeholder }),
+      ...textareaProps,
+    },
     type: "textarea",
   }),
 };
