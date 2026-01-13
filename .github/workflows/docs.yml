@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'docs/**'
+      - 'example/**'          # Rebuild docs if example changes
       - 'src/**'              # Rebuild docs if source changes
       - 'typedoc.json'        # Rebuild if TypeDoc config changes
       - 'package.json'        # Rebuild if root dependencies change
