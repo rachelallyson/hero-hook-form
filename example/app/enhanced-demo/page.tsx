@@ -50,69 +50,69 @@ export default function EnhancedDemoPage() {
           </p>
         </div>
 
-        <ZodForm
+        <ZodForm<EnhancedFormData>
           config={{
             schema: enhancedFormSchema,
             fields: [
               // Section headers using content fields
-              FormFieldHelpers.content(
+              FormFieldHelpers.content<EnhancedFormData>(
                 "Basic Information",
                 "Enter your personal details",
               ),
 
-              FormFieldHelpers.input("firstName", "First Name", {
+              FormFieldHelpers.input<EnhancedFormData>("firstName", "First Name", {
                 placeholder: "John",
               }),
-              FormFieldHelpers.input("lastName", "Last Name", {
+              FormFieldHelpers.input<EnhancedFormData>("lastName", "Last Name", {
                 placeholder: "Doe",
               }),
-              FormFieldHelpers.input("email", "Email Address", {
+              FormFieldHelpers.input<EnhancedFormData>("email", "Email Address", {
                 type: "email",
                 placeholder: "john@example.com",
               }),
 
-              FormFieldHelpers.content(
+              FormFieldHelpers.content<EnhancedFormData>(
                 "Contact Information",
                 "Optional contact details",
               ),
 
-              FormFieldHelpers.switch("hasPhone", "I have a phone number"),
+              FormFieldHelpers.switch<EnhancedFormData>("hasPhone", "I have a phone number"),
               {
-                type: "input",
-                name: "phoneNumber",
+                type: "input" as const,
+                name: "phoneNumber" as const,
                 label: "Phone Number",
                 inputProps: { type: "tel", placeholder: "+1 (555) 123-4567" },
-                dependsOn: "hasPhone",
+                dependsOn: "hasPhone" as const,
                 dependsOnValue: true,
               },
 
-              FormFieldHelpers.content(
+              FormFieldHelpers.content<EnhancedFormData>(
                 "Role & Experience",
                 "Tell us about your background",
               ),
 
-              FormFieldHelpers.select("role", "Role", [
+              FormFieldHelpers.select<EnhancedFormData>("role", "Role", [
                 { label: "Administrator", value: "admin" },
                 { label: "Regular User", value: "user" },
                 { label: "Guest", value: "guest" },
               ]),
 
               {
-                type: "slider",
-                name: "experience",
+                type: "slider" as const,
+                name: "experience" as const,
                 label: "Years of Experience",
                 sliderProps: { min: 0, max: 50, step: 1 },
               },
 
-              FormFieldHelpers.content(
+              FormFieldHelpers.content<EnhancedFormData>(
                 "Skills",
                 "Select your technical skills",
               ),
 
               // Skills as custom field
               {
-                type: "custom",
-                name: "skills",
+                type: "custom" as const,
+                name: "skills" as const,
                 label: "Skills",
                 render: ({ form, control }) => {
                   const skills = ["React", "TypeScript", "Node.js", "Python", "Java", "Go"];
@@ -144,25 +144,25 @@ export default function EnhancedDemoPage() {
                 },
               },
 
-              FormFieldHelpers.content(
+              FormFieldHelpers.content<EnhancedFormData>(
                 "Profile",
                 "Upload your profile picture",
               ),
 
               {
-                type: "file",
-                name: "avatar",
+                type: "file" as const,
+                name: "avatar" as const,
                 label: "Profile Picture",
                 accept: "image/*",
                 fileProps: { multiple: false },
               },
 
-              FormFieldHelpers.content(
+              FormFieldHelpers.content<EnhancedFormData>(
                 "Agreement",
                 "Please read and accept our terms",
               ),
 
-              FormFieldHelpers.checkbox(
+              FormFieldHelpers.checkbox<EnhancedFormData>(
                 "agreeToTerms",
                 "I agree to the terms and conditions",
               ),
