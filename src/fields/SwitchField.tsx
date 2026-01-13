@@ -10,17 +10,91 @@ import type { FieldBaseProps, WithControl } from "../types";
 
 import { Switch } from "#ui";
 
+/**
+ * Props for the SwitchField component.
+ *
+ * @template TFieldValues - The form data type
+ *
+ * @example
+ * ```tsx
+ * import { SwitchField } from "@rachelallyson/hero-hook-form";
+ * import { useForm } from "react-hook-form";
+ *
+ * const form = useForm({
+ *   defaultValues: { notifications: false },
+ * });
+ *
+ * <SwitchField
+ *   control={form.control}
+ *   name="notifications"
+ *   label="Enable notifications"
+ *   description="Receive email notifications"
+ * />
+ * ```
+ */
 export type SwitchFieldProps<TFieldValues extends FieldValues> = FieldBaseProps<
   TFieldValues,
   boolean
 > &
   WithControl<TFieldValues> & {
+    /** Additional props to pass to the underlying Switch component */
     switchProps?: Omit<
       React.ComponentProps<typeof Switch>,
       "isSelected" | "onValueChange" | "isInvalid" | "isDisabled"
     >;
   };
 
+/**
+ * A switch/toggle field component that integrates React Hook Form with HeroUI Switch.
+ *
+ * This component provides a type-safe switch field with validation support,
+ * error handling, and accessibility features. The field value is a boolean.
+ *
+ * @template TFieldValues - The form data type
+ *
+ * @param props - The switch field props
+ * @returns The rendered switch field component
+ *
+ * @example
+ * ```tsx
+ * import { ZodForm, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
+ * import { z } from "zod";
+ *
+ * const schema = z.object({
+ *   notifications: z.boolean(),
+ *   darkMode: z.boolean().default(false),
+ * });
+ *
+ * function MyForm() {
+ *   return (
+ *     <ZodForm
+ *       config={{
+ *         schema,
+ *         fields: [
+ *           FormFieldHelpers.switch("notifications", "Enable notifications"),
+ *           FormFieldHelpers.switch("darkMode", "Dark mode"),
+ *         ],
+ *       }}
+ *       onSubmit={(data) => console.log(data)}
+ *     />
+ *   );
+ * }
+ * ```
+ *
+ * @example
+ * ```tsx
+ * // With custom styling
+ * <SwitchField
+ *   control={form.control}
+ *   name="notifications"
+ *   label="Enable notifications"
+ *   switchProps={{
+ *     color: "success",
+ *     size: "lg",
+ *   }}
+ * />
+ * ```
+ */
 export function SwitchField<TFieldValues extends FieldValues>(
   props: SwitchFieldProps<TFieldValues>,
 ) {

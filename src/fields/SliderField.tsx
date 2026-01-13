@@ -10,11 +10,34 @@ import type { FieldBaseProps, WithControl } from "../types";
 
 import { Slider } from "#ui";
 
+/**
+ * Props for the SliderField component.
+ *
+ * @template TFieldValues - The form data type
+ *
+ * @example
+ * ```tsx
+ * import { SliderField } from "@rachelallyson/hero-hook-form";
+ * import { useForm } from "react-hook-form";
+ *
+ * const form = useForm({
+ *   defaultValues: { volume: 50 },
+ * });
+ *
+ * <SliderField
+ *   control={form.control}
+ *   name="volume"
+ *   label="Volume"
+ *   description="Adjust the volume level"
+ * />
+ * ```
+ */
 export type SliderFieldProps<TFieldValues extends FieldValues> = FieldBaseProps<
   TFieldValues,
   number
 > &
   WithControl<TFieldValues> & {
+    /** Additional props to pass to the underlying Slider component */
     sliderProps?: Omit<
       React.ComponentProps<typeof Slider>,
       | "value"
@@ -24,6 +47,7 @@ export type SliderFieldProps<TFieldValues extends FieldValues> = FieldBaseProps<
       | "errorMessage"
       | "isDisabled"
     >;
+    /** Transform function to modify the slider value before it's set */
     transform?: (value: number) => number;
   };
 
@@ -63,6 +87,63 @@ function CoercedSlider<TFieldValues extends FieldValues>(props: {
   );
 }
 
+/**
+ * A slider field component that integrates React Hook Form with HeroUI Slider.
+ *
+ * This component provides a type-safe slider field with validation support,
+ * error handling, and accessibility features. The field value is a number.
+ *
+ * @template TFieldValues - The form data type
+ *
+ * @param props - The slider field props
+ * @returns The rendered slider field component
+ *
+ * @example
+ * ```tsx
+ * import { ZodForm, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
+ * import { z } from "zod";
+ *
+ * const schema = z.object({
+ *   volume: z.number().min(0).max(100),
+ *   brightness: z.number().min(0).max(100),
+ * });
+ *
+ * function MyForm() {
+ *   return (
+ *     <ZodForm
+ *       config={{
+ *         schema,
+ *         fields: [
+ *           FormFieldHelpers.slider("volume", "Volume", { min: 0, max: 100 }),
+ *           FormFieldHelpers.slider("brightness", "Brightness", { min: 0, max: 100 }),
+ *         ],
+ *       }}
+ *       onSubmit={(data) => console.log(data)}
+ *     />
+ *   );
+ * }
+ * ```
+ *
+ * @example
+ * ```tsx
+ * // With custom step and marks
+ * <SliderField
+ *   control={form.control}
+ *   name="volume"
+ *   label="Volume"
+ *   sliderProps={{
+ *     minValue: 0,
+ *     maxValue: 100,
+ *     step: 10,
+ *     marks: [
+ *       { value: 0, label: "0" },
+ *       { value: 50, label: "50" },
+ *       { value: 100, label: "100" },
+ *     ],
+ *   }}
+ * />
+ * ```
+ */
 export function SliderField<TFieldValues extends FieldValues>(
   props: SliderFieldProps<TFieldValues>,
 ) {

@@ -10,6 +10,11 @@ import type { FormFieldConfig, FormValidationError } from "../types";
 
 import { FormField } from "./FormField";
 
+/**
+ * Props for the Form component.
+ *
+ * @template T - The form data type
+ */
 interface FormProps<T extends FieldValues> {
   className?: string;
   columns?: 1 | 2 | 3;
@@ -28,6 +33,57 @@ interface FormProps<T extends FieldValues> {
   defaultValues?: Partial<T>;
 }
 
+/**
+ * Base form component for building forms without Zod validation.
+ *
+ * @description
+ * This component provides a flexible form solution using React Hook Form
+ * without requiring Zod schemas. It's useful when you need more control over
+ * validation or want to use React Hook Form's built-in validation rules.
+ *
+ * @template T - The form data type
+ *
+ * @param {FormProps<T>} props - Component props
+ * @param {FormFieldConfig<T>[]} props.fields - Array of field configurations
+ * @param {SubmitHandler<T>} props.onSubmit - Submit handler function
+ * @param {Partial<T>} [props.defaultValues] - Default form values
+ * @param {string} [props.title] - Optional form title
+ * @param {string} [props.subtitle] - Optional form subtitle
+ * @param {"vertical"|"horizontal"|"grid"} [props.layout="vertical"] - Form layout
+ * @param {1|2|3} [props.columns=1] - Number of columns for grid layout
+ * @param {"2"|"4"|"6"|"8"|"lg"} [props.spacing="4"] - Spacing between fields
+ * @param {string} [props.submitButtonText="Submit"] - Submit button text
+ * @param {boolean} [props.showResetButton=false] - Whether to show reset button
+ * @param {(error: FormValidationError) => void} [props.onError] - Error callback
+ * @param {(data: T) => void} [props.onSuccess] - Success callback
+ *
+ * @returns {JSX.Element} The rendered form component
+ *
+ * @example
+ * ```tsx
+ * import { ConfigurableForm, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
+ *
+ * function MyForm() {
+ *   return (
+ *     <ConfigurableForm
+ *       fields={[
+ *         FormFieldHelpers.input("name", "Name"),
+ *         FormFieldHelpers.input("email", "Email", "email"),
+ *       ]}
+ *       defaultValues={{ name: "", email: "" }}
+ *       onSubmit={async (data) => {
+ *         console.log("Submitted:", data);
+ *       }}
+ *       title="Contact Form"
+ *     />
+ *   );
+ * }
+ * ```
+ *
+ * @see {@link ZodForm} for Zod-integrated form with automatic validation
+ * @see {@link FormFieldHelpers} for field creation helpers
+ * @category Components
+ */
 export function ConfigurableForm<T extends FieldValues>({
   className,
   columns = 1,

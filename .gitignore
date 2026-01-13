@@ -52,3 +52,6 @@ bun.lockb
 /docs/api
 /docs/content/api
 /.playwright-mcp
+
+# TypeDoc bug - creates [object Object] folder
+/[object Object]/

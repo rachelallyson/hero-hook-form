@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.3.0] - 2026-01-13
+
+### Removed
+
+- **Breaking Change**: Removed `render` prop from `ZodForm` and `ZodFormConfig`
+  - The `render` prop was rarely used and added unnecessary complexity
+  - Use `content` field type instead for adding headers, questions, or custom content between fields
+  - This simplifies the API and makes it more consistent
+
+### Fixed
+
+- **Type Safety**: Removed all `any` types from `ContentFieldConfig` and `FormFieldHelpers.content()`
+  - Replaced with type-safe approach using minimal type assertion
+  - Maintains full type safety while allowing compatibility with any form type
+  - No breaking changes - all existing code continues to work
+
+## [2.2.2] - 2026-01-13
+
+### Fixed
+
+- **Type Safety**: Removed all `any` types from `ContentFieldConfig` and `FormFieldHelpers.content()`
+  - Replaced with type-safe approach using minimal type assertion
+  - Maintains full type safety while allowing compatibility with any form type
+  - No breaking changes - all existing code continues to work
+
 ## [2.2.1] - 2026-01-13
 
 ### Fixed

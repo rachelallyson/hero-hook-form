@@ -1,3 +1,17 @@
+/**
+ * @module Builders
+ *
+ * Form builders for creating form field configurations.
+ *
+ * This module provides multiple patterns for building forms:
+ * - **Helper Functions** (`FormFieldHelpers`) - Simple, recommended approach
+ * - **Basic Builder** (`createBasicFormBuilder`) - Fluent API for simple forms
+ * - **Advanced Builder** (`createAdvancedBuilder`) - More features and flexibility
+ * - **Type-Inferred Builder** (`defineInferredForm`) - Automatic schema generation
+ *
+ * @category Builders
+ */
+
 // Export basic builder utilities (for simple forms)
 export * from "./BasicFormBuilder";
 

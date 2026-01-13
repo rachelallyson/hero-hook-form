@@ -1,6 +1,11 @@
 import React from "react";
-import type { FieldValues, Path } from "react-hook-form";
-import type { ContentFieldConfig, ZodFormFieldConfig } from "../types";
+import type {
+  FieldErrors,
+  FieldValues,
+  Path,
+  UseFormReturn,
+} from "react-hook-form";
+import type { ZodFormFieldConfig } from "../types";
 
 /**
  * Basic form field builder for creating form field configurations.
@@ -243,26 +248,30 @@ export const FormFieldHelpers = {
    * })
    * ```
    */
-  content: <T extends FieldValues>(
+  content: <T extends FieldValues = FieldValues>(
     title?: string | null,
     description?: string | null,
     options?: {
       render?: (field: {
-        form: any;
-        errors: any;
+        form: UseFormReturn<T>;
+        errors: FieldErrors<T>;
         isSubmitting: boolean;
       }) => React.ReactNode;
       className?: string;
-      name?: Path<T>;
+      name?: string;
     },
-  ): ContentFieldConfig<T> => ({
-    className: options?.className,
-    description: description || undefined,
-    name: options?.name,
-    render: options?.render,
-    title: title || undefined,
-    type: "content",
-  }),
+  ): ZodFormFieldConfig<T> => {
+    // Content fields don't require names, so we return a config that works with any form type
+    // Using ZodFormFieldConfig<T> as return type allows it to be used in arrays with specific form types
+    return {
+      className: options?.className,
+      description: description || undefined,
+      name: options?.name,
+      render: options?.render,
+      title: title || undefined,
+      type: "content",
+    } as ZodFormFieldConfig<T>;
+  },
 
   /**
    * Create a date field

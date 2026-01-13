@@ -14,7 +14,7 @@
     "excludeTags": [
         "@internal"
     ],
-    "theme": "default",
+    "readme": "none",
     "navigation": {
         "includeCategories": true,
         "includeGroups": true
@@ -35,5 +35,14 @@
     "plugin": [
         "typedoc-plugin-markdown"
     ],
-    "cleanOutputDir": true
+    "cleanOutputDir": true,
+    "markdown": {
+        "entryDocument": "README.md",
+        "hideBreadcrumbs": false,
+        "hidePageHeader": false,
+        "hidePageTitle": false,
+        "indexFormat": "table",
+        "tableOfContents": true,
+        "fileExtension": ".md"
+    }
 }

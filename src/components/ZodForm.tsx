@@ -18,6 +18,11 @@ import { FormStatus } from "./FormStatus";
 
 import { FormField } from "./FormField";
 
+/**
+ * Props for the ZodForm component.
+ *
+ * @template T - The form data type inferred from the Zod schema
+ */
 interface ZodFormProps<T extends FieldValues> {
   className?: string;
   columns?: 1 | 2 | 3;
@@ -33,17 +38,86 @@ interface ZodFormProps<T extends FieldValues> {
   submitButtonText?: string;
   subtitle?: string;
   title?: string;
-  // Form state access
-  render?: (formState: {
-    form: UseFormReturn<T>;
-    isSubmitting: boolean;
-    isSubmitted: boolean;
-    isSuccess: boolean;
-    errors: FieldErrors<T>;
-    values: T;
-  }) => React.ReactNode;
 }
 
+/**
+ * ZodForm component for building type-safe forms with Zod validation.
+ *
+ * @description
+ * This component provides a complete form solution with automatic validation,
+ * error handling, and type safety. It integrates React Hook Form with Zod
+ * schemas and HeroUI components. The form automatically validates inputs based
+ * on the provided Zod schema and displays error messages inline.
+ *
+ * @template T - The form data type inferred from the Zod schema
+ *
+ * @param {ZodFormProps<T>} props - Component props
+ * @param {ZodFormConfig<T>} props.config - Form configuration with schema and fields
+ * @param {SubmitHandler<T>} props.onSubmit - Submit handler function called with validated data
+ * @param {string} [props.title] - Optional form title displayed above the form
+ * @param {string} [props.subtitle] - Optional form subtitle displayed below the title
+ * @param {"vertical"|"horizontal"|"grid"} [props.layout="vertical"] - Form layout style
+ * @param {1|2|3} [props.columns=1] - Number of columns for grid layout (only applies when layout="grid")
+ * @param {"2"|"4"|"6"|"8"|"lg"} [props.spacing="4"] - Spacing between form fields
+ * @param {string} [props.submitButtonText="Submit"] - Text for the submit button
+ * @param {boolean} [props.showResetButton=false] - Whether to show a reset button
+ * @param {string} [props.resetButtonText="Reset"] - Text for the reset button
+ * @param {(error: FormValidationError) => void} [props.onError] - Error callback for validation errors
+ * @param {(data: T) => void} [props.onSuccess] - Success callback called after successful submission
+ *
+ * @returns {JSX.Element} The rendered form component with validation and error handling
+ *
+ * @example
+ * ```tsx
+ * import { ZodForm, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
+ * import { z } from "zod";
+ *
+ * const schema = z.object({
+ *   email: z.string().email("Please enter a valid email"),
+ *   name: z.string().min(2, "Name must be at least 2 characters"),
+ *   message: z.string().min(10, "Message must be at least 10 characters"),
+ * });
+ *
+ * function ContactForm() {
+ *   const handleSubmit = async (data) => {
+ *     console.log("Form submitted:", data);
+ *     // Handle form submission (e.g., API call)
+ *   };
+ *
+ *   return (
+ *     <ZodForm
+ *       config={{
+ *         schema,
+ *         fields: [
+ *           FormFieldHelpers.input("name", "Name"),
+ *           FormFieldHelpers.input("email", "Email", "email"),
+ *           FormFieldHelpers.textarea("message", "Message"),
+ *         ],
+ *       }}
+ *       onSubmit={handleSubmit}
+ *       title="Contact Us"
+ *       subtitle="Send us a message and we'll get back to you"
+ *     />
+ *   );
+ * }
+ * ```
+ *
+ * @example
+ * Grid layout with multiple columns:
+ * ```tsx
+ * <ZodForm
+ *   config={{ schema, fields }}
+ *   layout="grid"
+ *   columns={2}
+ *   spacing="6"
+ * />
+ * ```
+ *
+ * @see {@link Form} for the base form component without Zod
+ * @see {@link FormFieldHelpers} for field creation helpers
+ * @see {@link createBasicFormBuilder} for builder pattern alternative
+ * @category Components
+ */
 export function ZodForm<T extends FieldValues>({
   className,
   columns = 1,
@@ -52,7 +126,6 @@ export function ZodForm<T extends FieldValues>({
   onError,
   onSubmit,
   onSuccess,
-  render,
   resetButtonText = "Reset",
   showResetButton = false,
   spacing = "4",
@@ -177,22 +250,6 @@ export function ZodForm<T extends FieldValues>({
       config.onError(form.formState.errors);
     }
   }, [form.formState.errors, config.onError]);
-
-  // Custom render function
-  if (render) {
-    return (
-      <FormProvider {...form}>
-        {render({
-          errors: form.formState.errors,
-          form,
-          isSubmitted: enhancedState.status !== "idle",
-          isSubmitting: enhancedState.isSubmitting,
-          isSuccess: enhancedState.isSuccess,
-          values: form.getValues(),
-        })}
-      </FormProvider>
-    );
-  }
 
   return (
     <FormProvider {...form}>

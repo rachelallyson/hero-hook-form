@@ -9,11 +9,71 @@ import { Button } from "@heroui/react";
 import type { FieldArrayConfig } from "../types";
 import { FormField } from "../components/FormField";
 
+/**
+ * Props for the FieldArrayField component.
+ *
+ * @template TFieldValues - The form data type
+ */
 export interface FieldArrayFieldProps<TFieldValues extends FieldValues> {
   config: FieldArrayConfig<TFieldValues>;
   className?: string;
 }
 
+/**
+ * Field array component for dynamic repeating field groups.
+ *
+ * @description
+ * Allows users to add and remove multiple instances of a field group.
+ * Useful for forms with repeating data like addresses, items, or contacts.
+ * Automatically manages field array state and provides add/remove buttons.
+ *
+ * @template TFieldValues - The form data type
+ *
+ * @param {FieldArrayFieldProps<TFieldValues>} props - Component props
+ * @param {FieldArrayConfig<TFieldValues>} props.config - Field array configuration
+ * @param {string} [props.className] - Additional CSS class name
+ *
+ * @returns {JSX.Element} The rendered field array with add/remove controls
+ *
+ * @example
+ * ```tsx
+ * import { FieldArrayField, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
+ *
+ * const fields = [
+ *   FormFieldHelpers.input("name", "Name"),
+ *   FieldArrayField({
+ *     config: {
+ *       name: "addresses",
+ *       label: "Address",
+ *       fields: [
+ *         FormFieldHelpers.input("street", "Street Address"),
+ *         FormFieldHelpers.input("city", "City"),
+ *         FormFieldHelpers.input("zipCode", "ZIP Code"),
+ *       ],
+ *       min: 1,
+ *       max: 5,
+ *       addButtonText: "Add Address",
+ *       removeButtonText: "Remove Address",
+ *     },
+ *   }),
+ * ];
+ * ```
+ *
+ * @example
+ * With validation:
+ * ```tsx
+ * const schema = z.object({
+ *   addresses: z.array(z.object({
+ *     street: z.string().min(1, "Street is required"),
+ *     city: z.string().min(1, "City is required"),
+ *   })).min(1, "At least one address is required"),
+ * });
+ * ```
+ *
+ * @see {@link ConditionalField} for conditional single fields
+ * @see {@link DynamicSectionField} for conditional field groups
+ * @category Fields
+ */
 export function FieldArrayField<TFieldValues extends FieldValues>({
   className,
   config,

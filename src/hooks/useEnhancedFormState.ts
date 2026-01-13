@@ -3,6 +3,11 @@
 import { useCallback, useEffect, useState } from "react";
 import type { FieldValues, Path, UseFormReturn } from "react-hook-form";
 
+/**
+ * Enhanced form state with submission tracking and error management.
+ *
+ * @template T - The form data type
+ */
 export interface EnhancedFormState<T extends FieldValues> {
   status: "idle" | "submitting" | "success" | "error";
   isSubmitting: boolean;
@@ -19,6 +24,11 @@ export interface EnhancedFormState<T extends FieldValues> {
   reset: () => void;
 }
 
+/**
+ * Options for the useEnhancedFormState hook.
+ *
+ * @template T - The form data type
+ */
 export interface UseEnhancedFormStateOptions<T extends FieldValues> {
   onSuccess?: (data: T) => void;
   onError?: (error: string) => void;
@@ -28,6 +38,81 @@ export interface UseEnhancedFormStateOptions<T extends FieldValues> {
   resetDelay?: number;
 }
 
+/**
+ * Hook for managing enhanced form state with submission tracking.
+ *
+ * @description
+ * Provides advanced form state management including submission status,
+ * error tracking, touched/dirty field tracking, and automatic reset
+ * functionality. Useful for building forms with rich UI feedback.
+ *
+ * @template T - The form data type
+ *
+ * @param {UseFormReturn<T>} form - React Hook Form instance
+ * @param {UseEnhancedFormStateOptions<T>} [options] - Configuration options
+ * @param {(data: T) => void} [options.onSuccess] - Success callback
+ * @param {(error: string) => void} [options.onError] - Error callback
+ * @param {string} [options.successMessage] - Custom success message
+ * @param {string} [options.errorMessage] - Custom error message
+ * @param {boolean} [options.autoReset=true] - Automatically reset after success
+ * @param {number} [options.resetDelay=3000] - Delay before auto-reset (ms)
+ *
+ * @returns {EnhancedFormState<T>} Enhanced form state object
+ * @returns {"idle"|"submitting"|"success"|"error"} status - Current submission status
+ * @returns {boolean} isSubmitting - Whether form is currently submitting
+ * @returns {boolean} isSuccess - Whether last submission was successful
+ * @returns {boolean} isError - Whether last submission had an error
+ * @returns {string|undefined} error - Error message if submission failed
+ * @returns {T|undefined} submittedData - Data from last successful submission
+ * @returns {Set<Path<T>>} touchedFields - Set of touched field paths
+ * @returns {Set<Path<T>>} dirtyFields - Set of dirty field paths
+ * @returns {boolean} hasErrors - Whether form has validation errors
+ * @returns {number} errorCount - Number of validation errors
+ * @returns {(data: T) => void} handleSuccess - Function to mark submission as successful
+ * @returns {(error: string) => void} handleError - Function to mark submission as failed
+ * @returns {() => void} reset - Function to reset state to idle
+ *
+ * @example
+ * ```tsx
+ * import { useEnhancedFormState } from "@rachelallyson/hero-hook-form";
+ * import { useForm } from "react-hook-form";
+ *
+ * function MyForm() {
+ *   const form = useForm();
+ *   const state = useEnhancedFormState(form, {
+ *     onSuccess: (data) => {
+ *       console.log("Success:", data);
+ *     },
+ *     onError: (error) => {
+ *       console.error("Error:", error);
+ *     },
+ *     autoReset: true,
+ *     resetDelay: 3000,
+ *   });
+ *
+ *   const handleSubmit = async (data) => {
+ *     try {
+ *       await submitToServer(data);
+ *       state.handleSuccess(data);
+ *     } catch (error) {
+ *       state.handleError(error.message);
+ *     }
+ *   };
+ *
+ *   return (
+ *     <form onSubmit={form.handleSubmit(handleSubmit)}>
+ *       {/* form fields *\/}
+ *       {state.isSubmitting && <div>Submitting...</div>}
+ *       {state.isSuccess && <div>Success!</div>}
+ *       {state.error && <div>Error: {state.error}</div>}
+ *     </form>
+ *   );
+ * }
+ * ```
+ *
+ * @see {@link ZodForm} which uses this hook internally
+ * @category Hooks
+ */
 export function useEnhancedFormState<T extends FieldValues>(
   form: UseFormReturn<T>,
   options: UseEnhancedFormStateOptions<T> = {},

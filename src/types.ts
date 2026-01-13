@@ -196,15 +196,23 @@ export interface DynamicSectionConfig<TFieldValues extends FieldValues>
 }
 
 // Content field config for adding headers, questions, or custom content between fields
-export interface ContentFieldConfig<TFieldValues extends FieldValues> {
+// When name is not provided, this is compatible with any form type
+// The render function is typed to accept the specific form type, but when not provided,
+// ContentFieldConfig<FieldValues> is structurally compatible with ContentFieldConfig<SpecificType>
+export interface ContentFieldConfig<
+  TFieldValues extends FieldValues = FieldValues,
+> {
   type: "content";
   // Optional name - if not provided, won't be part of form schema
-  name?: Path<TFieldValues>;
+  // Using string instead of Path<TFieldValues> to allow compatibility with any form type
+  name?: string;
   // Optional title for simple header rendering
   title?: string;
   // Optional description/subtitle
   description?: string;
   // Custom render function for full control
+  // When render is not provided, the config is compatible with any form type
+  // When render is provided, it should match the specific form type being used
   render?: (field: {
     form: UseFormReturn<TFieldValues>;
     errors: FieldErrors<TFieldValues>;
@@ -267,16 +275,6 @@ export interface ZodFormConfig<TFieldValues extends FieldValues>
   // Enhanced error handling
   onError?: (errors: FieldErrors<TFieldValues>) => void;
   errorDisplay?: "inline" | "toast" | "modal" | "none";
-
-  // Form state access for advanced use cases
-  render?: (formState: {
-    form: UseFormReturn<TFieldValues>;
-    isSubmitting: boolean;
-    isSubmitted: boolean;
-    isSuccess: boolean;
-    errors: FieldErrors<TFieldValues>;
-    values: TFieldValues;
-  }) => React.ReactNode;
 }
 
 export interface FormValidationError {

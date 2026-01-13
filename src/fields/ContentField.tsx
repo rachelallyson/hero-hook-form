@@ -19,6 +19,7 @@ export function ContentField<TFieldValues extends FieldValues>({
 }: ContentFieldProps<TFieldValues>) {
   // If custom render function is provided, use it
   if (config.render) {
+    // The render function expects the specific form type, which we have
     return (
       <div className={config.className}>
         {config.render({

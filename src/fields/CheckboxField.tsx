@@ -10,9 +10,32 @@ import type { FieldBaseProps, WithControl } from "../types";
 
 import { Checkbox } from "#ui";
 
+/**
+ * Props for the CheckboxField component.
+ *
+ * @template TFieldValues - The form data type
+ *
+ * @example
+ * ```tsx
+ * import { CheckboxField } from "@rachelallyson/hero-hook-form";
+ * import { useForm } from "react-hook-form";
+ *
+ * const form = useForm({
+ *   defaultValues: { newsletter: false },
+ * });
+ *
+ * <CheckboxField
+ *   control={form.control}
+ *   name="newsletter"
+ *   label="Subscribe to newsletter"
+ *   description="Receive weekly updates"
+ * />
+ * ```
+ */
 export type CheckboxFieldProps<TFieldValues extends FieldValues> =
   FieldBaseProps<TFieldValues, boolean> &
     WithControl<TFieldValues> & {
+      /** Additional props to pass to the underlying Checkbox component */
       checkboxProps?: Omit<
         React.ComponentProps<typeof Checkbox>,
         | "isSelected"
@@ -23,6 +46,59 @@ export type CheckboxFieldProps<TFieldValues extends FieldValues> =
       >;
     };
 
+/**
+ * A checkbox field component that integrates React Hook Form with HeroUI Checkbox.
+ *
+ * This component provides a type-safe checkbox field with validation support,
+ * error handling, and accessibility features. The field value is a boolean.
+ *
+ * @template TFieldValues - The form data type
+ *
+ * @param props - The checkbox field props
+ * @returns The rendered checkbox field component
+ *
+ * @example
+ * ```tsx
+ * import { ZodForm, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
+ * import { z } from "zod";
+ *
+ * const schema = z.object({
+ *   terms: z.boolean().refine((val) => val === true, {
+ *     message: "You must accept the terms",
+ *   }),
+ *   newsletter: z.boolean().optional(),
+ * });
+ *
+ * function MyForm() {
+ *   return (
+ *     <ZodForm
+ *       config={{
+ *         schema,
+ *         fields: [
+ *           FormFieldHelpers.checkbox("terms", "I accept the terms and conditions"),
+ *           FormFieldHelpers.checkbox("newsletter", "Subscribe to newsletter"),
+ *         ],
+ *       }}
+ *       onSubmit={(data) => console.log(data)}
+ *     />
+ *   );
+ * }
+ * ```
+ *
+ * @example
+ * ```tsx
+ * // With custom styling
+ * <CheckboxField
+ *   control={form.control}
+ *   name="newsletter"
+ *   label="Subscribe"
+ *   checkboxProps={{
+ *     color: "primary",
+ *     size: "lg",
+ *   }}
+ * />
+ * ```
+ */
 export function CheckboxField<TFieldValues extends FieldValues>(
   props: CheckboxFieldProps<TFieldValues>,
 ) {
