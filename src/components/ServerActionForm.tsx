@@ -2,14 +2,7 @@
 
 import React from "react";
 
-import {
-  Button,
-  Checkbox,
-  Input,
-  Select,
-  SelectItem,
-  Textarea,
-} from "@heroui/react";
+import { Button, Checkbox, Input, Select, SelectItem, Textarea } from "#ui";
 import type { FieldValues } from "react-hook-form";
 import { useActionState } from "react";
 import type { z } from "zod";
