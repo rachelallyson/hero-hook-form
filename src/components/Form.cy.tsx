@@ -134,8 +134,11 @@ describe("ConfigurableForm", () => {
       .find("textarea")
       .type("Test message");
 
-    // Select country
-    cy.contains("label", "Country").parent().find("button").click();
+    // Select country - use aria-haspopup to find the select button
+    // The Select component renders a button with aria-haspopup="listbox"
+    cy.contains("label", "Country").should("exist");
+    // Find the select button using aria-haspopup attribute
+    cy.get('button[aria-haspopup="listbox"]').first().click();
     cy.get("[role=option]").contains("United States").click();
 
     // Check terms
