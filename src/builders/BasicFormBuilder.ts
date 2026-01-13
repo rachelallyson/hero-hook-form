@@ -91,6 +91,26 @@ export class BasicFormBuilder<T extends FieldValues> {
   }
 
   /**
+   * Add an autocomplete field
+   */
+  autocomplete(
+    name: Path<T>,
+    label: string,
+    items: { label: string; value: string | number }[],
+    placeholder?: string,
+  ): this {
+    this.fields.push({
+      autocompleteProps: placeholder ? { placeholder } : undefined,
+      label,
+      name,
+      options: items,
+      type: "autocomplete",
+    });
+
+    return this;
+  }
+
+  /**
    * Add a checkbox field
    */
   checkbox(name: Path<T>, label: string): this {

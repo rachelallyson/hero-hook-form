@@ -171,6 +171,12 @@ export function AutocompleteField<
       name={name}
       render={({ field, fieldState }) => {
         const selectedKey = field.value as TValue | undefined;
+        const hasSelectedValue = selectedKey != null && selectedKey !== "";
+        const allowsCustomValue = autocompleteProps?.allowsCustomValue ?? false;
+
+        // When allowsCustomValue is true, we want to show the input value
+        // When false, show selected key if available
+        const shouldShowInputValue = allowsCustomValue || !hasSelectedValue;
 
         return (
           <div className={className}>
@@ -183,12 +189,16 @@ export function AutocompleteField<
               label={label}
               placeholder={placeholder}
               selectedKey={
-                selectedKey != null ? String(selectedKey) : undefined
+                allowsCustomValue
+                  ? undefined
+                  : hasSelectedValue
+                    ? String(selectedKey)
+                    : undefined
               }
               inputValue={
-                selectedKey != null
-                  ? undefined
-                  : ((field.value as string | undefined) ?? "")
+                shouldShowInputValue
+                  ? ((field.value as string | undefined) ?? "")
+                  : undefined
               }
               onSelectionChange={(key: string | number | null) => {
                 const next = (key as TValue | undefined) ?? ("" as TValue);
@@ -196,12 +206,12 @@ export function AutocompleteField<
                 field.onChange(next);
               }}
               onInputChange={(value: string) => {
-                // Update form value when user types (for allowsCustomValue)
-                if (autocompleteProps?.allowsCustomValue) {
+                // When allowsCustomValue is enabled, update form value as user types
+                if (allowsCustomValue) {
                   field.onChange(value as TValue);
                 }
               }}
-              defaultItems={items as AutocompleteOption<TValue>[] | undefined}
+              items={items as AutocompleteOption<TValue>[] | undefined}
             >
               {children
                 ? children

@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.5.0] - 2026-01-13
+
+### Added
+
+- **AutocompleteField Component**: New autocomplete field component with full React Hook Form integration
+  - Supports static option lists via `items` prop
+  - Supports async loading via custom `children` render function
+  - Handles custom values with `allowsCustomValue` prop
+  - Full validation and error handling support
+  - Integrated with `FormFieldHelpers.autocomplete()` helper
+  - Integrated with `BasicFormBuilder.autocomplete()` method
+  - Comprehensive test coverage (10/10 tests passing)
+  - Example: `FormFieldHelpers.autocomplete("country", "Country", options, "Search for a country")`
+
+### Dependencies
+
+- Added `@heroui/autocomplete` as optional peer dependency and dev dependency
+- Updated UI exports to include Autocomplete and AutocompleteItem components
+
 ## [2.4.0] - 2026-01-13
 
 ### Added
