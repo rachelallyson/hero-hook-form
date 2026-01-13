@@ -60,16 +60,9 @@ export default function EnhancedDemoPage() {
                 "Enter your personal details",
               ),
 
-              FormFieldHelpers.input<EnhancedFormData>("firstName", "First Name", {
-                placeholder: "John",
-              }),
-              FormFieldHelpers.input<EnhancedFormData>("lastName", "Last Name", {
-                placeholder: "Doe",
-              }),
-              FormFieldHelpers.input<EnhancedFormData>("email", "Email Address", {
-                type: "email",
-                placeholder: "john@example.com",
-              }),
+              FormFieldHelpers.input<EnhancedFormData>("firstName", "First Name"),
+              FormFieldHelpers.input<EnhancedFormData>("lastName", "Last Name"),
+              FormFieldHelpers.input<EnhancedFormData>("email", "Email Address", "email"),
 
               FormFieldHelpers.content<EnhancedFormData>(
                 "Contact Information",
