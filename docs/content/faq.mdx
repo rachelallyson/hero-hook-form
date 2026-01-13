@@ -1,0 +1,347 @@
+---
+title: FAQ
+description: Frequently asked questions about Hero Hook Form.
+---
+
+# Frequently Asked Questions
+
+Common questions and answers about Hero Hook Form.
+
+## Form Building Patterns
+
+### Which form pattern should I use?
+
+**Helper Functions (Recommended for most cases)**
+- Simple and straightforward
+- Best for most forms
+- Easy to read and maintain
+
+```tsx
+const fields = [
+  FormFieldHelpers.input("name", "Name"),
+  FormFieldHelpers.input("email", "Email", "email"),
+];
+```
+
+**Builder Pattern**
+- Fluent API with method chaining
+- Good for complex forms with many fields
+- Type-safe and composable
+
+```tsx
+const fields = createBasicFormBuilder()
+  .input("name", "Name")
+  .input("email", "Email", "email")
+  .build();
+```
+
+**Type-Inferred Forms**
+- Automatic schema generation
+- Best when you want type inference without manual schemas
+- Good for rapid prototyping
+
+```tsx
+const form = defineInferredForm({
+  name: field.string("Name"),
+  email: field.email("Email"),
+});
+```
+
+### When should I use ZodForm vs ConfigurableForm?
+
+**Use ZodForm when:**
+- You want automatic validation with Zod schemas
+- You need type safety from schema inference
+- You want consistent validation patterns
+
+**Use ConfigurableForm when:**
+- You need more control over validation
+- You want to use React Hook Form's built-in validation rules
+- You don't want to use Zod
+
+### When should I use ServerActionForm?
+
+Use `ServerActionForm` when:
+- Building Next.js applications with Server Actions
+- You need server-side form handling
+- You want to work with Next.js authentication patterns
+- You need to submit forms as FormData (not JSON)
+
+## Validation
+
+### How do I handle server errors?
+
+Use the `applyServerErrors` utility to map server-returned errors to your form:
+
+```tsx
+import { applyServerErrors } from "@rachelallyson/hero-hook-form";
+
+const handleSubmit = async (data) => {
+  try {
+    await submitToServer(data);
+  } catch (error) {
+    if (error.fieldErrors) {
+      applyServerErrors(form.setError, {
+        fieldErrors: error.fieldErrors,
+      });
+    }
+  }
+};
+```
+
+### Can I use this without Zod?
+
+Yes! Use `ConfigurableForm` instead of `ZodForm`:
+
+```tsx
+import { ConfigurableForm, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
+
+<ConfigurableForm
+  fields={[
+    FormFieldHelpers.input("name", "Name"),
+  ]}
+  onSubmit={handleSubmit}
+/>
+```
+
+You can still use React Hook Form's built-in validation rules.
+
+### How do I do cross-field validation?
+
+Use Zod's `refine` method:
+
+```tsx
+const schema = z.object({
+  password: z.string().min(8),
+  confirmPassword: z.string(),
+}).refine(data => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+```
+
+## Customization
+
+### How do I customize field styling?
+
+Use the `inputProps`, `selectProps`, etc. to pass custom props to HeroUI components:
+
+```tsx
+FormFieldHelpers.input("email", "Email", "email", {
+  inputProps: {
+    variant: "bordered",
+    size: "lg",
+    className: "custom-class",
+  },
+})
+```
+
+### Can I use custom field components?
+
+Yes! Use the `render` prop in field configurations:
+
+```tsx
+{
+  name: "customField",
+  type: "custom",
+  render: ({ form, errors, isSubmitting }) => (
+    <YourCustomComponent
+      value={form.watch("customField")}
+      onChange={(value) => form.setValue("customField", value)}
+    />
+  ),
+}
+```
+
+### How do I change form layout?
+
+Use the `layout` prop:
+
+```tsx
+<ZodForm
+  config={{ schema, fields }}
+  layout="grid"  // "vertical" | "horizontal" | "grid"
+  columns={2}     // For grid layout
+/>
+```
+
+## Performance
+
+### How do I optimize large forms?
+
+1. **Use debounced validation:**
+```tsx
+import { useDebouncedValidation } from "@rachelallyson/hero-hook-form";
+
+const { debouncedTrigger } = useDebouncedValidation(form, {
+  delay: 300,
+});
+```
+
+2. **Memoize field components:**
+```tsx
+const MemoizedField = memo(InputField);
+```
+
+3. **Use conditional fields** to only render what's needed
+
+### Why is my form slow?
+
+Common causes:
+- Too many fields rendering at once (use conditional fields)
+- Expensive validation running on every keystroke (use debouncing)
+- Not memoizing field components
+- Large form state updates
+
+## TypeScript
+
+### How do I get proper types?
+
+Types are automatically inferred from your Zod schema:
+
+```tsx
+const schema = z.object({
+  email: z.string().email(),
+  name: z.string(),
+});
+
+// Type is automatically inferred as { email: string; name: string }
+function handleSubmit(data: z.infer<typeof schema>) {
+  // data is fully typed
+}
+```
+
+### How do I extend form types?
+
+Use TypeScript generics:
+
+```tsx
+interface MyFormData {
+  email: string;
+  name: string;
+  customField: string;
+}
+
+const form = useForm<MyFormData>();
+```
+
+## Dynamic Forms
+
+### How do I show/hide fields conditionally?
+
+Use `ConditionalField`:
+
+```tsx
+import { ConditionalField, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
+
+const fields = [
+  FormFieldHelpers.checkbox("hasPhone", "I have a phone"),
+  ConditionalField({
+    name: "phone",
+    label: "Phone Number",
+    type: "input",
+    condition: (values) => values.hasPhone === true,
+  }),
+];
+```
+
+### How do I create repeating fields?
+
+Use `FieldArrayField`:
+
+```tsx
+import { FieldArrayField, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
+
+FieldArrayField({
+  name: "addresses",
+  fields: [
+    FormFieldHelpers.input("street", "Street"),
+    FormFieldHelpers.input("city", "City"),
+  ],
+  addButtonText: "Add Address",
+  removeButtonText: "Remove",
+})
+```
+
+## Testing
+
+### How do I test forms?
+
+Use the built-in testing utilities:
+
+```tsx
+import { createFormTestUtils } from "@rachelallyson/hero-hook-form";
+
+const testUtils = createFormTestUtils(form);
+await testUtils.submitForm();
+const value = testUtils.getField("fieldName");
+```
+
+### How do I test with Cypress?
+
+Import the Cypress helpers:
+
+```typescript
+import '@rachelallyson/hero-hook-form/cypress';
+
+// Then use in tests
+cy.fillInputByLabel('Email', 'test@example.com');
+cy.submitForm();
+cy.expectValidationError('Email is required');
+```
+
+See the [Testing Guide](./guides/testing) for more details.
+
+## Troubleshooting
+
+### Form fields aren't showing
+
+1. Make sure you've wrapped your app with `HeroHookFormProvider`
+2. Check that field configurations are correct
+3. Verify field names match your schema
+
+### Validation errors aren't displaying
+
+1. Ensure your Zod schema has error messages
+2. Check that `errorDisplay` prop is set correctly
+3. Verify fields are properly registered with React Hook Form
+
+### TypeScript errors with form types
+
+1. Make sure your schema matches your field configurations
+2. Use `z.infer<typeof schema>` for type inference
+3. Check that field names use `Path<T>` types
+
+### Server errors not showing
+
+Make sure you're using `applyServerErrors`:
+
+```tsx
+import { applyServerErrors } from "@rachelallyson/hero-hook-form";
+
+applyServerErrors(form.setError, {
+  fieldErrors: [
+    { path: "email", message: "Email already exists" },
+  ],
+});
+```
+
+## Getting Help
+
+### Where can I find more examples?
+
+- Check the [Recipes](./recipes/examples) section
+- Look at the [Live Demos](/demo)
+- Review the [API Reference](./api/README)
+
+### How do I report a bug?
+
+Open an issue on [GitHub](https://github.com/rachelallyson/hero-hook-form/issues) with:
+- Code example
+- Error message
+- Expected behavior
+- Actual behavior
+
+### Can I contribute?
+
+Yes! See [CONTRIBUTING.md](https://github.com/rachelallyson/hero-hook-form/blob/main/CONTRIBUTING.md) for guidelines.

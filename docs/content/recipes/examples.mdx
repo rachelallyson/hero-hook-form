@@ -731,3 +731,202 @@ export function ServerErrorForm() {
 ```
 
 **Expected Result**: A form that handles both client and server-side validation errors gracefully.
+
+## Next.js Server Action Form
+
+### Input → Output
+
+**Context**: Form using Next.js Server Actions for server-side handling
+
+**Code**:
+```tsx
+import { ServerActionForm, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
+import { signup } from "@/app/actions/auth";
+
+export function SignupForm() {
+  return (
+    <ServerActionForm
+      action={signup}
+      fields={[
+        FormFieldHelpers.input("name", "Name"),
+        FormFieldHelpers.input("email", "Email", "email"),
+        FormFieldHelpers.input("password", "Password", "password"),
+      ]}
+      title="Create Account"
+      subtitle="Sign up to get started"
+    />
+  );
+}
+```
+
+**Server Action** (`app/actions/auth.ts`):
+```tsx
+"use server";
+
+import { z } from "zod";
+
+const signupSchema = z.object({
+  name: z.string().min(2),
+  email: z.string().email(),
+  password: z.string().min(8),
+});
+
+export async function signup(
+  prevState: any,
+  formData: FormData
+): Promise<{ errors?: Record<string, string[]>; success?: boolean }> {
+  const rawData = {
+    name: formData.get("name"),
+    email: formData.get("email"),
+    password: formData.get("password"),
+  };
+
+  const result = signupSchema.safeParse(rawData);
+  
+  if (!result.success) {
+    return {
+      errors: result.error.flatten().fieldErrors,
+    };
+  }
+
+  // Process signup
+  await createUser(result.data);
+  
+  return { success: true };
+}
+```
+
+**Expected Result**: A form that submits to a Next.js Server Action with automatic error handling.
+
+## Settings Form
+
+### Input → Output
+
+**Context**: User settings form with multiple sections and preferences
+
+**Code**:
+```tsx
+import { ZodForm, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
+import { z } from "zod";
+
+const settingsSchema = z.object({
+  // Personal
+  firstName: z.string().min(2),
+  lastName: z.string().min(2),
+  email: z.string().email(),
+  phone: z.string().optional(),
+  
+  // Preferences
+  theme: z.enum(["light", "dark", "system"]),
+  language: z.string().min(1),
+  timezone: z.string().min(1),
+  
+  // Notifications
+  emailNotifications: z.boolean(),
+  pushNotifications: z.boolean(),
+  smsNotifications: z.boolean(),
+});
+
+export function SettingsForm() {
+  return (
+    <ZodForm
+      config={{
+        schema: settingsSchema,
+        fields: [
+          // Personal Information
+          FormFieldHelpers.input("firstName", "First Name"),
+          FormFieldHelpers.input("lastName", "Last Name"),
+          FormFieldHelpers.input("email", "Email", "email"),
+          FormFieldHelpers.input("phone", "Phone", "tel"),
+          
+          // Preferences
+          FormFieldHelpers.select("theme", "Theme", [
+            { label: "Light", value: "light" },
+            { label: "Dark", value: "dark" },
+            { label: "System", value: "system" },
+          ]),
+          FormFieldHelpers.select("language", "Language", [
+            { label: "English", value: "en" },
+            { label: "Spanish", value: "es" },
+            { label: "French", value: "fr" },
+          ]),
+          FormFieldHelpers.select("timezone", "Timezone", [
+            { label: "UTC-8 (PST)", value: "UTC-8" },
+            { label: "UTC-5 (EST)", value: "UTC-5" },
+            { label: "UTC+0 (GMT)", value: "UTC+0" },
+          ]),
+          
+          // Notifications
+          FormFieldHelpers.checkbox("emailNotifications", "Email Notifications"),
+          FormFieldHelpers.checkbox("pushNotifications", "Push Notifications"),
+          FormFieldHelpers.checkbox("smsNotifications", "SMS Notifications"),
+        ],
+      }}
+      onSubmit={async (data) => {
+        await updateSettings(data);
+      }}
+      title="Account Settings"
+      layout="grid"
+      columns={2}
+      showResetButton={true}
+    />
+  );
+}
+```
+
+**Expected Result**: A comprehensive settings form with multiple sections in a grid layout.
+
+## Search/Filter Form
+
+### Input → Output
+
+**Context**: Search and filter form for data tables or listings
+
+**Code**:
+```tsx
+import { ZodForm, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
+import { z } from "zod";
+
+const searchSchema = z.object({
+  query: z.string().optional(),
+  category: z.string().optional(),
+  minPrice: z.number().optional(),
+  maxPrice: z.number().optional(),
+  inStock: z.boolean().optional(),
+  sortBy: z.enum(["price", "name", "date"]).optional(),
+});
+
+export function SearchForm({ onSearch }: { onSearch: (filters: any) => void }) {
+  return (
+    <ZodForm
+      config={{
+        schema: searchSchema,
+        fields: [
+          FormFieldHelpers.input("query", "Search", "text"),
+          FormFieldHelpers.select("category", "Category", [
+            { label: "All Categories", value: "" },
+            { label: "Electronics", value: "electronics" },
+            { label: "Clothing", value: "clothing" },
+            { label: "Books", value: "books" },
+          ]),
+          FormFieldHelpers.input("minPrice", "Min Price", "number"),
+          FormFieldHelpers.input("maxPrice", "Max Price", "number"),
+          FormFieldHelpers.checkbox("inStock", "In Stock Only"),
+          FormFieldHelpers.select("sortBy", "Sort By", [
+            { label: "Price", value: "price" },
+            { label: "Name", value: "name" },
+            { label: "Date", value: "date" },
+          ]),
+        ],
+      }}
+      onSubmit={onSearch}
+      title="Search & Filter"
+      layout="grid"
+      columns={3}
+      submitButtonText="Search"
+    />
+  );
+}
+```
+
+**Expected Result**: A search and filter form with multiple filter options in a grid layout.

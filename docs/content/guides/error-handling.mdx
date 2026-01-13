@@ -3,40 +3,25 @@ title: Error Handling
 description: Client and server error strategies.
 ---
 
-### Client-side validation
-
-- Use Zod via `ZodForm` or RHF `rules` when not using Zod.
-- Debounce text validations with `useDebouncedValidation`.
-
-### Server-side errors
-
-```tsx
-import { applyServerErrors } from "@rachelallyson/hero-hook-form";
-
-async function onSubmit(data, form) {
-  const res = await fetch("/api/submit", { method: "POST", body: JSON.stringify(data) });
-  if (!res.ok) {
-    const { errors } = await res.json(); // [{ field, message }]
-    applyServerErrors(form, errors);
-    return;
-  }
-}
-```
-
-### Display options
-
-- Inline field errors (default)
-- Global status via `FormStatus` (loading/success/error)
-- Optional UI: toast or modal per your app
 # Error Handling
 
 Master validation and error management in Hero Hook Form.
 
+<Tip>
+Proper error handling improves user experience by providing clear, actionable feedback when something goes wrong.
+</Tip>
+
 ## Validation Types
+
+Hero Hook Form supports both client-side and server-side validation.
 
 ### Client-Side Validation
 
 Client-side validation happens in the browser before form submission using Zod schemas.
+
+<Info>
+Client-side validation provides immediate feedback and reduces server load by catching errors before submission.
+</Info>
 
 ```tsx
 import { z } from "zod";
@@ -175,6 +160,10 @@ const schema = z.object({
 
 ### Cross-Field Validation
 
+<Tip>
+Use Zod's `refine` method for validation that depends on multiple fields.
+</Tip>
+
 ```tsx
 const schema = z.object({
   password: z.string().min(8),
@@ -190,7 +179,13 @@ const schema = z.object({
 });
 ```
 
+<Info>
+The `path` option in `refine` specifies which field should show the error message.
+</Info>
+
 ## Common Validation Schemas
+
+Hero Hook Form provides helper functions for common validation patterns.
 
 ### Email Validation
 
@@ -201,6 +196,10 @@ const emailSchema = createEmailSchema("Email address");
 ```
 
 ### Password Validation
+
+<Tip>
+Use `createPasswordSchema` for consistent password validation across your app.
+</Tip>
 
 ```tsx
 import { createPasswordSchema } from "@rachelallyson/hero-hook-form";

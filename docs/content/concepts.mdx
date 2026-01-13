@@ -1,39 +1,8 @@
 ---
-title: Concepts
+title: Core Concepts
 description: Core architecture, data flow, and invariants.
 ---
 
-### Architecture
-
-- React Hook Form (RHF) manages form state and validation.
-- HeroUI components are wrapped as typed field components for accessibility and consistency.
-- Use three patterns: helper-based, builder-based, or schema-first with Zod (`ZodForm`).
-- Providers (`FormProvider`, `ConfigProvider`) compose global behavior when needed.
-
-### Data flow
-
-- Register fields with RHF; field components bind to RHF control.
-- For Zod forms, Zod schema validates inputs via `@hookform/resolvers`.
-- Submit handlers receive typed data. Map server errors back with `applyServerErrors`.
-
-### Invariants
-
-- Field names must match your form value type (`Path<T>` semantics).
-- Zod schema (when used) must match the same shape as your fields.
-- Conditional fields should be optional in the schema or guarded in validation.
-- `defaultValues` must align with both schema and field defaults.
-
-### Performance
-
-- Field components are memoized to minimize re-renders.
-- Use `useDebouncedValidation` for text inputs to avoid noisy validation.
-- Prefer RHF controls; only use fully controlled components when necessary.
-
-### Error handling
-
-- Client-side: Zod or RHF rules.
-- Server-side: use `applyServerErrors(form, errors)` to set field errors.
-- Use `FormStatus` for global loading/success/error feedback.
 # Core Concepts
 
 Understanding the mental models and architecture of Hero Hook Form.
@@ -46,11 +15,19 @@ Hero Hook Form is built on three core pillars:
 2. **HeroUI Components** - Beautiful, accessible UI components
 3. **TypeScript** - Type safety and developer experience
 
+<Info>
+**Key Principle**: Hero Hook Form wraps React Hook Form and HeroUI to provide a type-safe, accessible form building experience with minimal boilerplate.
+</Info>
+
 ## Form Lifecycle
 
+Forms go through four main stages:
+
 ### 1. Initialization
+
+The form is created with schema and field configuration:
+
 ```tsx
-// Form is created with schema and field configuration
 const form = useForm({
   resolver: zodResolver(schema),
   defaultValues: { name: "", email: "" }
@@ -58,24 +35,34 @@ const form = useForm({
 ```
 
 ### 2. Rendering
+
+Fields are rendered based on configuration:
+
 ```tsx
-// Fields are rendered based on configuration
 <FormField config={fieldConfig} form={form} />
 ```
 
 ### 3. Validation
+
+Validation happens on blur, change, or submit:
+
 ```tsx
-// Validation happens on blur, change, or submit
 const isValid = await form.trigger();
 ```
 
 ### 4. Submission
+
+Form data is validated and submitted:
+
 ```tsx
-// Form data is validated and submitted
 const handleSubmit = (data) => {
   // Process validated data
 };
 ```
+
+<Tip>
+Validation can be triggered automatically (onBlur, onChange) or manually using `form.trigger()`.
+</Tip>
 
 ## Data Model
 
@@ -174,28 +161,29 @@ const schema = z.object({
 ## Performance Considerations
 
 ### Memoization
+
 All field components are wrapped with `React.memo` to prevent unnecessary re-renders.
 
+<Tip>
+Field components automatically memoize, so you don't need to wrap them yourself.
+</Tip>
+
 ### Debounced Validation
+
 Use `useDebouncedValidation` for expensive validation operations:
 
 ```tsx
-const { debouncedValue, isDebouncing } = useDebouncedValidation(
-  value,
+import { useDebouncedValidation } from "@rachelallyson/hero-hook-form";
+
+const { debouncedTrigger, isDebouncing } = useDebouncedValidation(
+  form,
   { delay: 300 }
 );
 ```
 
-### Batched Updates
-Use `useBatchedFieldUpdates` for multiple field updates:
-
-```tsx
-const { batchUpdate } = useBatchedFieldUpdates();
-batchUpdate([
-  { name: "field1", value: "value1" },
-  { name: "field2", value: "value2" },
-]);
-```
+<Warning>
+Without debouncing, validation runs on every keystroke, which can be expensive for complex validation logic.
+</Warning>
 
 ## Error Handling
 
@@ -263,28 +251,44 @@ cy.get('[data-testid="form"]').then(simulateFormSubmission);
 ## Best Practices
 
 ### Form Design
-1. Use clear, descriptive labels
-2. Group related fields together
-3. Provide helpful descriptions
-4. Show validation errors immediately
-5. Use appropriate input types
+
+1. **Use clear, descriptive labels** - Help users understand what each field is for
+2. **Group related fields together** - Use sections or visual grouping
+3. **Provide helpful descriptions** - Add context with field descriptions
+4. **Show validation errors immediately** - Use `mode: "onBlur"` or `mode: "onChange"`
+5. **Use appropriate input types** - `email`, `tel`, `password`, etc.
 
 ### Performance
-1. Use `React.memo` for custom components
-2. Debounce expensive validations
-3. Batch field updates when possible
-4. Avoid unnecessary re-renders
+
+1. **Field components are already memoized** - No need to wrap them
+2. **Debounce expensive validations** - Use `useDebouncedValidation` hook
+3. **Use conditional fields** - Only render what's needed
+4. **Avoid unnecessary re-renders** - Let React Hook Form handle state
+
+<Tip>
+For large forms, consider using conditional fields to only render visible sections.
+</Tip>
 
 ### Accessibility
-1. Always provide labels
-2. Use semantic HTML
-3. Ensure keyboard navigation
-4. Test with screen readers
-5. Provide error feedback
+
+1. **Always provide labels** - Required for screen readers
+2. **Use semantic HTML** - HeroUI components handle this automatically
+3. **Ensure keyboard navigation** - Tab order follows form flow
+4. **Test with screen readers** - Verify ARIA attributes work correctly
+5. **Provide error feedback** - Errors are announced to screen readers
+
+<Info>
+Hero Hook Form components include proper ARIA attributes by default, but you should always provide labels.
+</Info>
 
 ### Type Safety
-1. Define proper TypeScript interfaces
-2. Use Zod schemas for validation
-3. Leverage type inference where possible
-4. Avoid `any` types
-5. Use proper generic constraints
+
+1. **Define proper TypeScript interfaces** - Or use Zod schema inference
+2. **Use Zod schemas for validation** - Single source of truth for types and validation
+3. **Leverage type inference** - Let TypeScript infer types from schemas
+4. **Avoid `any` types** - Use proper generics
+5. **Use proper generic constraints** - Ensure type safety throughout
+
+<Warning>
+Field names must match your form data type. Use `Path<T>` types for nested fields.
+</Warning>

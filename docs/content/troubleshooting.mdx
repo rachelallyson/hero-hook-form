@@ -3,25 +3,29 @@ title: Troubleshooting
 description: Common errors and exact fixes.
 ---
 
-### Symptom: RHF type mismatch
-
-- Cause: Field names or `defaultValues` don’t match schema/type.
-- Fix: Align `defaultValues` and field names with Zod schema and `Path<T>` types.
-
-### Symptom: Errors not visible
-
-- Cause: Custom UI doesn’t render error props.
-- Fix: Ensure fields receive `isInvalid`/`errorMessage` and render messages.
-
-### Symptom: Server errors not applied
-
-- Cause: Errors not mapped back to RHF.
-- Fix: Use `applyServerErrors(form, errors)` with `{ field, message }[]`.
 # Troubleshooting
 
 Common issues and their solutions when working with Hero Hook Form.
 
+<Tip>
+Most issues can be resolved by checking field names match your schema, ensuring providers are set up correctly, and verifying TypeScript types are correct.
+</Tip>
+
+## Quick Reference
+
+### Common Symptoms
+
+- **RHF type mismatch** - Field names or `defaultValues` don't match schema/type
+- **Errors not visible** - Custom UI doesn't render error props
+- **Server errors not applied** - Errors not mapped back to RHF
+
+See detailed solutions below.
+
 ## Form Not Rendering
+
+<Warning>
+If your form isn't rendering, check that you've wrapped your app with the provider and that field configurations are correct.
+</Warning>
 
 ### Symptom
 Form fields are not appearing or form is blank.
@@ -54,6 +58,10 @@ const fields = [
 
 ## TypeScript Errors
 
+<Info>
+TypeScript errors usually indicate a mismatch between your schema, field names, or types. Use Zod inference for automatic type safety.
+</Info>
+
 ### Symptom
 TypeScript compilation errors with form types.
 
@@ -62,17 +70,7 @@ Missing type definitions or incorrect generic usage.
 
 ### Fix
 ```tsx
-// Define your form data type
-interface ContactFormData {
-    name: string;
-    email: string;
-  message: string;
-}
-
-// Use with form
-const form = useForm<ContactFormData>();
-
-// Or use Zod inference
+// ✅ Recommended: Use Zod inference
 const schema = z.object({
   name: z.string(),
   email: z.string().email(),
@@ -80,9 +78,27 @@ const schema = z.object({
 });
 
 type ContactFormData = z.infer<typeof schema>;
+
+// Or define manually
+interface ContactFormData {
+  name: string;
+  email: string;
+  message: string;
+}
+
+// Use with form
+const form = useForm<ContactFormData>();
 ```
 
+<Tip>
+Using Zod schema inference ensures your types always match your validation rules.
+</Tip>
+
 ## Validation Not Working
+
+<Warning>
+If validation isn't working, make sure you've provided a Zod schema and resolver, or React Hook Form validation rules.
+</Warning>
 
 ### Symptom
 Form validation is not triggering or error messages not showing.
@@ -104,6 +120,10 @@ const schema = z.object({
   email: z.string().email("Invalid email"),
 });
 ```
+
+<Tip>
+For `ZodForm`, the resolver is automatically set up. For `ConfigurableForm`, you need to provide validation rules or a resolver manually.
+</Tip>
 
 ## Field Not Updating
 
@@ -150,18 +170,24 @@ const handleSubmit = async (data) => {
     const response = await fetch("/api/submit", {
       method: "POST",
       body: JSON.stringify(data),
-});
+    });
 
     if (!response.ok) {
       const errorData = await response.json();
       // Apply server errors to form
-      applyServerErrors(form, errorData.fieldErrors);
+      applyServerErrors(form.setError, {
+        fieldErrors: errorData.fieldErrors,
+      });
     }
   } catch (error) {
     console.error("Error:", error);
   }
 };
 ```
+
+<Info>
+Server errors must be in the format: `{ fieldErrors: [{ path: "fieldName", message: "Error message" }] }`
+</Info>
 
 ## Performance Issues
 
@@ -175,13 +201,13 @@ Missing memoization or excessive re-renders.
 ```tsx
 import { memo } from "react";
 
-// Memoize field components
+// Field components are already memoized, but you can memoize custom components
 const MemoizedField = memo(InputField);
 
 // Use debounced validation
 import { useDebouncedValidation } from "@rachelallyson/hero-hook-form";
 
-const { debouncedValue } = useDebouncedValidation(value, { delay: 300 });
+const { debouncedTrigger } = useDebouncedValidation(form, { delay: 300 });
 ```
 
 ## Conditional Fields Not Working
@@ -210,10 +236,13 @@ const fields = [
     label: "Phone",
     type: "input",
     condition: (values) => values.hasPhone,
-    dependsOn: "hasPhone", // Add dependency
   }),
 ];
 ```
+
+<Tip>
+Always use explicit boolean comparisons (`=== true`) in conditions to avoid truthy/falsy issues.
+</Tip>
 
 ## Field Array Issues
 
@@ -314,11 +343,22 @@ testUtils.setFieldValue("fieldName", "new value");
 
 If you're still experiencing issues:
 
-1. Check the [API Reference](../api) for detailed documentation
+1. Check the [API Reference](../api/README) for detailed documentation
 2. Look at the [Examples](../recipes/examples) for working code
-3. Search [GitHub Issues](https://github.com/rachelallyson/hero-hook-form/issues)
-4. Create a new issue with:
+3. Check the [FAQ](../faq) for common questions
+4. Search [GitHub Issues](https://github.com/rachelallyson/hero-hook-form/issues)
+5. Create a new issue with:
    - Code example
    - Error message
    - Expected behavior
    - Actual behavior
+
+<Info>
+When reporting issues, include a minimal code example that reproduces the problem. This helps us diagnose and fix issues faster.
+</Info>
+
+## Next Steps
+
+- [Error Handling Guide](./guides/error-handling) - Learn about validation strategies
+- [Testing Guide](./guides/testing) - Test your forms properly
+- [API Reference](./api/README) - Explore all available APIs

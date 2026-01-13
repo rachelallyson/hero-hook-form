@@ -5,11 +5,11 @@
         "title": "Guides",
         "pages": [
             "quickstart",
+            "form-patterns-comparison",
             "dynamic-forms",
             "error-handling",
             "performance",
             "testing",
-            "cypress-testing",
             "accessibility",
             "migration-v2"
         ]
@@ -32,5 +32,6 @@
             "examples"
         ]
     },
+    "faq": "FAQ",
     "troubleshooting": "Troubleshooting"
 }

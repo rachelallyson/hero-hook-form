@@ -42,7 +42,6 @@ interface ZodFormConfig<T extends FieldValues> extends UseFormProps<T> {
   fields: ZodFormFieldConfig<T>[];
   onError?: (errors: FieldErrors<T>) => void;
   errorDisplay?: "inline" | "toast" | "modal" | "none";
-  render?: (formState: FormState) => React.ReactNode;
 }
 ```
 

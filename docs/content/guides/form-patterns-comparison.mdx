@@ -1,0 +1,440 @@
+---
+title: Form Patterns Comparison
+description: Compare different form building patterns and choose the right one for your needs.
+---
+
+# Form Patterns Comparison
+
+Hero Hook Form supports multiple patterns for building forms. This guide helps you choose the right pattern for your use case.
+
+## Overview
+
+Hero Hook Form provides three main patterns:
+
+1. **Helper Functions** - Simple, straightforward approach
+2. **Builder Pattern** - Fluent API with method chaining
+3. **Type-Inferred Forms** - Automatic schema generation
+
+## Quick Comparison
+
+| Feature | Helper Functions | Builder Pattern | Type-Inferred |
+|---------|------------------|-----------------|---------------|
+| **Simplicity** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ |
+| **Type Safety** | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+| **Readability** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ |
+| **Flexibility** | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ |
+| **Learning Curve** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ |
+| **Best For** | Most forms | Complex forms | Type-first development |
+
+## Pattern 1: Helper Functions (Recommended)
+
+### When to Use
+
+- ✅ Most common use cases
+- ✅ Simple to moderate complexity forms
+- ✅ Team prefers explicit, readable code
+- ✅ Quick prototyping
+
+### Pros
+
+- **Simple and intuitive** - Easy to understand
+- **Explicit** - Clear what each field does
+- **Flexible** - Easy to mix with other patterns
+- **No learning curve** - Familiar to most developers
+
+### Cons
+
+- **More verbose** - Can be repetitive for many fields
+- **Manual schema** - Need to define Zod schema separately
+
+### Example
+
+```tsx
+import { ZodForm, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
+import { z } from "zod";
+
+const schema = z.object({
+  name: z.string().min(2),
+  email: z.string().email(),
+  message: z.string().min(10),
+});
+
+function ContactForm() {
+  return (
+    <ZodForm
+      config={{
+        schema,
+        fields: [
+          FormFieldHelpers.input("name", "Name"),
+          FormFieldHelpers.input("email", "Email", "email"),
+          FormFieldHelpers.textarea("message", "Message"),
+        ],
+      }}
+      onSubmit={(data) => console.log(data)}
+    />
+  );
+}
+```
+
+### Use Cases
+
+- Contact forms
+- Login/registration forms
+- Simple data entry forms
+- Forms with 5-15 fields
+
+## Pattern 2: Builder Pattern
+
+### When to Use
+
+- ✅ Complex forms with many fields
+- ✅ Forms that need to be built programmatically
+- ✅ Team prefers fluent APIs
+- ✅ Reusable form configurations
+
+### Pros
+
+- **Fluent API** - Method chaining feels natural
+- **Composable** - Easy to build forms programmatically
+- **Less repetition** - Cleaner for many fields
+- **Type-safe** - Full TypeScript support
+
+### Cons
+
+- **Learning curve** - Need to learn builder API
+- **Less explicit** - Method chaining can be harder to read
+- **Manual schema** - Still need to define Zod schema
+
+### Example
+
+```tsx
+import { ZodForm, createBasicFormBuilder } from "@rachelallyson/hero-hook-form";
+import { z } from "zod";
+
+const schema = z.object({
+  name: z.string().min(2),
+  email: z.string().email(),
+  message: z.string().min(10),
+});
+
+const fields = createBasicFormBuilder()
+  .input("name", "Name")
+  .input("email", "Email", "email")
+  .textarea("message", "Message")
+  .build();
+
+function ContactForm() {
+  return (
+    <ZodForm
+      config={{ schema, fields }}
+      onSubmit={(data) => console.log(data)}
+    />
+  );
+}
+```
+
+### Use Cases
+
+- Complex multi-section forms
+- Forms with 15+ fields
+- Programmatically generated forms
+- Forms that need to be built conditionally
+
+## Pattern 3: Type-Inferred Forms
+
+### When to Use
+
+- ✅ Type-first development approach
+- ✅ Want automatic schema generation
+- ✅ Prefer less boilerplate
+- ✅ Advanced TypeScript users
+
+### Pros
+
+- **Automatic schema** - Schema generated from field definitions
+- **Strong type inference** - Best TypeScript experience
+- **Less boilerplate** - No separate schema definition
+- **Type safety** - Types and validation in sync
+
+### Cons
+
+- **Learning curve** - Most complex pattern
+- **Less flexible** - Some limitations on validation
+- **Less explicit** - Schema is implicit
+
+### Example
+
+```tsx
+import { ZodForm, defineInferredForm, field } from "@rachelallyson/hero-hook-form";
+
+const form = defineInferredForm({
+  name: field.string("Name").min(2),
+  email: field.email("Email"),
+  message: field.string("Message").min(10),
+});
+
+function ContactForm() {
+  return (
+    <ZodForm
+      config={form}
+      onSubmit={(data) => console.log(data)}
+    />
+  );
+}
+```
+
+### Use Cases
+
+- Type-first development
+- Rapid prototyping
+- Forms where types are the source of truth
+- Advanced TypeScript projects
+
+## Detailed Comparison
+
+### Code Readability
+
+**Helper Functions** ⭐⭐⭐⭐⭐
+```tsx
+// Very clear and explicit
+fields: [
+  FormFieldHelpers.input("name", "Name"),
+  FormFieldHelpers.input("email", "Email", "email"),
+]
+```
+
+**Builder Pattern** ⭐⭐⭐⭐
+```tsx
+// Clean but requires understanding builder API
+createBasicFormBuilder()
+  .input("name", "Name")
+  .input("email", "Email", "email")
+  .build()
+```
+
+**Type-Inferred** ⭐⭐⭐
+```tsx
+// Concise but less explicit about what's happening
+defineInferredForm({
+  name: field.string("Name").min(2),
+  email: field.email("Email"),
+})
+```
+
+### Type Safety
+
+**Helper Functions** ⭐⭐⭐⭐
+- Good type safety
+- Types inferred from Zod schema
+- Manual schema definition required
+
+**Builder Pattern** ⭐⭐⭐⭐
+- Good type safety
+- Types inferred from Zod schema
+- Manual schema definition required
+
+**Type-Inferred** ⭐⭐⭐⭐⭐
+- Excellent type safety
+- Types and validation always in sync
+- Automatic type inference
+
+### Flexibility
+
+**Helper Functions** ⭐⭐⭐⭐
+- Very flexible
+- Easy to mix patterns
+- Can customize each field individually
+
+**Builder Pattern** ⭐⭐⭐⭐
+- Flexible
+- Can combine with helpers
+- Good for programmatic building
+
+**Type-Inferred** ⭐⭐⭐
+- Less flexible
+- Some validation patterns not supported
+- Schema generation has limitations
+
+### Performance
+
+All three patterns have similar performance characteristics:
+- Components are memoized
+- Validation is optimized
+- No significant differences
+
+### Migration Between Patterns
+
+You can easily migrate between patterns:
+
+```tsx
+// Helper Functions
+const fields1 = [
+  FormFieldHelpers.input("name", "Name"),
+];
+
+// Builder Pattern
+const fields2 = createBasicFormBuilder()
+  .input("name", "Name")
+  .build();
+
+// Both work with the same ZodForm
+<ZodForm config={{ schema, fields: fields1 }} />
+<ZodForm config={{ schema, fields: fields2 }} />
+```
+
+## Decision Guide
+
+### Choose Helper Functions if:
+
+- ✅ You're new to Hero Hook Form
+- ✅ Your form has < 15 fields
+- ✅ You prefer explicit, readable code
+- ✅ You want the simplest solution
+- ✅ Your team values clarity over conciseness
+
+### Choose Builder Pattern if:
+
+- ✅ Your form has 15+ fields
+- ✅ You need to build forms programmatically
+- ✅ You prefer fluent APIs
+- ✅ You want less repetitive code
+- ✅ You're building reusable form configurations
+
+### Choose Type-Inferred if:
+
+- ✅ You're an advanced TypeScript user
+- ✅ You prefer type-first development
+- ✅ You want automatic schema generation
+- ✅ You value types and validation being in sync
+- ✅ You're building many similar forms
+
+## Hybrid Approach
+
+You can mix patterns:
+
+```tsx
+// Use helpers for simple fields
+const simpleFields = [
+  FormFieldHelpers.input("name", "Name"),
+  FormFieldHelpers.input("email", "Email", "email"),
+];
+
+// Use builder for complex section
+const complexFields = createAdvancedBuilder()
+  .section("Address", [
+    FormFieldHelpers.input("street", "Street"),
+    FormFieldHelpers.input("city", "City"),
+  ])
+  .build();
+
+// Combine them
+const allFields = [...simpleFields, ...complexFields];
+```
+
+## Real-World Examples
+
+### Example 1: Simple Contact Form
+
+**Best Choice: Helper Functions**
+
+```tsx
+const fields = [
+  FormFieldHelpers.input("name", "Name"),
+  FormFieldHelpers.input("email", "Email", "email"),
+  FormFieldHelpers.textarea("message", "Message"),
+];
+```
+
+**Why**: Simple, explicit, easy to read and maintain.
+
+### Example 2: Complex Registration Form
+
+**Best Choice: Builder Pattern**
+
+```tsx
+const fields = createAdvancedBuilder()
+  .section("Personal Information", [
+    FormFieldHelpers.input("firstName", "First Name"),
+    FormFieldHelpers.input("lastName", "Last Name"),
+    FormFieldHelpers.input("email", "Email", "email"),
+  ])
+  .section("Account Details", [
+    FormFieldHelpers.input("username", "Username"),
+    FormFieldHelpers.input("password", "Password", "password"),
+  ])
+  .build();
+```
+
+**Why**: Many fields, clear structure, easier to manage.
+
+### Example 3: Type-First Form Library
+
+**Best Choice: Type-Inferred**
+
+```tsx
+const userForm = defineInferredForm({
+  name: field.string("Name").min(2),
+  email: field.email("Email"),
+  age: field.number("Age").min(18),
+});
+```
+
+**Why**: Types are the source of truth, automatic validation.
+
+## Best Practices
+
+### 1. Start Simple
+
+Begin with Helper Functions, then migrate if needed:
+
+```tsx
+// Start here
+const fields = [
+  FormFieldHelpers.input("name", "Name"),
+];
+
+// Migrate to builder if form grows
+const fields = createBasicFormBuilder()
+  .input("name", "Name")
+  .build();
+```
+
+### 2. Be Consistent
+
+Use the same pattern throughout your project:
+
+```tsx
+// ✅ Good: Consistent pattern
+// All forms use helper functions
+
+// ❌ Bad: Mixed patterns
+// Some forms use helpers, others use builders
+```
+
+### 3. Choose Based on Complexity
+
+- **Simple forms** → Helper Functions
+- **Complex forms** → Builder Pattern
+- **Type-first projects** → Type-Inferred
+
+### 4. Consider Team Preferences
+
+- **Explicit code** → Helper Functions
+- **Fluent APIs** → Builder Pattern
+- **Type safety** → Type-Inferred
+
+## Summary
+
+| Pattern | Best For | Complexity | Type Safety |
+|---------|----------|------------|-------------|
+| **Helper Functions** | Most forms | Low | High |
+| **Builder Pattern** | Complex forms | Medium | High |
+| **Type-Inferred** | Type-first dev | High | Very High |
+
+**Recommendation**: Start with Helper Functions for most use cases. Migrate to Builder Pattern if your form grows complex, or Type-Inferred if you prefer type-first development.
+
+## Next Steps
+
+- [Quick Start Guide](./quickstart) - Get started with any pattern
+- [Dynamic Forms](./dynamic-forms) - Learn about conditional fields
+- [API Reference](../api/README) - Explore all available APIs

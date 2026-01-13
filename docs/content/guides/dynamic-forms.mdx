@@ -3,77 +3,13 @@ title: Dynamic Forms
 description: Conditional fields, field arrays, and dynamic sections.
 ---
 
-### Conditional fields
-
-```tsx
-import { ZodForm, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
-import { z } from "zod";
-
-const schema = z.object({
-  newsletter: z.boolean().default(false),
-  email: z.string().email().optional(),
-});
-
-export default function DynamicExample() {
-  return (
-    <ZodForm
-      config={{
-        schema,
-        fields: [
-          FormFieldHelpers.checkbox("newsletter", "Subscribe?"),
-          {
-            type: "conditional",
-            name: "email-conditional",
-            condition: (v) => !!v.newsletter,
-            field: FormFieldHelpers.input("email", "Email"),
-          },
-        ],
-      }}
-      onSubmit={(data) => console.log(data)}
-    />
-  );
-}
-```
-
-### Field arrays
-
-```tsx
-import { ZodForm } from "@rachelallyson/hero-hook-form";
-import { z } from "zod";
-
-const schema = z.object({
-  tags: z.array(z.string().min(1)).min(1),
-});
-
-export default function ArrayExample() {
-  return (
-    <ZodForm
-      config={{
-        schema,
-        fields: [
-          {
-            type: "fieldArray",
-            name: "tags",
-            label: "Tags",
-            fields: [
-              { type: "input", name: "tags[].value", label: "Tag" } as any,
-            ],
-            min: 1,
-            addButtonText: "Add tag",
-            removeButtonText: "Remove",
-          },
-        ],
-      }}
-      onSubmit={(d) => console.log(d)}
-    />
-  );
-}
-```
-
-### Dynamic sections
-
-- Use `type: "dynamicSection"` with a `condition` and nested `fields` to render grouped fields based on form state.
 # Dynamic Forms
+
+Learn how to create forms that adapt based on user input and data.
+
+<Tip>
+Dynamic forms make your UI more intuitive by showing only relevant fields based on user selections. This reduces cognitive load and improves user experience.
+</Tip>
 
 Learn how to create forms that adapt based on user input and data.
 
@@ -81,21 +17,29 @@ Learn how to create forms that adapt based on user input and data.
 
 Show or hide fields based on form data using the `ConditionalField` component.
 
+<Info>
+Conditional fields are completely removed from the DOM when hidden, which improves performance and prevents validation issues.
+</Info>
+
 ### Basic Conditional Field
 
 ```tsx
 import { ConditionalField, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
 
 const fields = [
-          FormFieldHelpers.checkbox("hasPhone", "I have a phone number"),
-          ConditionalField({
-            name: "phone",
-            label: "Phone Number",
+  FormFieldHelpers.checkbox("hasPhone", "I have a phone number"),
+  ConditionalField({
+    name: "phone",
+    label: "Phone Number",
     type: "input",
-            condition: (values) => values.hasPhone === true,
+    condition: (values) => values.hasPhone === true,
   }),
 ];
 ```
+
+<Tip>
+Always use explicit boolean comparisons (`=== true`) in conditions for clarity and to avoid truthy/falsy issues.
+</Tip>
 
 ### Complex Conditions
 
@@ -139,6 +83,10 @@ const fields = [
 
 Create dynamic repeating field groups with the `FieldArrayField` component.
 
+<Info>
+Field arrays allow users to add and remove multiple instances of a field group, perfect for addresses, items, contacts, etc.
+</Info>
+
 ### Basic Field Array
 
 ```tsx
@@ -158,6 +106,10 @@ const fields = [
   }),
 ];
 ```
+
+<Tip>
+Set `min` and `max` props to control how many items users can add or remove.
+</Tip>
 
 ### Field Array with Validation
 
@@ -198,6 +150,10 @@ FieldArrayField({
 
 Group related conditional fields together with the `DynamicSectionField` component.
 
+<Info>
+Use dynamic sections when you need to show/hide multiple related fields together. They provide better visual organization than individual conditional fields.
+</Info>
+
 ### Basic Dynamic Section
 
 ```tsx
@@ -205,20 +161,24 @@ import { DynamicSectionField, FormFieldHelpers } from "@rachelallyson/hero-hook-
 
 const fields = [
   FormFieldHelpers.checkbox("hasEmergencyContact", "Has Emergency Contact"),
-          DynamicSectionField({
+  DynamicSectionField({
     name: "emergencyContact",
     title: "Emergency Contact Information",
     description: "Please provide emergency contact details",
     condition: (values) => values.hasEmergencyContact === true,
-            fields: [
+    fields: [
       FormFieldHelpers.input("name", "Contact Name"),
       FormFieldHelpers.input("relationship", "Relationship"),
       FormFieldHelpers.input("phone", "Phone Number", "tel"),
       FormFieldHelpers.input("email", "Email", "email"),
-                ],
-              }),
+    ],
+  }),
 ];
 ```
+
+<Tip>
+Dynamic sections can be nested for complex conditional logic. See the nested example below.
+</Tip>
 
 ### Nested Dynamic Sections
 
@@ -420,41 +380,67 @@ cy.get('[data-testid="addresses[0].street"]').should("not.exist");
 ## Best Practices
 
 ### 1. Keep Conditions Simple
-```tsx
-// Good: Simple condition
-condition: (values) => values.hasPhone
 
-// Avoid: Complex conditions
-condition: (values) => values.hasPhone && values.userType === "premium" && values.isActive
+<Tip>
+Simple conditions are easier to understand, test, and maintain.
+</Tip>
+
+```tsx
+// ✅ Good: Simple condition
+condition: (values) => values.hasPhone === true
+
+// ❌ Avoid: Complex conditions
+condition: (values) => 
+  values.hasPhone && 
+  values.userType === "premium" && 
+  values.isActive &&
+  values.subscriptionStatus === "active"
 ```
 
 ### 2. Use Meaningful Field Names
+
 ```tsx
-// Good: Clear naming
+// ✅ Good: Clear naming
 name: "emergencyContactPhone"
 
-// Avoid: Unclear naming
+// ❌ Avoid: Unclear naming
 name: "phone2"
 ```
 
 ### 3. Provide Clear Labels
+
 ```tsx
-// Good: Descriptive labels
+// ✅ Good: Descriptive labels
 label: "Emergency Contact Phone Number"
 
-// Avoid: Generic labels
+// ❌ Avoid: Generic labels
 label: "Phone"
 ```
 
 ### 4. Handle Edge Cases
+
+<Warning>
+Always provide fallback values and handle undefined/null cases in conditions.
+</Warning>
+
 ```tsx
-// Always provide fallback values
+// ✅ Good: Safe condition with fallbacks
 const condition = (values) => {
   return values?.hasPhone === true && values?.phone?.length > 0;
+};
+
+// ❌ Bad: No null checking
+const condition = (values) => {
+  return values.hasPhone && values.phone.length > 0; // May throw error
 };
 ```
 
 ### 5. Test All Conditions
+
+<Info>
+Test both visible and hidden states to ensure conditional fields work correctly.
+</Info>
+
 ```tsx
 // Test both true and false states
 it("shows phone field when hasPhone is true", () => {
@@ -465,3 +451,9 @@ it("hides phone field when hasPhone is false", () => {
   // Test hidden state
 });
 ```
+
+## Next Steps
+
+- [Error Handling Guide](./error-handling) - Learn about validation with dynamic forms
+- [Testing Guide](./testing) - Test conditional fields and field arrays
+- [API Reference](../api/README) - Explore ConditionalField, FieldArrayField, DynamicSectionField APIs

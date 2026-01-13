@@ -3,13 +3,29 @@ title: Quickstart
 description: Install and build a form in 5 minutes.
 ---
 
-### Install
+# Quick Start Guide
+
+Get up and running with Hero Hook Form in 5 minutes.
+
+<Tip>
+This guide will help you create your first form. For a detailed comparison of different form building patterns, see the [Form Patterns Comparison](./form-patterns-comparison) guide.
+</Tip>
+
+## Installation
+
+Install Hero Hook Form and its peer dependencies:
 
 ```bash
-npm i @rachelallyson/hero-hook-form zod @hookform/resolvers
+npm install @rachelallyson/hero-hook-form zod @hookform/resolvers
 ```
 
-### Minimal Zod form
+<Info>
+**Peer Dependencies**: Make sure you also have `react`, `react-dom`, `react-hook-form`, and `@heroui/react` installed. These are required peer dependencies.
+</Info>
+
+## Your First Form
+
+Create a simple contact form in just a few lines:
 
 ```tsx
 import { ZodForm, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
@@ -36,49 +52,18 @@ export default function ContactForm() {
 }
 ```
 
-### Expected output
+<Note>
+**Expected Result**: Invalid inputs show error messages; valid submission logs typed data.
+</Note>
 
-- Invalid inputs show error messages; valid submission logs typed data.
+## Optional: Wrap Your App
 
-### Optional providers
-
-```tsx
-import { FormProvider } from "@rachelallyson/hero-hook-form";
-
-export function App() {
-  return (
-    <FormProvider>
-      <ContactForm />
-    </FormProvider>
-  );
-}
-```
-# Quick Start Guide
-
-Get up and running with Hero Hook Form in 5 minutes.
-
-## Installation
-
-```bash
-npm install @rachelallyson/hero-hook-form
-```
-
-### Peer Dependencies
-
-Make sure you have the required peer dependencies installed:
-
-```bash
-npm install react react-dom react-hook-form @heroui/react zod @hookform/resolvers
-```
-
-## Basic Setup
-
-### 1. Wrap Your App
+For global form defaults and styling, wrap your app with the provider:
 
 ```tsx
 import { HeroHookFormProvider } from "@rachelallyson/hero-hook-form";
 
-function App() {
+export function App() {
   return (
     <HeroHookFormProvider>
       <YourForms />
@@ -87,45 +72,19 @@ function App() {
 }
 ```
 
-### 2. Create Your First Form
-
-```tsx
-import { ZodForm, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
-import { z } from "zod";
-
-const schema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Please enter a valid email"),
-  message: z.string().min(10, "Message must be at least 10 characters"),
-});
-
-export function ContactForm() {
-  const handleSubmit = async (data) => {
-    console.log("Form submitted:", data);
-    // Handle form submission
-  };
-
-  return (
-    <ZodForm
-      config={{
-        schema,
-        fields: [
-          FormFieldHelpers.input("name", "Name"),
-          FormFieldHelpers.input("email", "Email", "email"),
-          FormFieldHelpers.textarea("message", "Message"),
-        ],
-      }}
-      onSubmit={handleSubmit}
-      title="Contact Us"
-      subtitle="Send us a message and we'll get back to you"
-    />
-  );
-}
-```
+<Info>
+The provider is optional but recommended for consistent styling and default configurations across all forms.
+</Info>
 
 ## Form Building Patterns
 
+Hero Hook Form supports multiple patterns. Choose the one that fits your style:
+
 ### Method 1: Helper Functions (Recommended)
+
+<Tip>
+**Best for**: Most use cases. Simple, explicit, and easy to read.
+</Tip>
 
 ```tsx
 import { FormFieldHelpers } from "@rachelallyson/hero-hook-form";
@@ -134,7 +93,7 @@ const fields = [
   FormFieldHelpers.input("firstName", "First Name"),
   FormFieldHelpers.input("lastName", "Last Name"),
   FormFieldHelpers.input("email", "Email", "email"),
-  FormFieldHelpers.textarea("message", "Message", "Tell us about your project..."),
+  FormFieldHelpers.textarea("message", "Message"),
   FormFieldHelpers.select("country", "Country", [
     { label: "Select a country", value: "" },
     { label: "United States", value: "us" },
@@ -146,6 +105,10 @@ const fields = [
 
 ### Method 2: Builder Pattern
 
+<Tip>
+**Best for**: Complex forms with many fields. Fluent API with method chaining.
+</Tip>
+
 ```tsx
 import { createBasicFormBuilder } from "@rachelallyson/hero-hook-form";
 
@@ -153,7 +116,7 @@ const fields = createBasicFormBuilder()
   .input("firstName", "First Name")
   .input("lastName", "Last Name")
   .input("email", "Email", "email")
-  .textarea("message", "Message", "Tell us about your project...")
+  .textarea("message", "Message")
   .select("country", "Country", [
     { label: "Select a country", value: "" },
     { label: "United States", value: "us" },
@@ -165,8 +128,12 @@ const fields = createBasicFormBuilder()
 
 ### Method 3: Common Fields
 
+<Tip>
+**Best for**: Quick prototyping. Pre-built field collections.
+</Tip>
+
 ```tsx
-import { CommonFields } from "@rachelallyson/hero-hook-form";
+import { CommonFields, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
 
 const fields = [
   ...CommonFields.personal(), // firstName, lastName, email
@@ -174,6 +141,10 @@ const fields = [
   ...CommonFields.terms(), // newsletter, terms
 ];
 ```
+
+<Info>
+Not sure which pattern to use? Check out the [Form Patterns Comparison](./form-patterns-comparison) guide for a detailed comparison.
+</Info>
 
 ## Advanced Features
 
@@ -347,7 +318,11 @@ cy.get('[data-testid="form"]').then(simulateFormSubmission);
 
 ## Next Steps
 
+Now that you've created your first form, explore more features:
+
+- **[Form Patterns Comparison](./form-patterns-comparison)** - Choose the right pattern for your needs
 - **[Dynamic Forms Guide](./dynamic-forms)** - Learn about conditional fields and field arrays
 - **[Error Handling Guide](./error-handling)** - Master validation and error management
-- **[API Reference](../api)** - Explore the complete API
+- **[API Reference](../api/README)** - Explore the complete API
 - **[Recipes](../recipes/examples)** - Copy-paste examples for common patterns
+- **[FAQ](../faq)** - Find answers to common questions

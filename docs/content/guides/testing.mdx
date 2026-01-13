@@ -1,8 +1,23 @@
+---
+title: Testing
+description: Comprehensive guide to testing Hero Hook Form components and forms.
+---
+
 # Testing Guide
 
-Learn how to test Hero Hook Form components and forms effectively.
+Learn how to test Hero Hook Form components and forms effectively using React Testing Library, Cypress Component Testing, and Cypress E2E testing.
 
-## Component Testing
+## Overview
+
+Hero Hook Form provides multiple testing approaches:
+
+- **Unit/Component Testing** - Test individual components with React Testing Library
+- **Cypress Component Testing** - Test components in isolation with Cypress
+- **Cypress E2E Testing** - Test complete form workflows with Cypress helpers
+- **Accessibility Testing** - Ensure forms are accessible
+- **Performance Testing** - Verify form performance
+
+## Unit/Component Testing with React Testing Library
 
 ### Basic Component Tests
 
@@ -12,7 +27,7 @@ Test individual field components:
 // InputField.test.tsx
 import { render, screen, fireEvent } from '@testing-library/react';
 import { InputField } from '@rachelallyson/hero-hook-form';
-import { useForm } from 'react-hook-form';
+import { useForm, FormProvider } from 'react-hook-form';
 
 function TestWrapper({ children }: { children: React.ReactNode }) {
   const form = useForm();
@@ -61,25 +76,6 @@ describe('InputField', () => {
     
     await screen.findByText('Invalid email');
   });
-
-  it('calls onChange handler', () => {
-    const handleChange = jest.fn();
-    
-    render(
-      <TestWrapper>
-        <InputField 
-          name="test" 
-          label="Test Field"
-          inputProps={{ onChange: handleChange }}
-        />
-      </TestWrapper>
-    );
-    
-    const input = screen.getByLabelText('Test Field');
-    fireEvent.change(input, { target: { value: 'test value' } });
-    
-    expect(handleChange).toHaveBeenCalled();
-  });
 });
 ```
 
@@ -106,8 +102,8 @@ function ContactForm({ onSubmit }: { onSubmit: (data: any) => void }) {
         schema: contactSchema,
         fields: [
           FormFieldHelpers.input('name', 'Name'),
-          FormFieldHelpers.input('email', 'Email', { type: 'email' }),
-          FormFieldHelpers.textarea('message', 'Message', { rows: 4 }),
+          FormFieldHelpers.input('email', 'Email', 'email'),
+          FormFieldHelpers.textarea('message', 'Message'),
         ],
         onSubmit,
         title: 'Contact Us',
@@ -117,15 +113,6 @@ function ContactForm({ onSubmit }: { onSubmit: (data: any) => void }) {
 }
 
 describe('ContactForm', () => {
-  it('renders form with title', () => {
-    render(<ContactForm onSubmit={jest.fn()} />);
-    
-    expect(screen.getByText('Contact Us')).toBeInTheDocument();
-    expect(screen.getByLabelText('Name')).toBeInTheDocument();
-    expect(screen.getByLabelText('Email')).toBeInTheDocument();
-    expect(screen.getByLabelText('Message')).toBeInTheDocument();
-  });
-
   it('submits form with valid data', async () => {
     const handleSubmit = jest.fn();
     render(<ContactForm onSubmit={handleSubmit} />);
@@ -150,39 +137,42 @@ describe('ContactForm', () => {
       });
     });
   });
-
-  it('shows validation errors for invalid data', async () => {
-    render(<ContactForm onSubmit={jest.fn()} />);
-    
-    fireEvent.change(screen.getByLabelText('Name'), { 
-      target: { value: 'J' } 
-    });
-    fireEvent.change(screen.getByLabelText('Email'), { 
-      target: { value: 'invalid-email' } 
-    });
-    fireEvent.change(screen.getByLabelText('Message'), { 
-      target: { value: 'Short' } 
-    });
-    
-    fireEvent.click(screen.getByRole('button', { name: /submit/i }));
-    
-    await screen.findByText('Name must be at least 2 characters');
-    await screen.findByText('Invalid email address');
-    await screen.findByText('Message must be at least 10 characters');
-  });
 });
 ```
 
-## Cypress Testing
+## Cypress Component Testing
 
-### Component Testing with Cypress
+### Setup
+
+Install Cypress and configure component testing:
+
+```bash
+npm install --save-dev cypress @cypress/react
+```
+
+Add to `cypress.config.ts`:
+
+```typescript
+import { defineConfig } from 'cypress';
+
+export default defineConfig({
+  component: {
+    devServer: {
+      framework: 'react',
+      bundler: 'vite',
+    },
+  },
+});
+```
+
+### Component Tests
 
 Test components in isolation:
 
 ```tsx
 // InputField.cy.tsx
 import { InputField } from '@rachelallyson/hero-hook-form';
-import { useForm } from 'react-hook-form';
+import { useForm, FormProvider } from 'react-hook-form';
 
 function TestWrapper({ children }: { children: React.ReactNode }) {
   const form = useForm();
@@ -224,230 +214,181 @@ describe('InputField', () => {
     
     cy.get('[name="email"]').type('invalid-email');
     cy.get('[name="email"]').blur();
-    cy.get('[data-testid="email-error"]').should('contain', 'Invalid email');
-  });
-
-  it('clears error when valid input is entered', () => {
-    cy.mount(
-      <TestWrapper>
-        <InputField 
-          name="email" 
-          label="Email"
-          rules={{ 
-            pattern: {
-              value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-              message: 'Invalid email'
-            }
-          }}
-        />
-      </TestWrapper>
-    );
-    
-    cy.get('[name="email"]').type('invalid-email');
-    cy.get('[name="email"]').blur();
-    cy.get('[data-testid="email-error"]').should('be.visible');
-    
-    cy.get('[name="email"]').clear().type('valid@example.com');
-    cy.get('[name="email"]').blur();
-    cy.get('[data-testid="email-error"]').should('not.exist');
+    cy.contains('Invalid email').should('be.visible');
   });
 });
 ```
 
-### Form Integration Testing
+## Cypress E2E Testing
 
-Test complete form workflows:
+### Setup
 
-```tsx
-// ContactForm.cy.tsx
-import { ZodForm, FormFieldHelpers } from '@rachelallyson/hero-hook-form';
-import { z } from 'zod';
+Add to your `cypress/support/e2e.ts`:
 
-const contactSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
-  email: z.string().email('Invalid email address'),
-  message: z.string().min(10, 'Message must be at least 10 characters'),
-});
+```typescript
+// Import all Cypress helpers
+import '@rachelallyson/hero-hook-form/cypress';
 
-function ContactForm() {
-  const handleSubmit = (data: any) => {
-    console.log('Form submitted:', data);
-  };
-
-  return (
-    <ZodForm
-      config={{
-        schema: contactSchema,
-        fields: [
-          FormFieldHelpers.input('name', 'Name'),
-          FormFieldHelpers.input('email', 'Email', { type: 'email' }),
-          FormFieldHelpers.textarea('message', 'Message', { rows: 4 }),
-        ],
-        onSubmit: handleSubmit,
-        title: 'Contact Us',
-      }}
-    />
-  );
-}
-
-describe('ContactForm', () => {
-  it('renders form with all fields', () => {
-    cy.mount(<ContactForm />);
-    
-    cy.get('h2').should('contain', 'Contact Us');
-    cy.get('[name="name"]').should('be.visible');
-    cy.get('[name="email"]').should('be.visible');
-    cy.get('[name="message"]').should('be.visible');
-    cy.get('button[type="submit"]').should('be.visible');
-  });
-
-  it('submits form with valid data', () => {
-    cy.mount(<ContactForm />);
-    
-    cy.get('[name="name"]').type('John Doe');
-    cy.get('[name="email"]').type('john@example.com');
-    cy.get('[name="message"]').type('This is a test message');
-    
-    cy.get('button[type="submit"]').click();
-    
-    cy.get('[data-testid="success-message"]').should('be.visible');
-  });
-
-  it('shows validation errors for invalid data', () => {
-    cy.mount(<ContactForm />);
-    
-    cy.get('[name="name"]').type('J');
-    cy.get('[name="email"]').type('invalid-email');
-    cy.get('[name="message"]').type('Short');
-    
-    cy.get('button[type="submit"]').click();
-    
-    cy.get('[data-testid="name-error"]').should('contain', 'Name must be at least 2 characters');
-    cy.get('[data-testid="email-error"]').should('contain', 'Invalid email address');
-    cy.get('[data-testid="message-error"]').should('contain', 'Message must be at least 10 characters');
-  });
-
-  it('clears errors when valid data is entered', () => {
-    cy.mount(<ContactForm />);
-    
-    // Enter invalid data
-    cy.get('[name="name"]').type('J');
-    cy.get('[name="email"]').type('invalid-email');
-    cy.get('[name="message"]').type('Short');
-    
-    cy.get('button[type="submit"]').click();
-    
-    // Verify errors are shown
-    cy.get('[data-testid="name-error"]').should('be.visible');
-    cy.get('[data-testid="email-error"]').should('be.visible');
-    cy.get('[data-testid="message-error"]').should('be.visible');
-    
-    // Enter valid data
-    cy.get('[name="name"]').clear().type('John Doe');
-    cy.get('[name="email"]').clear().type('john@example.com');
-    cy.get('[name="message"]').clear().type('This is a test message');
-    
-    // Verify errors are cleared
-    cy.get('[data-testid="name-error"]').should('not.exist');
-    cy.get('[data-testid="email-error"]').should('not.exist');
-    cy.get('[data-testid="message-error"]').should('not.exist');
-  });
-});
+// Or import manually for more control
+import { registerHeroFormCommands } from '@rachelallyson/hero-hook-form/cypress';
+registerHeroFormCommands();
 ```
 
-### Dynamic Form Testing
+Add TypeScript support to `cypress/support/index.d.ts`:
 
-Test conditional fields and field arrays:
+```typescript
+/// <reference types="@rachelallyson/hero-hook-form/cypress" />
+```
 
-```tsx
-// DynamicForm.cy.tsx
-import { ZodForm, FormFieldHelpers, ConditionalField, FieldArrayField } from '@rachelallyson/hero-hook-form';
-import { z } from 'zod';
+### Field Interaction Helpers
 
-const dynamicSchema = z.object({
-  hasPhone: z.boolean(),
-  phone: z.string().optional(),
-  items: z.array(z.object({
-    name: z.string().min(1, 'Item name is required'),
-    value: z.string().optional(),
-  })).optional(),
+#### Input Fields
+
+```typescript
+// Fill input by type
+cy.fillInputByType('email', 'test@example.com');
+cy.fillInputByType('password', 'securePassword123');
+
+// Fill input by label
+cy.fillInputByLabel('First Name', 'John');
+cy.fillInputByLabel('Email Address', 'john@example.com');
+
+// Fill input by placeholder
+cy.fillInputByPlaceholder('Enter your email', 'test@example.com');
+
+// Fill textarea
+cy.fillTextarea('This is a long message...');
+```
+
+#### Selection Fields
+
+```typescript
+// Select dropdown by label
+cy.selectDropdownByLabel('Country', 'United States');
+
+// Select dropdown by option value
+cy.selectDropdownOption('US');
+
+// Radio group selection
+cy.selectRadioByLabel('Gender', 'Male');
+```
+
+#### Boolean Fields
+
+```typescript
+// Checkboxes
+cy.checkCheckboxByLabel('Terms and Conditions');
+cy.checkCheckbox(0); // First checkbox
+
+// Uncheck checkboxes
+cy.uncheckCheckboxByLabel('Marketing emails');
+
+// Switches
+cy.checkSwitchByLabel('Enable notifications');
+cy.uncheckSwitchByLabel('Dark mode');
+```
+
+### Validation Testing
+
+```typescript
+// Expect specific validation errors
+cy.expectValidationError('Email is required');
+cy.expectFieldError('Email', 'Invalid email address');
+
+// Expect no validation errors
+cy.expectNoValidationErrors();
+
+// Check if field is valid
+cy.expectFieldValid('Email');
+
+// Trigger validation
+cy.triggerValidation();
+```
+
+### Form Submission
+
+```typescript
+// Submit form
+cy.submitForm();
+
+// Submit and expect success
+cy.submitAndExpectSuccess();
+cy.submitAndExpectSuccess('Thank you for your submission');
+
+// Submit and expect errors
+cy.submitAndExpectErrors();
+
+// Intercept form submission
+cy.interceptFormSubmission('POST', '/api/contact', 'contactSubmission');
+cy.wait('@contactSubmission');
+```
+
+### Complete Form Testing
+
+```typescript
+// Fill entire form with data object
+cy.fillCompleteForm({
+  firstName: 'John',
+  lastName: 'Doe',
+  email: 'john@example.com',
+  phone: '+1-555-123-4567',
+  country: 'United States',
+  agreeToTerms: true,
+  message: 'This is a test message'
 });
 
-function DynamicForm() {
-  return (
-    <ZodForm
-      config={{
-        schema: dynamicSchema,
-        fields: [
-          FormFieldHelpers.checkbox('hasPhone', 'I have a phone number'),
-          
-          ConditionalField({
-            name: 'phone',
-            condition: (values) => values.hasPhone === true,
-            render: () => (
-              <FormFieldHelpers.input('phone', 'Phone Number', { type: 'tel' })
-            ),
-          }),
-          
-          FieldArrayField({
-            name: 'items',
-            label: 'Items',
-            renderItem: (item, index) => (
-              <div key={index} className="item-field">
-                <FormFieldHelpers.input(`items.${index}.name`, 'Item Name' />
-                <FormFieldHelpers.input(`items.${index}.value`, 'Item Value' />
-              </div>
-            ),
-            addButtonText: 'Add Item',
-            removeButtonText: 'Remove',
-          }),
-        ],
-        onSubmit: (data) => console.log(data),
-      }}
-    />
-  );
-}
+// Test complex form flows
+cy.testFormFlow([
+  { action: 'fill', field: 'firstName', value: 'John' },
+  { action: 'fill', field: 'email', value: 'john@example.com' },
+  { action: 'check', field: 'agreeToTerms' },
+  { action: 'submit' },
+  { action: 'expectSuccess', message: 'Registration successful' }
+]);
+```
 
-describe('DynamicForm', () => {
+### Dynamic Forms Testing
+
+#### Conditional Fields
+
+```typescript
+describe('Conditional Fields', () => {
   it('shows phone field when checkbox is checked', () => {
-    cy.mount(<DynamicForm />);
+    cy.visit('/contact-form');
     
-    cy.get('[name="hasPhone"]').should('not.be.checked');
+    // Initially phone field should not exist
     cy.get('[name="phone"]').should('not.exist');
     
-    cy.get('[name="hasPhone"]').check();
+    // Check the "has phone" checkbox
+    cy.checkCheckboxByLabel('I have a phone number');
+    
+    // Phone field should now be visible
     cy.get('[name="phone"]').should('be.visible');
+    
+    // Fill the phone field
+    cy.fillInputByLabel('Phone Number', '+1-555-123-4567');
   });
+});
+```
 
-  it('adds and removes items in field array', () => {
-    cy.mount(<DynamicForm />);
+#### Field Arrays
+
+```typescript
+describe('Field Arrays', () => {
+  it('adds and removes items', () => {
+    cy.visit('/shopping-cart');
     
     // Add first item
     cy.get('[data-testid="add-item"]').click();
-    cy.get('[name="items.0.name"]').should('be.visible');
-    cy.get('[name="items.0.value"]').should('be.visible');
+    cy.fillInputByLabel('Item Name', 'Product 1');
     
     // Add second item
     cy.get('[data-testid="add-item"]').click();
-    cy.get('[name="items.1.name"]').should('be.visible');
-    cy.get('[name="items.1.value"]').should('be.visible');
+    cy.fillInputByLabel('Item Name', 'Product 2');
     
     // Remove first item
     cy.get('[data-testid="remove-item-0"]').click();
     cy.get('[name="items.0.name"]').should('not.exist');
-    cy.get('[name="items.1.name"]').should('be.visible');
-  });
-
-  it('validates field array items', () => {
-    cy.mount(<DynamicForm />);
-    
-    cy.get('[data-testid="add-item"]').click();
-    cy.get('[name="items.0.name"]').type('Item 1');
-    cy.get('[name="items.0.value"]').type('Value 1');
-    
-    cy.get('button[type="submit"]').click();
-    
-    cy.get('[data-testid="success-message"]').should('be.visible');
   });
 });
 ```
@@ -456,13 +397,11 @@ describe('DynamicForm', () => {
 
 ### Screen Reader Testing
 
-Test with screen readers:
-
 ```tsx
-// Accessibility.test.tsx
-import { render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { ZodForm, FormFieldHelpers } from '@rachelallyson/hero-hook-form';
+import { z } from 'zod';
 
 expect.extend(toHaveNoViolations);
 
@@ -472,12 +411,12 @@ describe('Accessibility', () => {
       <ZodForm
         config={{
           schema: z.object({
-            name: z.string().min(2, 'Name is required'),
-            email: z.string().email('Invalid email'),
+            name: z.string().min(2),
+            email: z.string().email(),
           }),
           fields: [
             FormFieldHelpers.input('name', 'Name'),
-            FormFieldHelpers.input('email', 'Email', { type: 'email' }),
+            FormFieldHelpers.input('email', 'Email', 'email'),
           ],
           onSubmit: jest.fn(),
         }}
@@ -487,95 +426,37 @@ describe('Accessibility', () => {
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
-
-  it('should have proper ARIA attributes', () => {
-    render(
-      <ZodForm
-        config={{
-          schema: z.object({
-            email: z.string().email('Invalid email'),
-          }),
-          fields: [
-            FormFieldHelpers.input('email', 'Email', { type: 'email' }),
-          ],
-          onSubmit: jest.fn(),
-        }}
-      />
-    );
-    
-    const emailInput = screen.getByLabelText('Email');
-    expect(emailInput).toHaveAttribute('type', 'email');
-    expect(emailInput).toHaveAttribute('name', 'email');
-  });
 });
 ```
 
 ### Keyboard Navigation Testing
 
-Test keyboard navigation:
-
 ```tsx
-// KeyboardNavigation.test.tsx
-import { render, screen, fireEvent } from '@testing-library/react';
-import { ZodForm, FormFieldHelpers } from '@rachelallyson/hero-hook-form';
-
-describe('Keyboard Navigation', () => {
-  it('should navigate fields with Tab key', () => {
-    render(
-      <ZodForm
-        config={{
-          schema: z.object({
-            name: z.string(),
-            email: z.string(),
-            message: z.string(),
-          }),
-          fields: [
-            FormFieldHelpers.input('name', 'Name'),
-            FormFieldHelpers.input('email', 'Email'),
-            FormFieldHelpers.textarea('message', 'Message'),
-          ],
-          onSubmit: jest.fn(),
-        }}
-      />
-    );
-    
-    const nameInput = screen.getByLabelText('Name');
-    const emailInput = screen.getByLabelText('Email');
-    const messageInput = screen.getByLabelText('Message');
-    
-    nameInput.focus();
-    expect(nameInput).toHaveFocus();
-    
-    fireEvent.keyDown(nameInput, { key: 'Tab' });
-    expect(emailInput).toHaveFocus();
-    
-    fireEvent.keyDown(emailInput, { key: 'Tab' });
-    expect(messageInput).toHaveFocus();
-  });
-
-  it('should submit form with Enter key', () => {
-    const handleSubmit = jest.fn();
-    
-    render(
-      <ZodForm
-        config={{
-          schema: z.object({
-            name: z.string(),
-          }),
-          fields: [
-            FormFieldHelpers.input('name', 'Name'),
-          ],
-          onSubmit: handleSubmit,
-        }}
-      />
-    );
-    
-    const submitButton = screen.getByRole('button', { name: /submit/i });
-    submitButton.focus();
-    
-    fireEvent.keyDown(submitButton, { key: 'Enter' });
-    expect(handleSubmit).toHaveBeenCalled();
-  });
+it('should navigate fields with Tab key', () => {
+  render(
+    <ZodForm
+      config={{
+        schema: z.object({
+          name: z.string(),
+          email: z.string(),
+        }),
+        fields: [
+          FormFieldHelpers.input('name', 'Name'),
+          FormFieldHelpers.input('email', 'Email'),
+        ],
+        onSubmit: jest.fn(),
+      }}
+    />
+  );
+  
+  const nameInput = screen.getByLabelText('Name');
+  const emailInput = screen.getByLabelText('Email');
+  
+  nameInput.focus();
+  expect(nameInput).toHaveFocus();
+  
+  fireEvent.keyDown(nameInput, { key: 'Tab' });
+  expect(emailInput).toHaveFocus();
 });
 ```
 
@@ -583,118 +464,30 @@ describe('Keyboard Navigation', () => {
 
 ### Render Performance
 
-Test component render performance:
-
 ```tsx
-// Performance.test.tsx
-import { render } from '@testing-library/react';
-import { ZodForm, FormFieldHelpers } from '@rachelallyson/hero-hook-form';
-
-describe('Performance', () => {
-  it('should render within performance budget', () => {
-    const start = performance.now();
-    
-    render(
-      <ZodForm
-        config={{
-          schema: z.object({
-            name: z.string(),
-            email: z.string(),
-            message: z.string(),
-          }),
-          fields: [
-            FormFieldHelpers.input('name', 'Name'),
-            FormFieldHelpers.input('email', 'Email'),
-            FormFieldHelpers.textarea('message', 'Message'),
-          ],
-          onSubmit: jest.fn(),
-        }}
-      />
-    );
-    
-    const end = performance.now();
-    const renderTime = end - start;
-    
-    expect(renderTime).toBeLessThan(100); // 100ms budget
-  });
-
-  it('should handle large field arrays efficiently', () => {
-    const largeFieldArray = Array.from({ length: 100 }, (_, i) => ({
-      name: `item${i}`,
-      value: `value${i}`,
-    }));
-    
-    const start = performance.now();
-    
-    render(
-      <ZodForm
-        config={{
-          schema: z.object({
-            items: z.array(z.object({
-              name: z.string(),
-              value: z.string(),
-            })),
-          }),
-          fields: [
-            FieldArrayField({
-              name: 'items',
-              label: 'Items',
-              renderItem: (item, index) => (
-                <div key={index}>
-                  <FormFieldHelpers.input(`items.${index}.name`, 'Item Name' />
-                  <FormFieldHelpers.input(`items.${index}.value`, 'Item Value' />
-                </div>
-              ),
-            }),
-          ],
-          onSubmit: jest.fn(),
-        }}
-      />
-    );
-    
-    const end = performance.now();
-    const renderTime = end - start;
-    
-    expect(renderTime).toBeLessThan(500); // 500ms budget
-  });
-});
-```
-
-### Memory Usage Testing
-
-Test memory usage:
-
-```tsx
-// Memory.test.tsx
-describe('Memory Usage', () => {
-  it('should not leak memory', () => {
-    const initialMemory = performance.memory?.usedJSHeapSize || 0;
-    
-    // Render and unmount form multiple times
-    for (let i = 0; i < 100; i++) {
-      const { unmount } = render(
-        <ZodForm
-          config={{
-            schema: z.object({
-              name: z.string(),
-              email: z.string(),
-            }),
-            fields: [
-              FormFieldHelpers.input('name', 'Name'),
-              FormFieldHelpers.input('email', 'Email'),
-            ],
-            onSubmit: jest.fn(),
-          }}
-        />
-      );
-      unmount();
-    }
-    
-    const finalMemory = performance.memory?.usedJSHeapSize || 0;
-    const memoryIncrease = finalMemory - initialMemory;
-    
-    expect(memoryIncrease).toBeLessThan(1000000); // 1MB limit
-  });
+it('should render within performance budget', () => {
+  const start = performance.now();
+  
+  render(
+    <ZodForm
+      config={{
+        schema: z.object({
+          name: z.string(),
+          email: z.string(),
+        }),
+        fields: [
+          FormFieldHelpers.input('name', 'Name'),
+          FormFieldHelpers.input('email', 'Email'),
+        ],
+        onSubmit: jest.fn(),
+      }}
+    />
+  );
+  
+  const end = performance.now();
+  const renderTime = end - start;
+  
+  expect(renderTime).toBeLessThan(100); // 100ms budget
 });
 ```
 
@@ -702,23 +495,21 @@ describe('Memory Usage', () => {
 
 ### Custom Test Utilities
 
-Create reusable test utilities:
-
 ```tsx
 // test-utils.tsx
 import { render, RenderOptions } from '@testing-library/react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { ConfigProvider } from '@rachelallyson/hero-hook-form';
+import { HeroHookFormProvider } from '@rachelallyson/hero-hook-form';
 
 function AllTheProviders({ children }: { children: React.ReactNode }) {
   const form = useForm();
   
   return (
-    <ConfigProvider>
+    <HeroHookFormProvider>
       <FormProvider {...form}>
         {children}
       </FormProvider>
-    </ConfigProvider>
+    </HeroHookFormProvider>
   );
 }
 
@@ -731,32 +522,7 @@ export * from '@testing-library/react';
 export { customRender as render };
 ```
 
-### Mock Functions
-
-Create mock functions for testing:
-
-```tsx
-// mocks.ts
-export const mockFormSubmit = jest.fn();
-export const mockFormError = jest.fn();
-export const mockFormSuccess = jest.fn();
-
-export const mockFormConfig = {
-  schema: z.object({
-    name: z.string().min(2, 'Name is required'),
-    email: z.string().email('Invalid email'),
-  }),
-  fields: [
-    FormFieldHelpers.input('name', 'Name'),
-    FormFieldHelpers.input('email', 'Email', { type: 'email' }),
-  ],
-  onSubmit: mockFormSubmit,
-  onError: mockFormError,
-  onSuccess: mockFormSuccess,
-};
-```
-
-## Testing Best Practices
+## Best Practices
 
 ### 1. Test User Interactions
 
@@ -774,15 +540,6 @@ it('should submit form when user clicks submit button', () => {
     name: 'John Doe',
   });
 });
-
-// ❌ Bad: Test implementation details
-it('should call onSubmit prop', () => {
-  const onSubmit = jest.fn();
-  render(<MyForm onSubmit={onSubmit} />);
-  
-  // This tests implementation, not user behavior
-  expect(onSubmit).toHaveBeenCalled();
-});
 ```
 
 ### 2. Use Semantic Queries
@@ -796,7 +553,6 @@ screen.getByText('Form submitted successfully');
 // ❌ Bad: Use implementation queries
 screen.getByTestId('submit-button');
 screen.getByClassName('email-input');
-screen.getBySelector('[data-success]');
 ```
 
 ### 3. Test Error States
@@ -836,6 +592,68 @@ it('should show loading state during submission', async () => {
 });
 ```
 
+## Cypress Command Reference
+
+### Field Interactions
+
+- `fillInputByType(type, value, index?, options?)`
+- `fillInputByPlaceholder(placeholder, value, options?)`
+- `fillInputByLabel(label, value, options?)`
+- `fillTextarea(value, index?, options?)`
+- `selectDropdownOption(optionValue, dropdownIndex?)`
+- `selectDropdownByLabel(label, optionValue)`
+- `checkCheckbox(index?)`
+- `checkCheckboxByLabel(label)`
+- `checkSwitch(index?)`
+- `uncheckCheckbox(index?)`
+- `uncheckSwitch(index?)`
+- `moveSlider(value, index?)`
+
+### Validation
+
+- `expectValidationError(message)`
+- `expectNoValidationErrors()`
+- `expectFieldError(fieldLabel, errorMessage)`
+- `expectFieldValid(fieldLabel)`
+- `triggerValidation(submitButton?)`
+
+### Submission
+
+- `submitForm()`
+- `submitAndExpectSuccess(successIndicator?)`
+- `submitAndExpectErrors()`
+- `resetForm()`
+- `interceptFormSubmission(method, url, alias)`
+
+### State
+
+- `verifyFormExists()`
+- `verifyFieldExists(selector)`
+- `verifyFieldValue(selector, value)`
+- `verifyFieldCount(selector, count)`
+- `getFormData()`
+
+### Complex Flows
+
+- `fillCompleteForm(formData)`
+- `testFieldInteraction(fieldType, value)`
+- `testFormFlow(steps)`
+
+### Convenience
+
+- `fillEmail(value)`
+- `fillPhone(value)`
+- `fillPassword(value)`
+- `fillText(value)`
+
+### Debug
+
+- `logFormState()`
+- `waitForFormReady()`
+- `clearForm()`
+- `verifyFormValid()`
+- `screenshotForm(name?)`
+
 ## Testing Checklist
 
 ### ✅ Component Testing
@@ -868,12 +686,36 @@ it('should show loading state during submission', async () => {
 - [ ] Memory usage is reasonable
 - [ ] Large forms perform well
 - [ ] No memory leaks
-- [ ] Bundle size is optimized
 
-### ✅ User Experience Testing
+## Troubleshooting
 
-- [ ] User interactions work
-- [ ] Error messages are helpful
-- [ ] Loading states are clear
-- [ ] Success feedback is provided
-- [ ] Form is intuitive to use
+### Common Issues
+
+#### Element Not Found
+
+**Error**: `Timed out retrying: cy.get() failed because the element was not found`
+
+**Fix**: Use semantic selectors and wait for elements
+
+```typescript
+// ✅ Solution
+cy.fillInputByLabel('Email', 'test@example.com');
+// or
+cy.waitForFormReady();
+```
+
+#### Validation Errors Not Showing
+
+**Fix**: Trigger validation explicitly
+
+```typescript
+cy.fillInputByLabel('Email', 'invalid-email');
+cy.triggerValidation();
+cy.expectValidationError('Invalid email');
+```
+
+## Next Steps
+
+- [Accessibility Guide](./accessibility) - Learn about accessibility features
+- [Performance Guide](./performance) - Optimize form performance
+- [API Reference](../api/README) - Explore testing utilities API

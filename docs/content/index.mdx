@@ -3,36 +3,6 @@ title: Hero Hook Form
 description: Typed form helpers that combine React Hook Form and HeroUI components.
 ---
 
-### Overview
-
-Hero Hook Form provides typed form building for React with React Hook Form and HeroUI. Build accessible, performant forms using components, hooks, builders, and Zod integration.
-
-- Install: `npm i @rachelallyson/hero-hook-form`
-- API reference is generated from TypeScript (see Reference → API).
-
-### Start here
-
-- Concepts: ./concepts
-- Quickstart: ./guides/quickstart
-- Dynamic Forms: ./guides/dynamic-forms
-- Error Handling: ./guides/error-handling
-- API Reference: ./api/README
-- Recipes: ./recipes/examples
-- Troubleshooting: ./troubleshooting
-
-### Live Demo
-
-- Quickstart demo: /demo/quickstart
-- Zod demo: /demo/zod
-- Full demos: /demo (imported from example app)
-
-### What’s included
-
-- Components: `Form`, `FormField`, `ZodForm`, field components, `FormStatus`
-- Hooks: `useFormHelper`, `useHeroForm`, `useEnhancedFormState`, `useDebouncedValidation`, `useInferredForm`
-- Builders: `builders/index`, `builders/validation-helpers`
-- Utils: `applyServerErrors`, `validation`, `performance`, `testing`
-- Zod integration: `components/ZodForm`, `zod-integration`
 # Hero Hook Form
 
 **Typed form helpers that combine React Hook Form and HeroUI components.**
@@ -40,6 +10,8 @@ Hero Hook Form provides typed form building for React with React Hook Form and H
 Hero Hook Form provides a comprehensive solution for building accessible, performant forms in React applications. It combines the power of React Hook Form with HeroUI's beautiful design system, offering type-safe form building with minimal boilerplate.
 
 ## Quick Start
+
+Get started in minutes with a simple form:
 
 ```tsx
 import { ZodForm, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
@@ -66,6 +38,8 @@ export function ContactForm() {
 }
 ```
 
+**Install**: `npm install @rachelallyson/hero-hook-form`
+
 ## Key Features
 
 - **🎯 Type Safety** - Full TypeScript support with automatic type inference
@@ -76,9 +50,39 @@ export function ContactForm() {
 - **🔄 Dynamic Forms** - Conditional fields, field arrays, and dynamic sections
 - **🧪 Testing Ready** - Built-in testing utilities for Cypress
 
+## Choose Your Path
+
+### 🚀 New to Hero Hook Form?
+Start with the basics and build your first form:
+- **[Quick Start Guide](./guides/quickstart)** - Build a form in 5 minutes
+- **[Core Concepts](./concepts)** - Understand the architecture
+- **[Installation](./guides/quickstart#installation)** - Set up the package
+
+### 📚 Building Something Specific?
+Find guides for your use case:
+- **[Dynamic Forms](./guides/dynamic-forms)** - Conditional fields and arrays
+- **[Error Handling](./guides/error-handling)** - Validation and error management
+- **[Performance](./guides/performance)** - Optimization tips
+- **[Testing](./guides/testing)** - Testing strategies
+
+### 🔍 Need Reference?
+Look up APIs and configuration:
+- **[API Reference](./api/README)** - Complete API documentation
+- **[Configuration](./reference/config)** - All configuration options
+- **[Recipes](./recipes/examples)** - Copy-paste examples
+
+### 💡 Looking for Examples?
+See real-world implementations:
+- **[Live Demos](/demo)** - Interactive examples
+- **[Recipe Examples](./recipes/examples)** - Common patterns
+- **[Troubleshooting](./troubleshooting)** - Solutions to common issues
+
 ## Form Building Patterns
 
+Hero Hook Form supports multiple patterns to fit your coding style:
+
 ### 1. Helper Functions (Recommended)
+Simple and straightforward:
 ```tsx
 const fields = [
   FormFieldHelpers.input("name", "Name"),
@@ -88,7 +92,10 @@ const fields = [
 ```
 
 ### 2. Builder Pattern
+Fluent API for method chaining:
 ```tsx
+import { createBasicFormBuilder } from "@rachelallyson/hero-hook-form";
+
 const fields = createBasicFormBuilder()
   .input("name", "Name")
   .textarea("message", "Message")
@@ -97,13 +104,41 @@ const fields = createBasicFormBuilder()
 ```
 
 ### 3. Type-Inferred Forms
+Automatic schema generation:
 ```tsx
+import { defineInferredForm, field } from "@rachelallyson/hero-hook-form";
+
 const form = defineInferredForm({
   name: field.string("Name"),
   email: field.email("Email"),
   age: field.number("Age"),
 });
 ```
+
+## What's Included
+
+### Components
+- `Form`, `FormField`, `ZodForm`, `ServerActionForm`
+- Field components: `InputField`, `SelectField`, `CheckboxField`, etc.
+- `FormStatus` for loading/success/error states
+
+### Hooks
+- `useFormHelper` - Form management utilities
+- `useHeroForm` - Enhanced form hook
+- `useEnhancedFormState` - Advanced state tracking
+- `useDebouncedValidation` - Performance optimization
+- `useInferredForm` - Type-inferred forms
+
+### Builders
+- `createBasicFormBuilder` - Simple form builder
+- `createAdvancedBuilder` - Advanced builder with more options
+- `FormFieldHelpers` - Helper functions for all field types
+
+### Utilities
+- `applyServerErrors` - Server error handling
+- Validation helpers - Common validation patterns
+- Performance utilities - Optimization helpers
+- Testing utilities - Cypress integration
 
 ## What's New in v2.0
 
@@ -113,41 +148,7 @@ const form = defineInferredForm({
 - **Form State Management** - Enhanced state tracking and status components
 - **Validation Patterns** - Cross-field validation and common patterns
 
-## Getting Started
-
-1. **Install the package**:
-   ```bash
-   npm install @rachelallyson/hero-hook-form
-   ```
-
-2. **Set up your provider**:
-   ```tsx
-   import { HeroHookFormProvider } from "@rachelallyson/hero-hook-form";
-   
-   function App() {
-     return (
-       <HeroHookFormProvider>
-         <YourForms />
-       </HeroHookFormProvider>
-     );
-   }
-   ```
-
-3. **Create your first form**:
-   ```tsx
-   import { ZodForm, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
-   ```
-
-## Documentation Structure
-
-- **[Concepts](./concepts)** - Core mental models and architecture
-- **[Quick Start Guide](./guides/quickstart)** - Get up and running in 5 minutes
-- **[Dynamic Forms](./guides/dynamic-forms)** - Conditional fields and field arrays
-- **[Error Handling](./guides/error-handling)** - Validation and error management
-- **[API Reference](./api)** - Complete API documentation
-- **[Recipes](./recipes/examples)** - Copy-paste examples for common patterns
-
-## Community
+## Community & Support
 
 - **GitHub**: [rachelallyson/hero-hook-form](https://github.com/rachelallyson/hero-hook-form)
 - **Issues**: [Report bugs or request features](https://github.com/rachelallyson/hero-hook-form/issues)

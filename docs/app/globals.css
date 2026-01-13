@@ -1,2 +1,114 @@
 @import "tailwindcss";
 @config "../tailwind.config.js";
+
+/* Enhanced typography for documentation */
+.prose {
+  max-width: none;
+}
+
+/* Better code block styling */
+pre {
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+/* Improved spacing for callout boxes */
+.callout {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border-left-width: 4px;
+}
+
+/* Better table styling */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+}
+
+table th,
+table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+table th {
+  font-weight: 600;
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Dark mode table styling */
+.dark table th {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark table td {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Improved list spacing */
+ul, ol {
+  margin: 1rem 0;
+  padding-left: 1.5rem;
+}
+
+li {
+  margin: 0.5rem 0;
+}
+
+/* Better heading spacing */
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+h1 {
+  font-size: 2.5rem;
+  margin-top: 0;
+}
+
+h2 {
+  font-size: 2rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding-bottom: 0.5rem;
+}
+
+.dark h2 {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Improved paragraph spacing */
+p {
+  margin: 1rem 0;
+  line-height: 1.75;
+}
+
+/* Better code inline styling */
+code {
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.25rem;
+  font-size: 0.9em;
+}
+
+.dark code {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Improved blockquote styling */
+blockquote {
+  border-left: 4px solid rgba(0, 0, 0, 0.2);
+  padding-left: 1rem;
+  margin: 1.5rem 0;
+  font-style: italic;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.dark blockquote {
+  border-left-color: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.7);
+}
