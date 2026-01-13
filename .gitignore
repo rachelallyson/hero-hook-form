@@ -55,3 +55,4 @@ bun.lockb
 
 # TypeDoc bug - creates [object Object] folder
 /[object Object]/
+/\[object Object\]

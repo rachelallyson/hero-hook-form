@@ -210,15 +210,69 @@ export interface ConditionalFieldConfig<TFieldValues extends FieldValues>
   field: ZodFormFieldConfig<TFieldValues>;
 }
 
-// Field array config for dynamic repeating field groups
+/**
+ * Field array config for dynamic repeating field groups.
+ *
+ * @description
+ * Configuration for field arrays that support reordering, custom rendering,
+ * default values, and conditional fields within array items.
+ *
+ * @template TFieldValues - The form data type
+ */
 export interface FieldArrayConfig<TFieldValues extends FieldValues>
   extends BaseFormFieldConfig<TFieldValues> {
   type: "fieldArray";
+  /** Field configurations for each array item */
   fields: ZodFormFieldConfig<TFieldValues>[];
+  /** Minimum number of items (default: 0) */
   min?: number;
+  /** Maximum number of items (default: 10) */
   max?: number;
+  /** Add button text (default: "Add Item") */
   addButtonText?: string;
+  /** Remove button text (default: "Remove") */
   removeButtonText?: string;
+  /** Enable reordering of array items with up/down buttons (default: false) */
+  enableReordering?: boolean;
+  /** Custom text for reorder buttons */
+  reorderButtonText?: {
+    /** Text for move up button (default: "↑") */
+    up?: string;
+    /** Text for move down button (default: "↓") */
+    down?: string;
+  };
+  /** Function to create default item when adding new array item */
+  defaultItem?: () => any;
+  /** Custom render function for array items */
+  renderItem?: (props: {
+    /** Item index (0-based) */
+    index: number;
+    /** Field array item with id */
+    field: { id: string; [key: string]: any };
+    /** All fields in the array */
+    fields: { id: string; [key: string]: any }[];
+    /** Rendered field elements */
+    children: React.ReactNode;
+    /** Remove this item */
+    onRemove: () => void;
+    /** Move item up */
+    onMoveUp: () => void;
+    /** Move item down */
+    onMoveDown: () => void;
+    /** Whether item can be removed */
+    canRemove: boolean;
+    /** Whether item can move up */
+    canMoveUp: boolean;
+    /** Whether item can move down */
+    canMoveDown: boolean;
+  }) => React.ReactNode;
+  /** Custom render function for add button */
+  renderAddButton?: (props: {
+    /** Add new item */
+    onAdd: () => void;
+    /** Whether new item can be added */
+    canAdd: boolean;
+  }) => React.ReactNode;
 }
 
 // Dynamic section config for grouped conditional fields

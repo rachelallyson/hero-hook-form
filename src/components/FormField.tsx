@@ -2,8 +2,8 @@
 
 import React from "react";
 
-import type { FieldValues, UseFormReturn } from "react-hook-form";
-import { useWatch } from "react-hook-form";
+import type { FieldValues, Path, UseFormReturn } from "react-hook-form";
+import { get, useWatch } from "react-hook-form";
 
 import { AutocompleteField } from "../fields/AutocompleteField";
 import { CheckboxField } from "../fields/CheckboxField";
@@ -60,7 +60,8 @@ export const FormField = React.memo(
 
     // Handle dependency-based conditional rendering
     if (config.dependsOn) {
-      const dependentValue = watchedValues[config.dependsOn];
+      // Use get() to properly resolve nested paths like "slots.0.slotType"
+      const dependentValue = get(watchedValues, config.dependsOn);
 
       if (
         config.dependsOnValue !== undefined &&

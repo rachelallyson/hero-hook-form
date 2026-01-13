@@ -161,6 +161,33 @@ interface FieldArrayConfig<T extends FieldValues> extends BaseFormFieldConfig<T>
   max?: number;
   addButtonText?: string;
   removeButtonText?: string;
+  /** Enable reordering of array items with up/down buttons */
+  enableReordering?: boolean;
+  /** Custom text for reorder buttons */
+  reorderButtonText?: {
+    up?: string;
+    down?: string;
+  };
+  /** Function to create default item when adding new array item */
+  defaultItem?: () => any;
+  /** Custom render function for array items */
+  renderItem?: (props: {
+    index: number;
+    field: { id: string; [key: string]: any };
+    fields: { id: string; [key: string]: any }[];
+    children: React.ReactNode;
+    onRemove: () => void;
+    onMoveUp: () => void;
+    onMoveDown: () => void;
+    canRemove: boolean;
+    canMoveUp: boolean;
+    canMoveDown: boolean;
+  }) => React.ReactNode;
+  /** Custom render function for add button */
+  renderAddButton?: (props: {
+    onAdd: () => void;
+    canAdd: boolean;
+  }) => React.ReactNode;
 }
 
 // Dynamic Section

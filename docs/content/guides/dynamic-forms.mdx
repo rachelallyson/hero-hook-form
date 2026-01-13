@@ -146,6 +146,105 @@ FieldArrayField({
 })
 ```
 
+### Field Array with Reordering
+
+Enable users to reorder array items with up/down buttons:
+
+```tsx
+FieldArrayField({
+  name: "slots",
+  label: "Question Slots",
+  fields: [
+    FormFieldHelpers.select("slotType", "Slot Type", [
+      { label: "Static", value: "STATIC" },
+      { label: "Dynamic", value: "DYNAMIC" },
+    ]),
+    FormFieldHelpers.select("staticQuestionId", "Question", questions),
+  ],
+  enableReordering: true,
+  reorderButtonText: {
+    up: "↑",
+    down: "↓",
+  },
+  addButtonText: "Add Slot",
+  removeButtonText: "Remove",
+})
+```
+
+### Field Array with Custom Item Rendering
+
+Customize the appearance of each array item:
+
+```tsx
+FieldArrayField({
+  name: "items",
+  label: "Items",
+  fields: [
+    FormFieldHelpers.input("name", "Item Name"),
+    FormFieldHelpers.input("quantity", "Quantity"),
+  ],
+  renderItem: ({ index, children, onMoveUp, onMoveDown, onRemove, canMoveUp, canMoveDown }) => (
+    <Card className="p-4 mb-4">
+      <div className="flex justify-between items-center mb-4">
+        <Chip>Item {index + 1}</Chip>
+        <div className="flex gap-2">
+          <Button size="sm" onPress={onMoveUp} isDisabled={!canMoveUp}>↑</Button>
+          <Button size="sm" onPress={onMoveDown} isDisabled={!canMoveDown}>↓</Button>
+          <Button size="sm" color="danger" onPress={onRemove}>Remove</Button>
+        </div>
+      </div>
+      {children}
+    </Card>
+  ),
+  enableReordering: true,
+})
+```
+
+### Field Array with Default Item
+
+Control the default values when adding new items:
+
+```tsx
+FieldArrayField({
+  name: "slots",
+  fields: [
+    FormFieldHelpers.select("slotType", "Slot Type", options),
+    FormFieldHelpers.select("staticQuestionId", "Question", questions),
+  ],
+  defaultItem: () => ({
+    order: 0,
+    slotType: "STATIC",
+    staticQuestionId: "",
+  }),
+})
+```
+
+### Conditional Fields Within Array Items
+
+Fields within array items can be conditional based on other fields in the same item:
+
+```tsx
+FieldArrayField({
+  name: "slots",
+  fields: [
+    FormFieldHelpers.select("slotType", "Slot Type", [
+      { label: "Static", value: "STATIC" },
+      { label: "Dynamic", value: "DYNAMIC" },
+    ]),
+    {
+      ...FormFieldHelpers.select("staticQuestionId", "Question", questions),
+      // This field only shows when slotType is "STATIC"
+      dependsOn: "slotType",
+      dependsOnValue: "STATIC",
+    },
+  ],
+})
+```
+
+<Tip>
+The `dependsOn` path is automatically resolved relative to the array item. So `"slotType"` becomes `"slots.0.slotType"` for the first item.
+</Tip>
+
 ## Dynamic Sections
 
 Group related conditional fields together with the `DynamicSectionField` component.
@@ -450,6 +549,106 @@ it("shows phone field when hasPhone is true", () => {
 it("hides phone field when hasPhone is false", () => {
   // Test hidden state
 });
+```
+
+## Advanced Field Array Patterns
+
+### Using createFieldArrayCustomConfig Helper
+
+For complex array UIs that need full control, use the `createFieldArrayCustomConfig` helper:
+
+```tsx
+import { createFieldArrayCustomConfig, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
+
+const slotsConfig = createFieldArrayCustomConfig("slots", {
+  label: "Question Slots",
+  enableReordering: true,
+  renderItem: ({ index, field, form, control, onMoveUp, onMoveDown, onRemove }) => (
+    <div className="border rounded-lg p-4">
+      <div className="flex justify-between">
+        <span>Slot {index + 1}</span>
+        <div className="flex gap-2">
+          <Button onPress={onMoveUp}>↑</Button>
+          <Button onPress={onMoveDown}>↓</Button>
+          <Button onPress={onRemove}>Remove</Button>
+        </div>
+      </div>
+      <SelectField
+        name={`slots.${index}.slotType`}
+        control={control}
+        // ... other props
+      />
+    </div>
+  ),
+  defaultItem: () => ({
+    order: 0,
+    slotType: "STATIC",
+  }),
+});
+```
+
+### Syncing Arrays in Edit Forms
+
+When editing existing data, use `syncArrays` to determine what to delete, update, and create:
+
+```tsx
+import { syncArrays } from "@rachelallyson/hero-hook-form";
+
+function EditTemplateForm({ template }) {
+  const handleSubmit = async (data) => {
+    const { toDelete, toUpdate, toCreate } = syncArrays({
+      existing: template.slots,
+      current: data.slots,
+      getId: (slot) => slot.id,
+    });
+
+    // Delete removed slots
+    await Promise.all(toDelete.map(slot => deleteSlot(slot.id)));
+
+    // Update existing slots
+    await Promise.all(
+      toUpdate.map(({ existing, current }) =>
+        updateSlot(existing.id, current)
+      )
+    );
+
+    // Create new slots
+    await Promise.all(toCreate.map(slot => createSlot(slot)));
+  };
+}
+```
+
+## Simple Forms
+
+For single-field forms, use the `SimpleForm` component:
+
+```tsx
+import { SimpleForm, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
+import { z } from "zod";
+
+const messageSchema = z.object({
+  message: z.string().min(1, "Message cannot be empty"),
+});
+
+function MessageInput() {
+  return (
+    <SimpleForm
+      schema={messageSchema}
+      field={FormFieldHelpers.input("message", "", {
+        placeholder: "Add a note...",
+        endContent: (
+          <Button type="submit" isIconOnly>
+            <SendIcon />
+          </Button>
+        ),
+      })}
+      onSubmit={async (data) => {
+        await sendMessage(data.message);
+      }}
+      hideSubmitButton
+    />
+  );
+}
 ```
 
 ## Next Steps

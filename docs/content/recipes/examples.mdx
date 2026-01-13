@@ -213,7 +213,7 @@ export function RegistrationForm() {
 
 **Code**:
 ```tsx
-import { ZodForm, FieldArrayField, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
+import { ZodForm, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
 import { z } from "zod";
 
 const addressSchema = z.object({
@@ -240,7 +240,8 @@ export function AddressForm() {
         schema,
         fields: [
           FormFieldHelpers.input("name", "Name"),
-          FieldArrayField({
+          {
+            type: "fieldArray",
             name: "addresses",
             fields: [
               FormFieldHelpers.input("street", "Street Address"),
@@ -252,7 +253,7 @@ export function AddressForm() {
             removeButtonText: "Remove Address",
             min: 1,
             max: 5,
-          }),
+          },
         ],
       }}
       onSubmit={handleSubmit}
@@ -264,6 +265,322 @@ export function AddressForm() {
 ```
 
 **Expected Result**: A form with dynamic address fields that can be added/removed.
+
+## Field Array with Reordering
+
+### Input → Output
+
+**Context**: Field array with up/down reordering buttons
+
+**Code**:
+```tsx
+import { ZodForm, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
+import { z } from "zod";
+
+const schema = z.object({
+  slots: z.array(z.object({
+    slotType: z.string().min(1, "Slot type is required"),
+    order: z.number().min(0),
+  })).min(1, "At least one slot is required"),
+});
+
+export function ReorderableSlotsForm() {
+  return (
+    <ZodForm
+      config={{
+        schema,
+        fields: [
+          {
+            type: "fieldArray",
+            name: "slots",
+            label: "Question Slots",
+            enableReordering: true,
+            reorderButtonText: {
+              up: "↑",
+              down: "↓",
+            },
+            fields: [
+              FormFieldHelpers.select("slotType", "Slot Type", [
+                { label: "Static", value: "STATIC" },
+                { label: "Dynamic", value: "DYNAMIC" },
+              ]),
+            ],
+            addButtonText: "Add Slot",
+            removeButtonText: "Remove",
+          },
+        ],
+      }}
+      onSubmit={(data) => console.log(data)}
+    />
+  );
+}
+```
+
+**Expected Result**: A field array with up/down buttons to reorder items.
+
+## Field Array with Custom Rendering
+
+### Input → Output
+
+**Context**: Field array with custom item and button rendering
+
+**Code**:
+```tsx
+import { ZodForm, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
+import { Card, Button, Chip } from "@heroui/react";
+import { z } from "zod";
+
+const schema = z.object({
+  items: z.array(z.object({
+    name: z.string().min(1, "Name is required"),
+    quantity: z.number().min(1, "Quantity must be at least 1"),
+  })).min(1),
+});
+
+export function CustomRenderedArrayForm() {
+  return (
+    <ZodForm
+      config={{
+        schema,
+        fields: [
+          {
+            type: "fieldArray",
+            name: "items",
+            label: "Shopping Items",
+            enableReordering: true,
+            renderItem: ({ index, children, onMoveUp, onMoveDown, onRemove, canMoveUp, canMoveDown }) => (
+              <Card className="p-4 mb-4">
+                <div className="flex justify-between items-center mb-4">
+                  <Chip>Item {index + 1}</Chip>
+                  <div className="flex gap-2">
+                    <Button size="sm" onPress={onMoveUp} isDisabled={!canMoveUp}>↑</Button>
+                    <Button size="sm" onPress={onMoveDown} isDisabled={!canMoveDown}>↓</Button>
+                    <Button size="sm" color="danger" onPress={onRemove}>Remove</Button>
+                  </div>
+                </div>
+                {children}
+              </Card>
+            ),
+            renderAddButton: ({ onAdd, canAdd }) => (
+              <Button onPress={onAdd} isDisabled={!canAdd} color="primary" className="mt-4">
+                + Add New Item
+              </Button>
+            ),
+            fields: [
+              FormFieldHelpers.input("name", "Item Name"),
+              FormFieldHelpers.input("quantity", "Quantity", { type: "number" }),
+            ],
+          },
+        ],
+      }}
+      onSubmit={(data) => console.log(data)}
+    />
+  );
+}
+```
+
+**Expected Result**: A field array with custom-styled items and add button.
+
+## Field Array with Default Values
+
+### Input → Output
+
+**Context**: Field array that creates items with default values
+
+**Code**:
+```tsx
+import { ZodForm, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
+import { z } from "zod";
+
+const schema = z.object({
+  slots: z.array(z.object({
+    order: z.number(),
+    slotType: z.string(),
+    staticQuestionId: z.string().optional(),
+  })),
+});
+
+export function DefaultValueArrayForm() {
+  return (
+    <ZodForm
+      config={{
+        schema,
+        fields: [
+          {
+            type: "fieldArray",
+            name: "slots",
+            label: "Question Slots",
+            defaultItem: () => ({
+              order: 0,
+              slotType: "STATIC",
+              staticQuestionId: "",
+            }),
+            fields: [
+              FormFieldHelpers.select("slotType", "Slot Type", [
+                { label: "Static", value: "STATIC" },
+                { label: "Dynamic", value: "DYNAMIC" },
+              ]),
+              FormFieldHelpers.input("staticQuestionId", "Question ID"),
+            ],
+          },
+        ],
+      }}
+      onSubmit={(data) => console.log(data)}
+    />
+  );
+}
+```
+
+**Expected Result**: New array items are created with predefined default values.
+
+## Field Array with Conditional Fields
+
+### Input → Output
+
+**Context**: Field array with conditional fields within items
+
+**Code**:
+```tsx
+import { ZodForm, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
+import { z } from "zod";
+
+const schema = z.object({
+  slots: z.array(z.object({
+    slotType: z.string(),
+    staticQuestionId: z.string().optional(),
+    dynamicQuestionId: z.string().optional(),
+  })),
+});
+
+const questions = [
+  { label: "Question 1", value: "q1" },
+  { label: "Question 2", value: "q2" },
+];
+
+export function ConditionalArrayForm() {
+  return (
+    <ZodForm
+      config={{
+        schema,
+        fields: [
+          {
+            type: "fieldArray",
+            name: "slots",
+            label: "Question Slots",
+            fields: [
+              FormFieldHelpers.select("slotType", "Slot Type", [
+                { label: "Static", value: "STATIC" },
+                { label: "Dynamic", value: "DYNAMIC" },
+              ]),
+              {
+                ...FormFieldHelpers.select("staticQuestionId", "Static Question", questions),
+                dependsOn: "slotType",
+                dependsOnValue: "STATIC",
+              },
+              {
+                ...FormFieldHelpers.select("dynamicQuestionId", "Dynamic Question", questions),
+                dependsOn: "slotType",
+                dependsOnValue: "DYNAMIC",
+              },
+            ],
+          },
+        ],
+      }}
+      onSubmit={(data) => console.log(data)}
+    />
+  );
+}
+```
+
+**Expected Result**: Fields within array items appear conditionally based on other fields in the same item.
+
+## Simple Form Component
+
+### Input → Output
+
+**Context**: Single-field form using SimpleForm component
+
+**Code**:
+```tsx
+import { SimpleForm, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
+import { z } from "zod";
+import { Button } from "@heroui/react";
+import { SendIcon } from "lucide-react";
+
+const messageSchema = z.object({
+  message: z.string().min(1, "Message cannot be empty"),
+});
+
+export function MessageInput() {
+  return (
+    <SimpleForm
+      schema={messageSchema}
+      field={FormFieldHelpers.input("message", "", {
+        placeholder: "Add a note...",
+        endContent: (
+          <Button type="submit" isIconOnly>
+            <SendIcon />
+          </Button>
+        ),
+      })}
+      onSubmit={async (data) => {
+        await sendMessage(data.message);
+      }}
+      hideSubmitButton
+    />
+  );
+}
+```
+
+**Expected Result**: A simplified single-field form with custom submit button.
+
+## Array Sync Utility
+
+### Input → Output
+
+**Context**: Syncing arrays in edit forms to determine create/update/delete operations
+
+**Code**:
+```tsx
+import { syncArrays } from "@rachelallyson/hero-hook-form";
+
+interface Slot {
+  id: string;
+  slotType: string;
+  order: number;
+}
+
+export async function updateCheckInTemplate(
+  templateId: string,
+  currentSlots: Slot[],
+  existingSlots: Slot[]
+) {
+  const { toDelete, toUpdate, toCreate } = syncArrays({
+    existing: existingSlots,
+    current: currentSlots,
+    getId: (slot) => slot.id,
+  });
+
+  // Delete removed slots
+  await Promise.all(
+    toDelete.map((slot) => deleteSlot(slot.id))
+  );
+
+  // Update existing slots
+  await Promise.all(
+    toUpdate.map(({ existing, current }) =>
+      updateSlot(existing.id, current)
+    )
+  );
+
+  // Create new slots
+  await Promise.all(
+    toCreate.map((slot) => createSlot(templateId, slot))
+  );
+}
+```
+
+**Expected Result**: Efficiently syncs arrays by identifying items to create, update, or delete.
 
 ## Conditional Survey Form
 

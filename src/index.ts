@@ -107,6 +107,7 @@ export { useFormContext, type UseFormReturn } from "react-hook-form";
 
 // Zod integration (optional - requires zod and @hookform/resolvers to be installed)
 export * from "./components/ZodForm.js";
+export * from "./components/SimpleForm.js";
 export * from "./zod-integration.js";
 
 // Form builders for easier form creation
@@ -128,6 +129,10 @@ export * from "./components/FormStatus.js";
 
 // Performance utilities
 export * from "./utils/performance.js";
+
+// Array utilities
+export * from "./utils/arraySync.js";
+export * from "./utils/createFieldArrayCustomConfig.js";
 
 // Enhanced validation patterns
 export * from "./builders/validation-helpers.js";

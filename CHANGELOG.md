@@ -2,6 +2,41 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.7.0] - 2026-01-13
+
+### Added
+
+- **Enhanced FieldArrayConfig**: Added powerful new features for dynamic field arrays
+  - `enableReordering` - Enable up/down buttons to reorder array items
+  - `reorderButtonText` - Customize reorder button labels (`{ up?: string; down?: string }`)
+  - `renderItem` - Custom render function for array items with full control over layout
+  - `renderAddButton` - Custom render function for the add button
+  - `defaultItem` - Function to create default values when adding new array items
+  - Conditional fields now work within array items (automatic path resolution)
+  - Example: `{ type: "fieldArray", name: "slots", enableReordering: true, ... }`
+
+- **SimpleForm Component**: New simplified API for single-field forms
+  - Perfect for search bars, message inputs, or simple single-field forms
+  - Uses `ZodForm` internally for consistent validation and error handling
+  - Example: `<SimpleForm schema={schema} field={FormFieldHelpers.input("message", "")} />`
+
+- **syncArrays Utility**: Helper function for syncing arrays in edit forms
+  - Determines which items to create, update, or delete based on IDs
+  - Useful for edit forms where you need to sync array changes with a database
+  - Example: `const { toCreate, toUpdate, toDelete } = syncArrays({ existing, current, getId })`
+
+- **createFieldArrayCustomConfig Helper**: Reduces boilerplate for custom field arrays
+  - Creates a `CustomFieldConfig` that uses `useFieldArray` internally
+  - Provides structured way to render custom array items with reordering
+  - Example: `createFieldArrayCustomConfig({ name: "slots", enableReordering: true, ... })`
+
+### Fixed
+
+- **Conditional Fields in Arrays**: Fixed path resolution for conditional fields within array items
+  - Uses `get()` from react-hook-form to correctly resolve nested paths like `"slots.0.slotType"`
+  - Conditional fields now work correctly within dynamic field arrays
+  - Example: Field with `dependsOn: "slotType"` in array item automatically resolves to `"slots.0.slotType"`
+
 ## [2.6.0] - 2026-01-13
 
 ### Added

@@ -47,6 +47,8 @@
     "example",
     "src/**/*.cy.ts",
     "src/**/*.cy.tsx",
+    "src/**/*.test.ts",
+    "src/**/*.test.tsx",
     "src/cypress/**/*.ts",
     "src/cypress/**/*.tsx"
   ]

@@ -4,6 +4,49 @@ Complete API documentation for Hero Hook Form.
 
 ## Core Components
 
+### SimpleForm
+
+Simplified form component for single-field forms.
+
+```tsx
+import { SimpleForm, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
+import { z } from "zod";
+
+const messageSchema = z.object({
+  message: z.string().min(1, "Message cannot be empty"),
+});
+
+function MessageInput() {
+  return (
+    <SimpleForm
+      schema={messageSchema}
+      field={FormFieldHelpers.input("message", "", {
+        placeholder: "Add a note...",
+        endContent: <Button type="submit">Send</Button>,
+      })}
+      onSubmit={async (data) => {
+        await sendMessage(data.message);
+      }}
+      hideSubmitButton
+    />
+  );
+}
+```
+
+**Props:**
+
+- `schema: ZodSchema<T>` - Zod schema for validation
+- `field: ZodFormFieldConfig<T>` - Single field configuration
+- `onSubmit: (data: T) => Promise<void> | void` - Submit handler
+- `submitButton?: React.ReactNode` - Optional custom submit button
+- `title?: string` - Optional form title
+- `subtitle?: string` - Optional form subtitle
+- `className?: string` - Optional CSS class
+- `defaultValues?: DefaultValues<T>` - Optional default values
+- `onError?: (error: FormValidationError) => void` - Error callback
+- `onSuccess?: (data: T) => void` - Success callback
+- `hideSubmitButton?: boolean` - Hide default submit button
+
 ### ZodForm
 
 Main form component with Zod schema validation.
@@ -407,33 +450,104 @@ import { ConditionalField } from "@rachelallyson/hero-hook-form";
 
 ### FieldArrayField
 
-Dynamic field array component for repeating fields.
+Dynamic field array component for repeating fields with support for reordering, custom rendering, and conditional fields.
 
 ```tsx
-import { FieldArrayField } from "@rachelallyson/hero-hook-form";
+import { FieldArrayField, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
 
-<FieldArrayField
-  name="items"
-  label="Items"
-  renderItem={(item, index) => (
-    <InputField name={`items.${index}.name`} label="Item Name" />
-  )}
-  addButtonText="Add Item"
-  removeButtonText="Remove"
-  maxItems={10}
-  minItems={1}
-/>
+// Basic usage
+{
+  type: "fieldArray",
+  name: "addresses",
+  label: "Addresses",
+  fields: [
+    FormFieldHelpers.input("street", "Street Address"),
+    FormFieldHelpers.input("city", "City"),
+  ],
+  addButtonText: "Add Address",
+  removeButtonText: "Remove",
+  min: 1,
+  max: 10,
+}
+
+// With reordering
+{
+  type: "fieldArray",
+  name: "slots",
+  enableReordering: true,
+  reorderButtonText: { up: "↑", down: "↓" },
+  fields: [...],
+}
+
+// With custom item rendering
+{
+  type: "fieldArray",
+  name: "items",
+  renderItem: ({ index, children, onMoveUp, onMoveDown, onRemove }) => (
+    <Card>
+      <div className="flex justify-between">
+        <span>Item {index + 1}</span>
+        <Button onPress={onRemove}>Remove</Button>
+      </div>
+      {children}
+    </Card>
+  ),
+  fields: [...],
+}
+
+// With default item
+{
+  type: "fieldArray",
+  name: "slots",
+  defaultItem: () => ({
+    order: 0,
+    slotType: "STATIC",
+  }),
+  fields: [...],
+}
+
+// With conditional fields within items
+{
+  type: "fieldArray",
+  name: "slots",
+  fields: [
+    FormFieldHelpers.select("slotType", "Slot Type", options),
+    {
+      ...FormFieldHelpers.select("staticQuestionId", "Question", questions),
+      dependsOn: "slotType",
+      dependsOnValue: "STATIC",
+    },
+  ],
+}
 ```
 
 **Props:**
 
 - `name: Path<T>` - Field array name
 - `label?: string` - Field array label
-- `renderItem: (item: any, index: number) => React.ReactNode` - Item render function
-- `addButtonText?: string` - Add button text
-- `removeButtonText?: string` - Remove button text
-- `maxItems?: number` - Maximum number of items
-- `minItems?: number` - Minimum number of items
+- `fields: ZodFormFieldConfig<T>[]` - Field configurations for each array item
+- `min?: number` - Minimum number of items (default: 0)
+- `max?: number` - Maximum number of items (default: 10)
+- `addButtonText?: string` - Add button text (default: "Add Item")
+- `removeButtonText?: string` - Remove button text (default: "Remove")
+- `enableReordering?: boolean` - Enable up/down reorder buttons (default: false)
+- `reorderButtonText?: { up?: string; down?: string }` - Custom reorder button labels
+- `defaultItem?: () => any` - Function to create default item when adding new item
+- `renderItem?: (props) => React.ReactNode` - Custom render function for array items
+- `renderAddButton?: (props) => React.ReactNode` - Custom render function for add button
+
+**renderItem props:**
+
+- `index: number` - Item index
+- `field: FieldArrayWithId` - Field array item
+- `fields: FieldArrayWithId[]` - All fields in the array
+- `children: React.ReactNode` - Rendered field elements
+- `onRemove: () => void` - Remove this item
+- `onMoveUp: () => void` - Move item up
+- `onMoveDown: () => void` - Move item down
+- `canRemove: boolean` - Whether item can be removed
+- `canMoveUp: boolean` - Whether item can move up
+- `canMoveDown: boolean` - Whether item can move down
 
 ### DynamicSectionField
 
@@ -866,6 +980,97 @@ validationPatterns.postalCode("Invalid postal code")
 ```
 
 ## Utilities
+
+### syncArrays
+
+Utility function to sync arrays for edit forms. Compares existing items (from database) with current items (from form) to determine what to delete, update, and create.
+
+```tsx
+import { syncArrays } from "@rachelallyson/hero-hook-form";
+
+const { toDelete, toUpdate, toCreate } = syncArrays({
+  existing: template.slots,
+  current: data.slots,
+  getId: (slot) => slot.id,
+});
+
+// Delete removed slots
+await Promise.all(toDelete.map(slot => deleteSlot(slot.id)));
+
+// Update existing slots
+await Promise.all(
+  toUpdate.map(({ existing, current }) =>
+    updateSlot(existing.id, current)
+  )
+);
+
+// Create new slots
+await Promise.all(toCreate.map(slot => createSlot(slot)));
+```
+
+**Parameters:**
+
+- `existing: TItem[]` - Existing items (from database/API)
+- `current: TItem[]` - Current items (from form)
+- `getId: (item: TItem) => string | number | undefined` - Function to extract ID from item
+
+**Returns:**
+
+- `toDelete: TItem[]` - Items that should be deleted
+- `toUpdate: Array<{ existing: TItem; current: TItem }>` - Items that should be updated
+- `toCreate: TItem[]` - Items that should be created
+
+### createFieldArrayCustomConfig
+
+Helper function to create a CustomFieldConfig for field arrays with full control over rendering.
+
+```tsx
+import { createFieldArrayCustomConfig } from "@rachelallyson/hero-hook-form";
+
+const slotsConfig = createFieldArrayCustomConfig("slots", {
+  label: "Question Slots",
+  enableReordering: true,
+  renderItem: ({ index, field, form, control, onMoveUp, onMoveDown, onRemove }) => (
+    <div className="border rounded-lg p-4">
+      <div className="flex justify-between">
+        <span>Slot {index + 1}</span>
+        <div className="flex gap-2">
+          <Button onPress={onMoveUp}>↑</Button>
+          <Button onPress={onMoveDown}>↓</Button>
+          <Button onPress={onRemove}>Remove</Button>
+        </div>
+      </div>
+      <SelectField
+        name={`slots.${index}.slotType`}
+        control={control}
+        // ...
+      />
+    </div>
+  ),
+  defaultItem: () => ({
+    order: 0,
+    slotType: "STATIC",
+  }),
+  min: 0,
+  max: 10,
+});
+```
+
+**Parameters:**
+
+- `name: ArrayPath<T>` - Field array name
+- `label?: string` - Optional label
+- `renderItem: (props) => React.ReactNode` - Render function for each item
+- `renderAddButton?: (props) => React.ReactNode` - Optional custom add button
+- `defaultItem?: () => any` - Function to create default item
+- `min?: number` - Minimum items (default: 0)
+- `max?: number` - Maximum items (default: 10)
+- `enableReordering?: boolean` - Enable reordering (default: false)
+- `className?: string` - Optional CSS class
+
+**Returns:**
+
+- `CustomFieldConfig<T>` - Custom field config for field arrays
 
 ### applyServerErrors
 
