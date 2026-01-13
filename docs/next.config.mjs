@@ -24,9 +24,21 @@ const nextConfig = {
     '@rachelallyson/hero-hook-form',
     '@rachelallyson/heroui-font-picker'
   ],
-  turbopack: {
-    root: __dirname,
+  webpack: (config, { isServer }) => {
+    // Resolve the local package for webpack (non-Turbopack builds)
+    if (!isServer) {
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        '@rachelallyson/hero-hook-form': path.resolve(__dirname, '../dist/index.js'),
+      };
+    }
+    return config;
   },
+  // Disable Turbopack for now due to file: dependency resolution issues
+  // Use: npm run build (uses webpack) instead of next build --turbo
+  // turbopack: {
+  //   root: __dirname,
+  // },
 }
 
 export default withNextra(nextConfig)

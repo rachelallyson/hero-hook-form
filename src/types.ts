@@ -10,6 +10,7 @@ import type {
 } from "react-hook-form";
 
 import type {
+  Autocomplete,
   Checkbox,
   Input,
   RadioGroup,

@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import type { Control, FieldErrors, UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 import {
   ZodForm,
@@ -107,7 +108,16 @@ export default function EnhancedDemoPage() {
                 type: "custom" as const,
                 name: "skills" as const,
                 label: "Skills",
-                render: ({ form, control }) => {
+                render: ({
+                  form,
+                  control,
+                }: {
+                  form: UseFormReturn<EnhancedFormData>;
+                  control: Control<EnhancedFormData>;
+                  name: import("react-hook-form").Path<EnhancedFormData>;
+                  errors: FieldErrors<EnhancedFormData>;
+                  isSubmitting: boolean;
+                }) => {
                   const skills = ["React", "TypeScript", "Node.js", "Python", "Java", "Go"];
                   const currentSkills = form.watch("skills") || [];
 

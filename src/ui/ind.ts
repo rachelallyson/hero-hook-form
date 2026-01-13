@@ -1,5 +1,6 @@
 // Export from individual packages - users can install either individual packages or @heroui/react
 // If individual packages are not available, users should install @heroui/react
+export { Autocomplete, AutocompleteItem } from "@heroui/autocomplete";
 export { Button } from "@heroui/button";
 export { Checkbox } from "@heroui/checkbox";
 export { DateInput } from "@heroui/date-input";

@@ -123,7 +123,6 @@ export default function EnhancedStateDemo() {
           columns={1}
           layout="vertical"
           showResetButton={true}
-          errorDisplay="inline"
         />
       </div>
 
