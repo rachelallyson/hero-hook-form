@@ -34,11 +34,9 @@ const nextConfig = {
     }
     return config;
   },
-  // Disable Turbopack for now due to file: dependency resolution issues
-  // Use: npm run build (uses webpack) instead of next build --turbo
-  // turbopack: {
-  //   root: __dirname,
-  // },
+  // Disable Turbopack due to file: dependency resolution issues
+  // Force webpack usage by setting environment variable or using --no-turbo flag
+  // In CI, we'll use NEXT_PRIVATE_SKIP_TURBO=1
 }
 
 export default withNextra(nextConfig)

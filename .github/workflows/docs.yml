@@ -36,6 +36,9 @@ jobs:
       - name: Install root dependencies
         run: npm install
 
+      - name: Build root package
+        run: npm run build
+
       - name: Generate API docs (TypeDoc)
         run: npm run docs:api
 
@@ -48,6 +51,7 @@ jobs:
         env:
           NODE_ENV: production
           BASE_PATH: /hero-hook-form
+          NEXT_PRIVATE_SKIP_TURBO: 1
         run: npm run build
 
       - name: Create .nojekyll file
