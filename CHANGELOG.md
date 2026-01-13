@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.5.1] - 2026-01-13
+
+### Fixed
+
+- **Conditional Field Helper TypeScript Types**: Fixed type inference issues in `FormFieldHelpers.conditional()`
+  - Added default generic type parameter `= FieldValues` for better type compatibility
+  - Updated to use type assertion pattern similar to `FormFieldHelpers.content()` for consistency
+  - Improved type safety and compatibility with explicit type annotations in condition functions
+  - When TypeScript can't infer the type from `Partial<T>`, explicitly specify: `FormFieldHelpers.conditional<YourType>(...)`
+  - Removed unused `ConditionalFieldConfig` import
+
 ## [2.5.0] - 2026-01-13
 
 ### Added

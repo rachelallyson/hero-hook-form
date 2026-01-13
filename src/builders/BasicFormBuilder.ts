@@ -287,18 +287,34 @@ export const FormFieldHelpers = {
    *   FormFieldHelpers.input("phone", "Phone Number", "tel")
    * )
    * ```
+   *
+   * @example
+   * With explicit type in condition function (similar to content helper pattern):
+   * ```tsx
+   * FormFieldHelpers.conditional(
+   *   "options",
+   *   (formData: Partial<z.infer<typeof fieldSchema>>) =>
+   *     formData.fieldType === 'DROPDOWN',
+   *   FormFieldHelpers.textarea("options", "Dropdown Options", "One per line")
+   * )
+   * ```
    */
-  conditional: <T extends FieldValues>(
+  conditional: <T extends FieldValues = FieldValues>(
     name: Path<T>,
     condition: (formData: Partial<T>) => boolean,
     field: ZodFormFieldConfig<T>,
-  ): ZodFormFieldConfig<T> =>
-    ({
+  ): ZodFormFieldConfig<T> => {
+    // Similar to content helper, use type assertion for compatibility
+    // ConditionalFieldConfig is part of ZodFormFieldConfig union, so this is safe
+    // When TypeScript can't infer T from Partial<T>, you may need to explicitly specify:
+    // FormFieldHelpers.conditional<YourType>(...)
+    return {
       condition,
       field,
       name,
       type: "conditional",
-    }) as ZodFormFieldConfig<T>,
+    } as ZodFormFieldConfig<T>;
+  },
 
   /**
    * Create a content field for headers, questions, or custom content between fields
