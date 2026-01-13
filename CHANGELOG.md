@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.2.1] - 2026-01-13
+
+### Fixed
+
+- **Type Safety**: Improved type inference for `FormFieldHelpers.content()` to fix TypeScript "unsafe call" errors
+  - Changed return type from `ZodFormFieldConfig<T>` to `ContentFieldConfig<T>` for better type inference
+  - Fixes TypeScript compilation errors when using the content helper function
+
 ## [2.2.0] - 2026-01-13
 
 ### Added
@@ -14,10 +22,6 @@ All notable changes to this project will be documented in this file.
   - Added `FormFieldHelpers.content()` helper function
   - Added `BasicFormBuilder.content()` builder method
   - Comprehensive test coverage with 7 passing tests
-
-### Fixed
-
-- **Type Safety**: Improved type inference for `FormFieldHelpers.content()` to fix TypeScript "unsafe call" errors
 
 ### Example Usage
 
