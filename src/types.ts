@@ -60,7 +60,7 @@ export interface BaseFormFieldConfig<TFieldValues extends FieldValues> {
 // String-based field configs
 export interface StringFieldConfig<TFieldValues extends FieldValues>
   extends BaseFormFieldConfig<TFieldValues> {
-  type: "input" | "textarea" | "select";
+  type: "input" | "textarea" | "select" | "autocomplete";
   defaultValue?: string;
   inputProps?: Omit<
     ComponentProps<typeof Input>,
@@ -88,6 +88,19 @@ export interface StringFieldConfig<TFieldValues extends FieldValues>
     | "isInvalid"
     | "errorMessage"
     | "isDisabled"
+  >;
+  autocompleteProps?: Omit<
+    ComponentProps<typeof Autocomplete>,
+    | "selectedKey"
+    | "onSelectionChange"
+    | "inputValue"
+    | "onInputChange"
+    | "label"
+    | "isInvalid"
+    | "errorMessage"
+    | "isDisabled"
+    | "children"
+    | "items"
   >;
   options?: { label: string; value: string | number }[];
 }

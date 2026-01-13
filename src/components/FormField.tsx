@@ -5,6 +5,7 @@ import React from "react";
 import type { FieldValues, UseFormReturn } from "react-hook-form";
 import { useWatch } from "react-hook-form";
 
+import { AutocompleteField } from "../fields/AutocompleteField";
 import { CheckboxField } from "../fields/CheckboxField";
 import { ConditionalField } from "../fields/ConditionalField";
 import { ContentField } from "../fields/ContentField";
@@ -112,6 +113,20 @@ export const FormField = React.memo(
               value: String(opt.value),
             }))}
             selectProps={config.selectProps}
+          />
+        );
+
+      case "autocomplete":
+        return (
+          <AutocompleteField<TFieldValues>
+            {...baseProps}
+            control={control}
+            defaultValue={config.defaultValue}
+            items={(config.options ?? []).map((opt) => ({
+              label: opt.label,
+              value: String(opt.value),
+            }))}
+            autocompleteProps={config.autocompleteProps}
           />
         );
 

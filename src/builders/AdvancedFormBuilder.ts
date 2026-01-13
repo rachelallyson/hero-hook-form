@@ -104,13 +104,14 @@ function switchField<T extends FieldValues>(
   },
 ): ZodFormFieldConfig<T> {
   return {
+    description: props?.description,
+    isDisabled: props?.isDisabled,
     label,
     name,
     type: "switch",
-    ...(props && {
+    ...(props?.className && {
       switchProps: {
         className: props.className,
-        disabled: props.isDisabled,
       },
     }),
   };

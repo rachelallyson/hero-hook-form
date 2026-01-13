@@ -2,8 +2,11 @@ import React from "react";
 
 import { mount } from "cypress/react";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 import { SwitchField } from "./SwitchField";
+import { FormFieldHelpers, createBasicFormBuilder } from "../builders/BasicFormBuilder";
+import { ZodForm } from "../components/ZodForm";
 import { uncheckSwitch, submitForm } from "../cypress/helpers";
 
 interface TestFormData {
@@ -118,5 +121,102 @@ describe("SwitchField", () => {
     mount(<TestFormWithDescription />);
 
     cy.contains("Receive updates about new features").should("exist");
+  });
+
+  it("should work with FormFieldHelpers.switch and description", () => {
+    const testSchema = z.object({
+      notifications: z.boolean(),
+    });
+
+    const handleSubmit = cy.stub().as("handleSubmit");
+
+    mount(
+      <ZodForm
+        config={{
+          schema: testSchema,
+          fields: [
+            FormFieldHelpers.switch(
+              "notifications",
+              "Enable notifications",
+              "Receive email notifications",
+            ),
+          ],
+        }}
+        onSubmit={handleSubmit}
+      />,
+    );
+
+    // Check if form renders
+    cy.get("form").should("exist");
+
+    // Check if switch label exists
+    cy.contains("Enable notifications").should("exist");
+
+    // Check if description exists
+    cy.contains("Receive email notifications").should("exist");
+
+    // Check if switch input exists
+    cy.get('input[type="checkbox"]').should("exist");
+  });
+
+  it("should work with FormFieldHelpers.switch without description", () => {
+    const testSchema = z.object({
+      darkMode: z.boolean(),
+    });
+
+    const handleSubmit = cy.stub().as("handleSubmit");
+
+    mount(
+      <ZodForm
+        config={{
+          schema: testSchema,
+          fields: [FormFieldHelpers.switch("darkMode", "Dark mode")],
+        }}
+        onSubmit={handleSubmit}
+      />,
+    );
+
+    // Check if form renders
+    cy.get("form").should("exist");
+
+    // Check if switch label exists
+    cy.contains("Dark mode").should("exist");
+
+    // Check if switch input exists
+    cy.get('input[type="checkbox"]').should("exist");
+  });
+
+  it("should work with BasicFormBuilder.switch and description", () => {
+    const testSchema = z.object({
+      notifications: z.boolean(),
+    });
+
+    const fields = createBasicFormBuilder()
+      .switch("notifications", "Enable notifications", "Receive email notifications")
+      .build();
+
+    const handleSubmit = cy.stub().as("handleSubmit");
+
+    mount(
+      <ZodForm
+        config={{
+          schema: testSchema,
+          fields,
+        }}
+        onSubmit={handleSubmit}
+      />,
+    );
+
+    // Check if form renders
+    cy.get("form").should("exist");
+
+    // Check if switch label exists
+    cy.contains("Enable notifications").should("exist");
+
+    // Check if description exists
+    cy.contains("Receive email notifications").should("exist");
+
+    // Check if switch input exists
+    cy.get('input[type="checkbox"]').should("exist");
   });
 });

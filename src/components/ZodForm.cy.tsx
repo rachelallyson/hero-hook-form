@@ -7,7 +7,7 @@ import { ZodForm, FormFieldHelpers } from "../index";
 
 interface TestFormData {
   showField: boolean;
-  conditionalInput: string;
+  conditionalInput?: string;
 }
 
 const testSchema = z.object({
@@ -16,6 +16,21 @@ const testSchema = z.object({
 });
 
 describe("ZodForm with Conditional Fields", () => {
+  it("should create conditional field config using FormFieldHelpers.conditional", () => {
+    const condition = (data: Partial<TestFormData>) => data.showField === true;
+    const field = FormFieldHelpers.input("conditionalInput", "Conditional Input", "text");
+    
+    // Use conditionalInput as the name since it's the field being conditionally rendered
+    const config = FormFieldHelpers.conditional("conditionalInput", condition, field);
+    
+    expect(config).to.deep.equal({
+      type: "conditional",
+      name: "conditionalInput",
+      condition,
+      field,
+    });
+  });
+
   it("should work with conditional fields WITHOUT FormProvider wrapper", () => {
     const handleSubmit = async (data: TestFormData) => {
       console.log("Submitted:", data);
@@ -27,12 +42,11 @@ describe("ZodForm with Conditional Fields", () => {
           schema: testSchema,
           fields: [
             FormFieldHelpers.checkbox("showField", "Show Conditional Field"),
-            {
-              type: "conditional",
-              name: "conditionalField",
-              condition: (data: Partial<TestFormData>) => data.showField === true,
-              field: FormFieldHelpers.input("conditionalInput", "Conditional Input", "text"),
-            },
+            FormFieldHelpers.conditional(
+              "conditionalInput",
+              (data: Partial<TestFormData>) => data.showField === true,
+              FormFieldHelpers.input("conditionalInput", "Conditional Input", "text"),
+            ),
           ],
           defaultValues: {
             showField: false,
@@ -85,12 +99,11 @@ describe("ZodForm with Conditional Fields", () => {
               schema: testSchema,
               fields: [
                 FormFieldHelpers.checkbox("showField", "Show Conditional Field"),
-                {
-                  type: "conditional",
-                  name: "conditionalField",
-                  condition: (data: Partial<TestFormData>) => data.showField === true,
-                  field: FormFieldHelpers.input("conditionalInput", "Conditional Input", "text"),
-                },
+                FormFieldHelpers.conditional(
+                  "conditionalInput",
+                  (data: Partial<TestFormData>) => data.showField === true,
+                  FormFieldHelpers.input("conditionalInput", "Conditional Input", "text"),
+                ),
               ],
             }}
             onSubmit={handleSubmit}

@@ -2,6 +2,35 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.4.0] - 2026-01-13
+
+### Added
+
+- **Switch Field Description Support**: Added optional `description` parameter to `FormFieldHelpers.switch()` and `BasicFormBuilder.switch()`
+  - Allows adding help text to switch fields for better UX
+  - Description is rendered below the switch component
+  - Backward compatible - existing code without description continues to work
+  - Example: `FormFieldHelpers.switch("notifications", "Enable notifications", "Receive email notifications")`
+
+- **Conditional Field Helper**: Added `FormFieldHelpers.conditional()` helper function for creating conditional fields
+  - Simplifies creating fields that show/hide based on form data
+  - Works seamlessly with all form types
+  - Example: `FormFieldHelpers.conditional("phone", (values) => values.hasPhone === true, FormFieldHelpers.input("phone", "Phone Number", "tel"))`
+
+### Fixed
+
+- **AdvancedFormBuilder Switch Field**: Fixed bug in `AdvancedFormBuilder.switchField()` where:
+  - `description` parameter was accepted but not included in the returned config
+  - `isDisabled` was incorrectly placed in `switchProps.disabled` instead of at the top level
+  - Both properties are now correctly placed at the top level of the field config
+
+### Testing
+
+- Added comprehensive test coverage for switch field description functionality
+- Added tests for `FormFieldHelpers.switch()` with and without description
+- Added tests for `BasicFormBuilder.switch()` with description
+- All tests passing (8/8 tests in SwitchField.cy.tsx)
+
 ## [2.3.0] - 2026-01-13
 
 ### Removed

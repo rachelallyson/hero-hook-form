@@ -71,7 +71,7 @@ export type SwitchFieldProps<TFieldValues extends FieldValues> = FieldBaseProps<
  *       config={{
  *         schema,
  *         fields: [
- *           FormFieldHelpers.switch("notifications", "Enable notifications"),
+ *           FormFieldHelpers.switch("notifications", "Enable notifications", "Receive email notifications"),
  *           FormFieldHelpers.switch("darkMode", "Dark mode"),
  *         ],
  *       }}

@@ -134,8 +134,9 @@ export class BasicFormBuilder<T extends FieldValues> {
   /**
    * Add a switch field
    */
-  switch(name: Path<T>, label: string): this {
+  switch(name: Path<T>, label: string, description?: string): this {
     this.fields.push({
+      description,
       label,
       name,
       type: "switch",
@@ -215,6 +216,11 @@ export function createBasicFormBuilder<
  *     { label: "CA", value: "ca" },
  *   ]),
  *   FormFieldHelpers.checkbox("newsletter", "Subscribe to newsletter"),
+ *   FormFieldHelpers.conditional(
+ *     "phone",
+ *     (values) => values.hasPhone === true,
+ *     FormFieldHelpers.input("phone", "Phone Number", "tel")
+ *   ),
  * ];
  * ```
  *
@@ -222,6 +228,22 @@ export function createBasicFormBuilder<
  * @category Builders
  */
 export const FormFieldHelpers = {
+  /**
+   * Create an autocomplete field
+   */
+  autocomplete: <T extends FieldValues>(
+    name: Path<T>,
+    label: string,
+    items: { label: string; value: string | number }[],
+    placeholder?: string,
+  ): ZodFormFieldConfig<T> => ({
+    autocompleteProps: placeholder ? { placeholder } : undefined,
+    label,
+    name,
+    options: items,
+    type: "autocomplete",
+  }),
+
   /**
    * Create a checkbox field
    */
@@ -233,6 +255,30 @@ export const FormFieldHelpers = {
     name,
     type: "checkbox",
   }),
+
+  /**
+   * Create a conditional field that shows/hides based on form data
+   *
+   * @example
+   * ```tsx
+   * FormFieldHelpers.conditional(
+   *   "phone",
+   *   (values) => values.hasPhone === true,
+   *   FormFieldHelpers.input("phone", "Phone Number", "tel")
+   * )
+   * ```
+   */
+  conditional: <T extends FieldValues>(
+    name: Path<T>,
+    condition: (formData: Partial<T>) => boolean,
+    field: ZodFormFieldConfig<T>,
+  ): ZodFormFieldConfig<T> =>
+    ({
+      condition,
+      field,
+      name,
+      type: "conditional",
+    }) as ZodFormFieldConfig<T>,
 
   /**
    * Create a content field for headers, questions, or custom content between fields
@@ -321,7 +367,9 @@ export const FormFieldHelpers = {
   switch: <T extends FieldValues>(
     name: Path<T>,
     label: string,
+    description?: string,
   ): ZodFormFieldConfig<T> => ({
+    description,
     label,
     name,
     type: "switch",

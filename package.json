@@ -1,6 +1,6 @@
 {
   "name": "@rachelallyson/hero-hook-form",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "description": "Typed form helpers that combine React Hook Form and HeroUI components.",
   "author": "Rachel Higley",
   "homepage": "https://rachelallyson.github.io/hero-hook-form/",
@@ -79,6 +79,7 @@
   "devDependencies": {
     "@cypress/vite-dev-server": "^7.0.1",
     "@eslint/js": "^9.39.2",
+    "@heroui/autocomplete": "^2",
     "@heroui/button": "^2.2.29",
     "@heroui/checkbox": "^2.3.29",
     "@heroui/date-input": "^2.3.29",
@@ -119,6 +120,7 @@
     "zod": "^4.3.5"
   },
   "peerDependencies": {
+    "@heroui/autocomplete": ">=2 <3",
     "@heroui/button": ">=2 <3",
     "@heroui/checkbox": ">=2 <3",
     "@heroui/date-input": ">=2 <3",
@@ -138,6 +140,9 @@
     "zod": ">=4"
   },
   "peerDependenciesMeta": {
+    "@heroui/autocomplete": {
+      "optional": true
+    },
     "@heroui/button": {
       "optional": true
     },
@@ -182,6 +187,7 @@
     "@hookform/resolvers": "^5.2.2"
   },
   "overrides": {
+    "@heroui/autocomplete": "^2",
     "@heroui/button": "^2.2.29",
     "@heroui/checkbox": "^2.3.29",
     "@heroui/date-input": "^2.3.29",
