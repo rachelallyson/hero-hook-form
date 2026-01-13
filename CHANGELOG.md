@@ -15,6 +15,10 @@ All notable changes to this project will be documented in this file.
   - Added `BasicFormBuilder.content()` builder method
   - Comprehensive test coverage with 7 passing tests
 
+### Fixed
+
+- **Type Safety**: Improved type inference for `FormFieldHelpers.content()` to fix TypeScript "unsafe call" errors
+
 ### Example Usage
 
 ```tsx
