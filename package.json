@@ -1,6 +1,6 @@
 {
   "name": "@rachelallyson/hero-hook-form",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Typed form helpers that combine React Hook Form and HeroUI components.",
   "author": "Rachel Higley",
   "homepage": "https://rachelallyson.github.io/hero-hook-form/",

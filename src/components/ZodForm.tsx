@@ -3,11 +3,12 @@
 import React from "react";
 
 import { Button } from "@heroui/react";
-import type {
-  FieldErrors,
-  FieldValues,
-  SubmitHandler,
-  UseFormReturn,
+import {
+  FormProvider,
+  type FieldErrors,
+  type FieldValues,
+  type SubmitHandler,
+  type UseFormReturn,
 } from "react-hook-form";
 
 import type { FormValidationError, ZodFormConfig } from "../types";
@@ -179,63 +180,69 @@ export function ZodForm<T extends FieldValues>({
 
   // Custom render function
   if (render) {
-    return render({
-      errors: form.formState.errors,
-      form,
-      isSubmitted: enhancedState.status !== "idle",
-      isSubmitting: enhancedState.isSubmitting,
-      isSuccess: enhancedState.isSuccess,
-      values: form.getValues(),
-    });
+    return (
+      <FormProvider {...form}>
+        {render({
+          errors: form.formState.errors,
+          form,
+          isSubmitted: enhancedState.status !== "idle",
+          isSubmitting: enhancedState.isSubmitting,
+          isSuccess: enhancedState.isSuccess,
+          values: form.getValues(),
+        })}
+      </FormProvider>
+    );
   }
 
   return (
-    <form className={className} role="form" onSubmit={handleFormSubmit}>
-      {/* Title and Subtitle */}
-      {title && (
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold text-foreground mb-2">
-            {title}
-          </h2>
-          {subtitle && (
-            <p className="text-sm text-muted-foreground">{subtitle}</p>
+    <FormProvider {...form}>
+      <form className={className} role="form" onSubmit={handleFormSubmit}>
+        {/* Title and Subtitle */}
+        {title && (
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold text-foreground mb-2">
+              {title}
+            </h2>
+            {subtitle && (
+              <p className="text-sm text-muted-foreground">{subtitle}</p>
+            )}
+          </div>
+        )}
+
+        {/* Enhanced Form Status */}
+        <FormStatus
+          state={enhancedState}
+          onDismiss={() => enhancedState.reset()}
+          showDetails={true}
+        />
+
+        {/* Form Fields */}
+        {renderFields()}
+
+        {/* Submit Button */}
+        <div className="mt-6 flex gap-3 justify-end">
+          <Button
+            color="primary"
+            isDisabled={enhancedState.isSubmitting}
+            isLoading={enhancedState.isSubmitting}
+            type="submit"
+            {...submitButtonProps}
+          >
+            {enhancedState.isSuccess ? "Success!" : submitButtonText}
+          </Button>
+
+          {showResetButton && (
+            <Button
+              isDisabled={enhancedState.isSubmitting}
+              type="button"
+              variant="bordered"
+              onPress={resetForm}
+            >
+              {resetButtonText}
+            </Button>
           )}
         </div>
-      )}
-
-      {/* Enhanced Form Status */}
-      <FormStatus
-        state={enhancedState}
-        onDismiss={() => enhancedState.reset()}
-        showDetails={true}
-      />
-
-      {/* Form Fields */}
-      {renderFields()}
-
-      {/* Submit Button */}
-      <div className="mt-6 flex gap-3 justify-end">
-        <Button
-          color="primary"
-          isDisabled={enhancedState.isSubmitting}
-          isLoading={enhancedState.isSubmitting}
-          type="submit"
-          {...submitButtonProps}
-        >
-          {enhancedState.isSuccess ? "Success!" : submitButtonText}
-        </Button>
-
-        {showResetButton && (
-          <Button
-            isDisabled={enhancedState.isSubmitting}
-            type="button"
-            variant="bordered"
-            onPress={resetForm}
-          >
-            {resetButtonText}
-          </Button>
-        )}
-      </div>
-    </form>
+      </form>
+    </FormProvider>
   );
 }

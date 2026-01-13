@@ -118,6 +118,20 @@ export const FormFieldHelpers = {
   }),
 
   /**
+   * Create a date field
+   */
+  date: <T extends FieldValues>(
+    name: Path<T>,
+    label: string,
+    dateProps?: Record<string, string | number | boolean>,
+  ): ZodFormFieldConfig<T> => ({
+    dateProps,
+    label,
+    name,
+    type: "date",
+  }),
+
+  /**
    * Create an input field
    */
   input: <T extends FieldValues>(

@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.2] - 2025-01-28
+
+### Added
+
+- **Date field helper**: Added `FormFieldHelpers.date()` method for creating date fields in forms
+- Supports optional `dateProps` parameter for customizing the date input component
+- Comprehensive test coverage for date field functionality
+
+### Fixed
+
+- **ZodForm FormProvider**: Wrapped ZodForm component with FormProvider to ensure form context is properly available
+- Fixes issues with form context not being accessible in nested components
+
 ## [2.1.1] - 2025-01-28
 
 ### Fixed
