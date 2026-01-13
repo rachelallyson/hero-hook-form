@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.3] - 2025-01-28
+
+### Fixed
+
+- **Cypress Form Submission Helpers**: Improved reliability of `cy.submitForm()` and related submission helpers
+  - Added form existence verification before submission
+  - Added submit button visibility and enabled state checks
+  - Implemented retry logic for better handling of timing issues
+  - Fixed `submitAndExpectSuccess()`, `submitAndExpectErrors()`, and `interceptFormSubmission()` helpers
+  - Made `expectFieldError()` more flexible by making `errorMessage` parameter optional
+  - Fixed TypeScript type compatibility issues in `getFormData()`
+  - All helpers now properly wait for forms to be ready before interacting
+
+### Added
+
+- **Test Coverage**: Added comprehensive tests for `cy.submitForm()` helper in ZodForm component tests
+  - Tests successful form submission
+  - Tests validation error handling with submission helpers
+
 ## [2.1.2] - 2025-01-28
 
 ### Added

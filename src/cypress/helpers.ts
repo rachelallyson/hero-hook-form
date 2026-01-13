@@ -233,10 +233,22 @@ export function expectNoValidationErrors() {
 /**
  * Check specific field has error
  */
-export function expectFieldError(fieldLabel: string, errorMessage: string) {
-  return cy.contains('label', fieldLabel)
-    .closest('div')
-    .should('contain', errorMessage);
+export function expectFieldError(fieldLabel: string, errorMessage?: string) {
+  const fieldContainer = cy.contains('label', fieldLabel).closest('div');
+  
+  if (errorMessage) {
+    return fieldContainer.should('contain', errorMessage);
+  }
+  
+  // If no error message specified, just check that there's some error indication
+  return fieldContainer.should(($div) => {
+    const text = $div.text();
+    const hasError = text.includes('error') || 
+                     text.includes('invalid') || 
+                     text.includes('required') ||
+                     $div.find('[class*="error"], [class*="invalid"], [class*="danger"]').length > 0;
+    expect(hasError, 'Field should have an error').to.be.true;
+  });
 }
 
 /**
@@ -254,7 +266,17 @@ export function expectFieldValid(fieldLabel: string) {
  */
 export function triggerValidation(submitButton: boolean = false) {
   if (submitButton) {
-    return cy.get(HERO_UI_SELECTORS.button.submit).first().click();
+    return withRetry(() => {
+      // Wait for form and submit button to be ready
+      cy.get('form').should('exist');
+      cy.get(HERO_UI_SELECTORS.button.submit)
+        .first()
+        .should('be.visible')
+        .should('not.be.disabled')
+        .click();
+      
+      return cy.get('form');
+    }, DEFAULT_CONFIG);
   }
   
   // Trigger validation by blurring a field
@@ -267,59 +289,93 @@ export function triggerValidation(submitButton: boolean = false) {
 
 /**
  * Click submit button
+ * 
+ * This helper waits for the form to be ready and ensures the submit button
+ * is visible and enabled before clicking it. It uses retry logic to handle
+ * timing issues with form rendering.
  */
 export function submitForm() {
-  return cy.get(HERO_UI_SELECTORS.button.submit).first().click();
+  return withRetry(() => {
+    // First, verify form exists (optional but helpful for debugging)
+    cy.get('form').should('exist');
+    
+    // Wait for submit button to be visible and enabled
+    cy.get(HERO_UI_SELECTORS.button.submit)
+      .first()
+      .should('be.visible')
+      .should('not.be.disabled')
+      .click();
+    
+    return cy.get('form');
+  }, DEFAULT_CONFIG);
 }
 
 /**
  * Submit and verify success state
  */
 export function submitAndExpectSuccess(successIndicator?: string) {
-  cy.get(HERO_UI_SELECTORS.button.submit).first().click();
-  
-  if (successIndicator) {
-    return cy.contains(successIndicator).should('be.visible');
-  }
-  
-  // Default success indicators
-  return cy.get('body').should('contain.one.of', ['success', 'submitted', 'complete', 'thank you']);
+  return withRetry(() => {
+    // Wait for form and submit button to be ready
+    cy.get('form').should('exist');
+    cy.get(HERO_UI_SELECTORS.button.submit)
+      .first()
+      .should('be.visible')
+      .should('not.be.disabled')
+      .click();
+    
+    if (successIndicator) {
+      cy.contains(successIndicator).should('be.visible');
+    } else {
+      // Default success indicators
+      cy.get('body').should('contain.one.of', ['success', 'submitted', 'complete', 'thank you']);
+    }
+    
+    return cy.get('form');
+  }, DEFAULT_CONFIG);
 }
 
 /**
  * Submit and verify validation prevents submission
  */
 export function submitAndExpectErrors(errorMessage?: string, formIndex: number = 0) {
-  cy.get(HERO_UI_SELECTORS.button.submit).eq(formIndex).click();
-  
-  // Form should still exist (validation prevented submission)
-  cy.get('form').should('exist');
-  
-  // Wait a bit for validation to complete
-  cy.wait(500);
-  
-  // If error message is provided, check for it
-  if (errorMessage) {
-    // Try multiple approaches to find the error message
-    cy.get('body').then(($body) => {
-      if ($body.text().includes(errorMessage)) {
-        cy.contains(errorMessage).should('be.visible');
-      } else {
-        // Debug: log what error messages are actually present
-        cy.log('Expected error message not found:', errorMessage);
-        cy.get('[class*="text-danger"], [class*="text-red"], [class*="error"]').then(($errors) => {
-          cy.log('Found validation errors:', $errors.length);
-          $errors.each((index, error) => {
-            cy.log(`Error ${index}:`, error.textContent);
+  return withRetry(() => {
+    // Wait for form and submit button to be ready
+    cy.get('form').should('exist');
+    cy.get(HERO_UI_SELECTORS.button.submit)
+      .eq(formIndex)
+      .should('be.visible')
+      .should('not.be.disabled')
+      .click();
+    
+    // Form should still exist (validation prevented submission)
+    cy.get('form').should('exist');
+    
+    // Wait a bit for validation to complete
+    cy.wait(500);
+    
+    // If error message is provided, check for it
+    if (errorMessage) {
+      // Try multiple approaches to find the error message
+      cy.get('body').then(($body) => {
+        if ($body.text().includes(errorMessage)) {
+          cy.contains(errorMessage).should('be.visible');
+        } else {
+          // Debug: log what error messages are actually present
+          cy.log('Expected error message not found:', errorMessage);
+          cy.get('[class*="text-danger"], [class*="text-red"], [class*="error"]').then(($errors) => {
+            cy.log('Found validation errors:', $errors.length);
+            $errors.each((index, error) => {
+              cy.log(`Error ${index}:`, error.textContent);
+            });
           });
-        });
-        // Still try to find the error message
-        cy.contains(errorMessage).should('be.visible');
-      }
-    });
-  }
+          // Still try to find the error message
+          cy.contains(errorMessage).should('be.visible');
+        }
+      });
+    }
 
-  return cy.get('form');
+    return cy.get('form');
+  }, DEFAULT_CONFIG);
 }
 
 /**
@@ -343,7 +399,18 @@ export function resetForm() {
  */
 export function interceptFormSubmission(method: string, url: string, alias: string) {
   cy.intercept(method, url).as(alias);
-  return cy.get(HERO_UI_SELECTORS.button.submit).first().click();
+  
+  return withRetry(() => {
+    // Wait for form and submit button to be ready
+    cy.get('form').should('exist');
+    cy.get(HERO_UI_SELECTORS.button.submit)
+      .first()
+      .should('be.visible')
+      .should('not.be.disabled')
+      .click();
+    
+    return cy.get('form');
+  }, DEFAULT_CONFIG);
 }
 
 /**
@@ -389,7 +456,7 @@ export function verifyFieldCount(selector: string, count: number) {
  * Extract all form field values as object
  */
 export function getFormData(): Cypress.Chainable<FormFieldData> {
-  return extractFormData();
+  return extractFormData().then((data) => data as FormFieldData);
 }
 
 /**

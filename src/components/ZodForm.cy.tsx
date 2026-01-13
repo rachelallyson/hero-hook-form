@@ -311,4 +311,84 @@ describe("ZodForm with Conditional Fields", () => {
     // Date input should be rendered
     cy.get('input[type="text"]').should("exist");
   });
+
+  it("should work with cy.submitForm() helper", () => {
+    const simpleSchema = z.object({
+      name: z.string().min(1, "Name is required"),
+      email: z.string().email("Invalid email"),
+    });
+
+    const handleSubmit = cy.stub().as('handleSubmit');
+
+    mount(
+      <ZodForm<z.infer<typeof simpleSchema>>
+        config={{
+          schema: simpleSchema,
+          fields: [
+            FormFieldHelpers.input("name", "Name", "text"),
+            FormFieldHelpers.input("email", "Email", "email"),
+          ],
+          defaultValues: {
+            name: "",
+            email: "",
+          },
+        }}
+        onSubmit={handleSubmit}
+      />
+    );
+
+    // Check if form renders
+    cy.get('form').should("exist");
+    
+    // Fill in the form
+    cy.contains("Name").parent().find('input').type("John Doe");
+    cy.contains("Email").parent().find('input').type("john@example.com");
+    
+    // Use the cy.submitForm() helper
+    cy.submitForm();
+    
+    // Verify the form was submitted
+    cy.get('@handleSubmit').should('have.been.called');
+  });
+
+  it("should work with cy.submitForm() helper and show validation errors", () => {
+    const simpleSchema = z.object({
+      name: z.string().min(1, "Name is required"),
+      email: z.string().email("Invalid email"),
+    });
+
+    const handleSubmit = cy.stub().as('handleSubmit');
+
+    mount(
+      <ZodForm<z.infer<typeof simpleSchema>>
+        config={{
+          schema: simpleSchema,
+          fields: [
+            FormFieldHelpers.input("name", "Name", "text"),
+            FormFieldHelpers.input("email", "Email", "email"),
+          ],
+          defaultValues: {
+            name: "",
+            email: "",
+          },
+        }}
+        onSubmit={handleSubmit}
+      />
+    );
+
+    // Check if form renders
+    cy.get('form').should("exist");
+    
+    // Try to submit without filling the form using cy.submitForm() helper
+    cy.submitForm();
+    
+    // Should show validation errors
+    cy.contains("Name is required").should("exist");
+    
+    // Form should still exist (validation prevented submission)
+    cy.get('form').should("exist");
+    
+    // onSubmit should not have been called
+    cy.get('@handleSubmit').should('not.have.been.called');
+  });
 });
