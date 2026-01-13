@@ -1,6 +1,6 @@
 import React from "react";
 import type { FieldValues, Path } from "react-hook-form";
-import type { ZodFormFieldConfig } from "../types";
+import type { ContentFieldConfig, ZodFormFieldConfig } from "../types";
 
 /**
  * Basic form field builder for creating form field configurations.
@@ -255,7 +255,7 @@ export const FormFieldHelpers = {
       className?: string;
       name?: Path<T>;
     },
-  ): ZodFormFieldConfig<T> => ({
+  ): ContentFieldConfig<T> => ({
     className: options?.className,
     description: description || undefined,
     name: options?.name,
