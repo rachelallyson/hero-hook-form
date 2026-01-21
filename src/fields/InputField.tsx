@@ -61,6 +61,7 @@ function CoercedInput<TFieldValues extends FieldValues>(props: {
       isDisabled={disabled}
       isInvalid={Boolean(errorMessage)}
       label={label}
+      name={field.name}
       value={field.value ?? ""}
       onBlur={field.onBlur}
       onValueChange={field.onChange}
