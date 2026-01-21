@@ -158,6 +158,7 @@ export function RadioGroupField<
             isDisabled={isDisabled}
             isInvalid={Boolean(fieldState.error)}
             label={label}
+            name={name}
             value={String(field.value ?? "")}
             onBlur={field.onBlur}
             onValueChange={(val: string) => field.onChange(val)}

@@ -1,13 +1,22 @@
 "use client";
 
-import { ServerActionForm, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
+import {
+  ServerActionForm,
+  FormFieldHelpers,
+} from "@rachelallyson/hero-hook-form";
 import { z } from "zod";
 
 // Example Server Action (simulated - in real app this would be in app/actions/)
 async function mockSignupAction(
-  state: { errors?: Record<string, string[]>; message?: string; success?: boolean } | undefined,
+  state:
+    | { errors?: Record<string, string[]>; message?: string; success?: boolean }
+    | undefined,
   formData: FormData,
-): Promise<{ errors?: Record<string, string[]>; message?: string; success?: boolean }> {
+): Promise<{
+  errors?: Record<string, string[]>;
+  message?: string;
+  success?: boolean;
+}> {
   // Simulate server delay
   await new Promise((resolve) => setTimeout(resolve, 500));
 
@@ -82,8 +91,8 @@ export default function ServerActionDemoPage() {
                 type: "password",
               }),
             ]}
-            title="Sign Up"
             subtitle="Create a new account"
+            title="Sign Up"
           />
         </section>
 
@@ -106,8 +115,8 @@ export default function ServerActionDemoPage() {
                 type: "password",
               }),
             ]}
-            title="Sign Up (With Client Validation)"
             subtitle="Immediate feedback + server security"
+            title="Sign Up (With Client Validation)"
           />
         </section>
 
@@ -130,8 +139,8 @@ export default function ServerActionDemoPage() {
                 type: "password",
               }),
             ]}
-            title="Edit Profile"
             subtitle="Update your information"
+            title="Edit Profile"
           />
         </section>
 
@@ -151,6 +160,8 @@ export default function ServerActionDemoPage() {
                 type: "password",
               }),
             ]}
+            subtitle="Check console for callback logs"
+            title="Sign Up (With Callbacks)"
             onError={(error) => {
               console.log("Form error:", error);
               // Could show toast, track analytics, etc.
@@ -159,8 +170,6 @@ export default function ServerActionDemoPage() {
               console.log("Form success:", formData);
               // Could track conversion, redirect, etc.
             }}
-            title="Sign Up (With Callbacks)"
-            subtitle="Check console for callback logs"
           />
         </section>
       </div>

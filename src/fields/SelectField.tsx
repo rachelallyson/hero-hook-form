@@ -168,6 +168,7 @@ export function SelectField<
               isDisabled={isDisabled}
               isInvalid={Boolean(fieldState.error)}
               label={label}
+              name={name}
               placeholder={placeholder}
               selectedKeys={
                 selectedKey != null ? new Set([String(selectedKey)]) : new Set()

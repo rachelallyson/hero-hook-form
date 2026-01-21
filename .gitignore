@@ -42,6 +42,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# Build artifacts
+**/*.jsx
+
 pnpm-lock.yaml
 yarn.lock
 package-lock.json

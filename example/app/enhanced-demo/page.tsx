@@ -60,23 +60,38 @@ export default function EnhancedDemoPage() {
                 "Enter your personal details",
               ),
 
-              FormFieldHelpers.input<EnhancedFormData>("firstName", "First Name", {
-                placeholder: "John",
-              }),
-              FormFieldHelpers.input<EnhancedFormData>("lastName", "Last Name", {
-                placeholder: "Doe",
-              }),
-              FormFieldHelpers.input<EnhancedFormData>("email", "Email Address", {
-                type: "email",
-                placeholder: "john@example.com",
-              }),
+              FormFieldHelpers.input<EnhancedFormData>(
+                "firstName",
+                "First Name",
+                {
+                  placeholder: "John",
+                },
+              ),
+              FormFieldHelpers.input<EnhancedFormData>(
+                "lastName",
+                "Last Name",
+                {
+                  placeholder: "Doe",
+                },
+              ),
+              FormFieldHelpers.input<EnhancedFormData>(
+                "email",
+                "Email Address",
+                {
+                  type: "email",
+                  placeholder: "john@example.com",
+                },
+              ),
 
               FormFieldHelpers.content<EnhancedFormData>(
                 "Contact Information",
                 "Optional contact details",
               ),
 
-              FormFieldHelpers.switch<EnhancedFormData>("hasPhone", "I have a phone number"),
+              FormFieldHelpers.switch<EnhancedFormData>(
+                "hasPhone",
+                "I have a phone number",
+              ),
               {
                 type: "input" as const,
                 name: "phoneNumber" as const,
@@ -101,7 +116,7 @@ export default function EnhancedDemoPage() {
                 type: "slider" as const,
                 name: "experience" as const,
                 label: "Years of Experience",
-                sliderProps: { min: 0, max: 50, step: 1 },
+                sliderProps: { minValue: 0, maxValue: 50, step: 1 },
               },
 
               FormFieldHelpers.content<EnhancedFormData>(
@@ -110,28 +125,42 @@ export default function EnhancedDemoPage() {
               ),
 
               // Skills as custom field
-              {
-                type: "custom" as const,
-                name: "skills" as const,
-                label: "Skills",
-                render: ({ form, control }) => {
-                  const skills = ["React", "TypeScript", "Node.js", "Python", "Java", "Go"];
-                  const currentSkills = form.watch("skills") || [];
+              FormFieldHelpers.custom<EnhancedFormData>(
+                "skills",
+                "Skills",
+                (field) => {
+                  const skills = [
+                    "React",
+                    "TypeScript",
+                    "Node.js",
+                    "Python",
+                    "Java",
+                    "Go",
+                  ];
+                  const currentSkills = field.form.watch("skills") || [];
 
                   return (
                     <div className="grid grid-cols-2 gap-2">
                       {skills.map((skill) => (
-                        <label key={skill} className="flex items-center space-x-2">
+                        <label
+                          key={skill}
+                          className="flex items-center space-x-2"
+                        >
                           <input
-                            type="checkbox"
                             checked={currentSkills.includes(skill)}
+                            type="checkbox"
                             onChange={(e) => {
                               if (e.target.checked) {
-                                form.setValue("skills", [...currentSkills, skill]);
+                                field.form.setValue("skills", [
+                                  ...currentSkills,
+                                  skill,
+                                ]);
                               } else {
-                                form.setValue(
+                                field.form.setValue(
                                   "skills",
-                                  currentSkills.filter((s: string) => s !== skill),
+                                  currentSkills.filter(
+                                    (s: string) => s !== skill,
+                                  ),
                                 );
                               }
                             }}
@@ -142,7 +171,7 @@ export default function EnhancedDemoPage() {
                     </div>
                   );
                 },
-              },
+              ),
 
               FormFieldHelpers.content<EnhancedFormData>(
                 "Profile",
@@ -167,20 +196,20 @@ export default function EnhancedDemoPage() {
                 "I agree to the terms and conditions",
               ),
             ],
-            onError: (errors) => {
+            onError: (errors: any) => {
               console.log("Form validation errors:", errors);
             },
           }}
-          onSubmit={async (data) => {
+          showResetButton={true}
+          subtitle="Using content fields for section headers"
+          title="Enhanced Form Demo"
+          onSubmit={async (data: EnhancedFormData) => {
             console.log("Form submitted with data:", data);
             setFormData(data);
           }}
-          onSuccess={(data) => {
+          onSuccess={(data: EnhancedFormData) => {
             console.log("Form submission successful:", data);
           }}
-          title="Enhanced Form Demo"
-          subtitle="Using content fields for section headers"
-          showResetButton={true}
         />
 
         {/* Display submitted data */}

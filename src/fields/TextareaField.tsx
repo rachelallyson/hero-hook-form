@@ -129,6 +129,7 @@ export function TextareaField<TFieldValues extends FieldValues>(
             isDisabled={isDisabled}
             isInvalid={Boolean(fieldState.error)}
             label={label}
+            name={field.name}
             value={field.value ?? ""}
             onBlur={field.onBlur}
             onValueChange={field.onChange}

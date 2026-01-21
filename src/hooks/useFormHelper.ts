@@ -19,7 +19,8 @@ interface UseFormHelperOptions<T extends FieldValues> {
   onError?: (error: FormValidationError) => void;
   onSubmit: SubmitHandler<T>;
   onSuccess?: (data: T) => void;
-  defaultValues?: Partial<T>;
+  // DefaultValues<T> is more specific than Partial<T>, but useForm accepts both
+  defaultValues?: DefaultValues<T>;
   methods?: UseFormReturn<T>;
 }
 
@@ -116,8 +117,12 @@ export function useFormHelper<T extends FieldValues>({
     isSuccess: false,
   });
 
-  const form =
-    methods ?? useForm<T>({ defaultValues: defaultValues as DefaultValues<T> });
+  // useForm returns UseFormReturn<T, any, T> which is compatible with UseFormReturn<T>
+  const form: UseFormReturn<T> =
+    (methods as UseFormReturn<T>) ??
+    useForm<T>({
+      ...(defaultValues && { defaultValues }),
+    });
 
   const handleSubmit = async () => {
     setSubmissionState((prev) => ({
@@ -166,7 +171,8 @@ export function useFormHelper<T extends FieldValues>({
 
   return {
     error: submissionState.error,
-    form,
+    // useForm returns UseFormReturn<T, any, T> which is structurally compatible with UseFormReturn<T>
+    form: form as UseFormReturn<T>,
     handleSubmit,
     isSubmitted: submissionState.isSubmitted,
     isSubmitting: submissionState.isSubmitting,

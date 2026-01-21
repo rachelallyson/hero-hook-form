@@ -111,11 +111,26 @@ export interface FormSubmissionOptions {
 }
 
 export interface CypressFormHelpers {
-  // Field Interaction Helpers
-  fillInputByType: (type: string, value: string, index?: number) => Cypress.Chainable<Element>;
-  fillInputByPlaceholder: (placeholder: string, value: string) => Cypress.Chainable<Element>;
-  fillInputByLabel: (label: string, value: string) => Cypress.Chainable<Element>;
-  fillTextarea: (value: string, index?: number) => Cypress.Chainable<Element>;
+  // Field Interaction Helpers - Name-based (recommended, most reliable)
+  fillInputByName: (name: string, value: string, options?: FieldInteractionOptions) => Cypress.Chainable<Element>;
+  fillTextareaByName: (name: string, value: string, options?: FieldInteractionOptions) => Cypress.Chainable<Element>;
+  selectDropdownByName: (name: string, optionValue: string) => Cypress.Chainable<Element>;
+  checkCheckboxByName: (name: string) => Cypress.Chainable<Element>;
+  checkSwitchByName: (name: string) => Cypress.Chainable<Element>;
+  uncheckCheckboxByName: (name: string) => Cypress.Chainable<Element>;
+  uncheckSwitchByName: (name: string) => Cypress.Chainable<Element>;
+  moveSliderByName: (name: string, value: number) => Cypress.Chainable<Element>;
+  selectRadioByName: (name: string, value: string) => Cypress.Chainable<Element>;
+  checkCheckboxInGroupByName: (name: string, index?: number) => Cypress.Chainable<Element>;
+  selectAutocompleteByName: (name: string, optionValue: string) => Cypress.Chainable<Element>;
+  fillDateInputByName: (name: string) => Cypress.Chainable<Element>;
+  selectFileByName: (name: string, filePath: string) => Cypress.Chainable<Element>;
+  
+  // Field Interaction Helpers - Legacy methods (still supported)
+  fillInputByType: (type: string, value: string, index?: number, options?: FieldInteractionOptions) => Cypress.Chainable<Element>;
+  fillInputByPlaceholder: (placeholder: string, value: string, options?: FieldInteractionOptions) => Cypress.Chainable<Element>;
+  fillInputByLabel: (label: string, value: string, options?: FieldInteractionOptions) => Cypress.Chainable<Element>;
+  fillTextarea: (value: string, index?: number, options?: FieldInteractionOptions) => Cypress.Chainable<Element>;
   selectDropdownOption: (optionValue: string, dropdownIndex?: number) => Cypress.Chainable<Element>;
   selectDropdownByLabel: (label: string, optionValue: string) => Cypress.Chainable<Element>;
   checkCheckbox: (index?: number) => Cypress.Chainable<Element>;
@@ -135,14 +150,15 @@ export interface CypressFormHelpers {
   // Form Submission Helpers
   submitForm: () => Cypress.Chainable<Element>;
   submitAndExpectSuccess: (successIndicator?: string) => Cypress.Chainable<Element>;
-  submitAndExpectErrors: () => Cypress.Chainable<Element>;
+  submitAndExpectErrors: (errorMessage?: string, formIndex?: number) => Cypress.Chainable<Element>;
   resetForm: () => Cypress.Chainable<Element>;
   interceptFormSubmission: (method: string, url: string, alias: string) => Cypress.Chainable<Element>;
   
   // Form State Helpers
   verifyFormExists: () => Cypress.Chainable<Element>;
   verifyFieldExists: (selector: string) => Cypress.Chainable<Element>;
-  verifyFieldValue: (selector: string, value: string) => Cypress.Chainable<Element>;
+  verifyFieldValueByName: (name: string, value: string) => Cypress.Chainable<Element>;
+  verifyFieldValue: (type: string, value: string, index?: number) => Cypress.Chainable<Element>;
   verifyFieldCount: (selector: string, count: number) => Cypress.Chainable<Element>;
   getFormData: () => Cypress.Chainable<FormFieldData>;
   
@@ -150,6 +166,23 @@ export interface CypressFormHelpers {
   fillCompleteForm: (formData: FormFieldData) => Cypress.Chainable<Element>;
   testFieldInteraction: (fieldType: string, value: string) => Cypress.Chainable<Element>;
   testFormFlow: (steps: FormFlowStep[]) => Cypress.Chainable<Element>;
+  
+  // Utility Helpers (for better form testing)
+  waitForFormReady: (timeout?: number) => Cypress.Chainable<JQuery<HTMLElement>>;
+  waitForReactUpdate: (timeout?: number) => Cypress.Chainable<void>;
+  waitForElementState: (selector: string, state: 'visible' | 'hidden' | 'enabled' | 'disabled' | 'exist', timeout?: number) => Cypress.Chainable<JQuery<HTMLElement>>;
+  waitForDropdownOpen: (timeout?: number) => Cypress.Chainable<JQuery<HTMLElement>>;
+  waitForDropdownClose: (buttonSelector?: string, timeout?: number) => Cypress.Chainable<JQuery<HTMLElement>>;
+  getFormDataValue: (fieldName: string) => Cypress.Chainable<string | File | null>;
+  verifyFormDataValue: (fieldName: string, expectedValue: string | number, timeout?: number) => Cypress.Chainable<void>;
+  waitForValidation: (shouldHaveErrors?: boolean, timeout?: number) => Cypress.Chainable<void>;
+  getFormDataArray: (fieldName: string) => Cypress.Chainable<string[]>;
+  verifyFormDataArray: (fieldName: string, expectedValues: string[], exactMatch?: boolean) => Cypress.Chainable<void>;
+  verifyFormDataFieldExists: (fieldName: string) => Cypress.Chainable<void>;
+  verifyNameAttribute: (fieldName: string, selector?: string) => Cypress.Chainable<void>;
+  verifyFormDataStructure: (expectedData: Record<string, string | number | string[]>) => Cypress.Chainable<void>;
+  verifyFormCleared: (fieldNames: string[]) => Cypress.Chainable<void>;
+  verifyDropdownNameAttribute: (fieldName: string, labelText?: string) => Cypress.Chainable<void>;
 }
 
 // Extend Cypress namespace with our custom commands

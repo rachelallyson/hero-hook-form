@@ -56,8 +56,14 @@ describe("Zod Demo - Schema-based Validation and Real-time Feedback", () => {
       cy.verifyFieldValue("textarea", "Short");
 
       // Test with longer message
-      cy.fillInputByType("textarea", "This is a longer message that should meet minimum length requirements");
-      cy.verifyFieldValue("textarea", "This is a longer message that should meet minimum length requirements");
+      cy.fillInputByType(
+        "textarea",
+        "This is a longer message that should meet minimum length requirements",
+      );
+      cy.verifyFieldValue(
+        "textarea",
+        "This is a longer message that should meet minimum length requirements",
+      );
 
       // Test message length validation error message
       cy.fillInputByType("textarea", "Short");
@@ -128,7 +134,10 @@ describe("Zod Demo - Schema-based Validation and Real-time Feedback", () => {
       cy.fillInputByType("text", "Doe", 1);
       cy.fillInputByType("email", "john.doe@example.com");
       cy.fillInputByType("tel", "123-456-7890");
-      cy.fillInputByType("textarea", "This is a test message for the contact form");
+      cy.fillInputByType(
+        "textarea",
+        "This is a test message for the contact form",
+      );
 
       // Select country using HeroUI pattern
       cy.get('button[aria-haspopup="listbox"]').first().click();
@@ -193,11 +202,13 @@ describe("Zod Demo - Schema-based Validation and Real-time Feedback", () => {
       // Test username maximum length validation
       cy.fillInputByType("text", "thisusernameistoolongforvalidation", 2);
       cy.fillInputByType("number", "25"); // Fill age to avoid other validation errors
-      
+
       // Debug: Check what's in the form before submission
-      cy.get('input[type="text"]').eq(2).should('have.value', 'thisusernameistoolongforvalidation');
-      cy.get('input[type="number"]').should('have.value', '25');
-      
+      cy.get('input[type="text"]')
+        .eq(2)
+        .should("have.value", "thisusernameistoolongforvalidation");
+      cy.get('input[type="number"]').should("have.value", "25");
+
       // Use submitAndExpectErrors helper for better error handling
       cy.submitAndExpectErrors("Username must be less than 20 characters", 1);
     });
@@ -381,7 +392,10 @@ describe("Zod Demo - Schema-based Validation and Real-time Feedback", () => {
       cy.fillInputByType("text", "John");
       cy.fillInputByType("text", "Doe", 1);
       cy.fillInputByType("email", "john.doe@example.com");
-      cy.fillInputByType("textarea", "This is a test message for the contact form");
+      cy.fillInputByType(
+        "textarea",
+        "This is a test message for the contact form",
+      );
 
       // Select country
       cy.get('button[aria-haspopup="listbox"]').first().click();

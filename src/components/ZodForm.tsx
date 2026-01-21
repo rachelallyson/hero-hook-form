@@ -10,6 +10,7 @@ import {
 } from "react-hook-form";
 
 import type { FormValidationError, ZodFormConfig } from "../types";
+import { pathToString } from "../types";
 import { useZodForm } from "../zod-integration";
 import { useEnhancedFormState } from "../hooks/useEnhancedFormState";
 import { FormStatus } from "./FormStatus";
@@ -25,6 +26,7 @@ interface ZodFormProps<T extends FieldValues> {
   className?: string;
   columns?: 1 | 2 | 3;
   config: ZodFormConfig<T>;
+  errorDisplay?: "inline" | "toast" | "modal" | "none";
   layout?: "vertical" | "horizontal" | "grid";
   onError?: (error: FormValidationError) => void;
   onSubmit: SubmitHandler<T>;
@@ -132,7 +134,10 @@ export function ZodForm<T extends FieldValues>({
   subtitle,
   title,
 }: ZodFormProps<T>) {
-  const form = useZodForm(config);
+  const formConfig: ZodFormConfig<T> = {
+    ...config,
+  };
+  const form = useZodForm(formConfig);
   const enhancedState = useEnhancedFormState(form, {
     autoReset: true,
     onError: (error: string) => onError?.({ field: "form", message: error }),
@@ -182,7 +187,7 @@ export function ZodForm<T extends FieldValues>({
         >
           {config.fields.map((field) => (
             <FormField
-              key={field.name as string}
+              key={field.name}
               config={field}
               form={form}
               submissionState={{
@@ -202,7 +207,7 @@ export function ZodForm<T extends FieldValues>({
         <div className={`grid gap-${spacing} grid-cols-1 md:grid-cols-2`}>
           {config.fields.map((field) => (
             <FormField
-              key={field.name as string}
+              key={field.name}
               config={field}
               form={form}
               submissionState={{
@@ -221,8 +226,8 @@ export function ZodForm<T extends FieldValues>({
     return (
       <div className={`space-y-${spacing}`}>
         {config.fields.map((field) => (
-          <FormField
-            key={field.name as string}
+          <FormField<T>
+            key={pathToString(field.name)}
             config={field}
             form={form}
             submissionState={{

@@ -12,11 +12,14 @@ This guide provides systematic rules and patterns for testing HeroUI components 
 
 - **Main input**: `<input type="text">` with `id="react-aria-*"` (unique React aria ID)
 - **Attributes**: `type`, `placeholder`, `class` (extensive Tailwind classes)
-- **Missing**: `name`, `id` (standard HTML attributes are NOT set)
+- **Name attribute**: ✅ **SUPPORTED** - HeroUI Input forwards the `name` prop to the DOM
 
 **Testing Strategy:**
 
 ```typescript
+// ✅ CORRECT: Use name attribute (if provided)
+cy.get('input[name="firstName"]').type("value");
+
 // ✅ CORRECT: Use type attribute
 cy.get('input[type="text"]').type("value");
 
@@ -25,9 +28,6 @@ cy.get('input[placeholder="Type something..."]').type("value");
 
 // ✅ CORRECT: Use React aria ID (if stable)
 cy.get('#react-aria-_R_26inebnalb_').type("value");
-
-// ❌ WRONG: Don't use name attribute
-cy.get('input[name="firstName"]'); // This will NOT work
 ```
 
 ### 2. Select Components
@@ -405,17 +405,47 @@ cy.get('input[role="switch"]').should("be.checked");
 cy.get('input[role="switch"]:visible'); // May not work due to opacity
 ```
 
-### 5. Textarea Components
+### 5. Radio Components
+
+**HeroUI RadioGroup renders as:**
+
+- **Radio inputs**: `<input type="radio">` elements with `id="react-aria-*"`
+- **Attributes**: `name`, `value`, `class` (extensive Tailwind classes)
+- **Name attribute**: ✅ **SUPPORTED** - HeroUI RadioGroup forwards the `name` prop to all radio inputs in the group
+
+**Testing Strategy:**
+
+```typescript
+// ✅ CORRECT: Use name attribute (if provided)
+cy.get('input[type="radio"][name="plan"]').first().check();
+
+// ✅ CORRECT: Use value attribute
+cy.get('input[type="radio"][value="option1"]').check();
+
+// ✅ CORRECT: Combine name and value
+cy.get('input[type="radio"][name="plan"][value="pro"]').check();
+
+// ✅ CORRECT: Verify state
+cy.get('input[type="radio"][name="plan"][value="pro"]').should("be.checked");
+
+// ✅ CORRECT: Use role attribute
+cy.get('[role="radio"]').first().click();
+```
+
+### 6. Textarea Components
 
 **HeroUI Textarea renders as:**
 
 - **Main textarea**: `<textarea>` with `id="react-aria-*"`
 - **Attributes**: `placeholder`, `class` (extensive Tailwind classes)
-- **Missing**: `name`, `id` (standard HTML attributes are NOT set)
+- **Name attribute**: ✅ **SUPPORTED** - HeroUI Textarea forwards the `name` prop to the DOM
 
 **Testing Strategy:**
 
 ```typescript
+// ✅ CORRECT: Use name attribute (if provided)
+cy.get('textarea[name="description"]').type("value");
+
 // ✅ CORRECT: Use placeholder text
 cy.get('textarea[placeholder="Type a message..."]').type("value");
 
@@ -424,12 +454,92 @@ cy.get('#react-aria-_R_2minebnalb_').type("value");
 
 // ✅ CORRECT: Use generic textarea selector
 cy.get("textarea").first().type("value");
-
-// ❌ WRONG: Don't use name attribute
-cy.get('textarea[name="description"]'); // This will NOT work
 ```
 
-### 6. Button Components
+### 7. Autocomplete Components
+
+**HeroUI Autocomplete renders as:**
+
+- **Main input**: `<input type="text">` with `id="react-aria-*"`
+- **Attributes**: `type`, `placeholder`, `class` (extensive Tailwind classes)
+- **Name attribute**: ✅ **SUPPORTED** - HeroUI Autocomplete forwards the `name` prop to the DOM
+
+**Testing Strategy:**
+
+```typescript
+// ✅ CORRECT: Use name attribute (if provided)
+cy.get('input[name="country"]').type("United");
+
+// ✅ CORRECT: Use placeholder text
+cy.get('input[placeholder="Search..."]').type("value");
+
+// ✅ CORRECT: Use type attribute
+cy.get('input[type="text"]').type("value");
+```
+
+### 8. Slider Components
+
+**HeroUI Slider renders as:**
+
+- **Main input**: `<input type="range">` with `id="react-aria-*"`
+- **Attributes**: `type`, `class` (extensive Tailwind classes)
+- **Name attribute**: ✅ **SUPPORTED** - HeroUI Slider forwards the `name` prop to the DOM
+
+**Testing Strategy:**
+
+```typescript
+// ✅ CORRECT: Use name attribute (if provided)
+cy.get('input[type="range"][name="volume"]').should("exist");
+
+// ✅ CORRECT: Use type attribute
+cy.get('input[type="range"]').should("have.value", "50");
+
+// ✅ CORRECT: Set slider value
+cy.get('input[type="range"][name="volume"]').invoke("val", 75).trigger("input");
+```
+
+### 9. DateInput Components
+
+**HeroUI DateInput renders as:**
+
+- **Spinbuttons**: Multiple `<input role="spinbutton">` elements for month/day/year
+- **Attributes**: `role`, `class` (extensive Tailwind classes)
+- **Name attribute**: ⚠️ **PARTIALLY SUPPORTED** - DateInput doesn't forward `name` to spinbuttons, but hidden input is used for FormData
+
+**Testing Strategy:**
+
+```typescript
+// ✅ CORRECT: Use role attribute
+cy.get('input[role="spinbutton"]').first().type("12");
+
+// ✅ CORRECT: Use label to find the date input group
+cy.contains("label", "Birth Date").parent().find('input[role="spinbutton"]').first();
+
+// ⚠️ NOTE: Name attribute is not on spinbuttons, use hidden input or label for identification
+```
+
+### 10. File Input Components
+
+**HeroUI File Input (using Input with type="file") renders as:**
+
+- **Main input**: `<input type="file">` with `id="react-aria-*"`
+- **Attributes**: `type`, `accept`, `multiple`, `class` (extensive Tailwind classes)
+- **Name attribute**: ✅ **SUPPORTED** - HeroUI Input forwards the `name` prop to file inputs
+
+**Testing Strategy:**
+
+```typescript
+// ✅ CORRECT: Use name attribute (if provided)
+cy.get('input[type="file"][name="avatar"]').selectFile("path/to/file.jpg");
+
+// ✅ CORRECT: Use type attribute
+cy.get('input[type="file"]').selectFile("path/to/file.jpg");
+
+// ✅ CORRECT: Verify file input exists
+cy.get('input[type="file"][name="avatar"]').should("exist");
+```
+
+### 11. Button Components
 
 **HeroUI Button renders as:**
 
@@ -456,12 +566,12 @@ cy.get('.specific-button-class'); // Classes may change
 
 ### 1. Never Rely On These Attributes
 
-- ❌ `name` attribute (NOT rendered by HeroUI)
-- ❌ Standard `id` attribute (NOT rendered by HeroUI)
+- ❌ Standard `id` attribute (NOT rendered by HeroUI - uses React aria IDs instead)
 - ❌ `data-testid` (unless explicitly added)
 
 ### 2. Always Use These Attributes
 
+- ✅ `name` attribute (✅ **SUPPORTED** - HeroUI components forward the `name` prop to the DOM)
 - ✅ `type` attribute (e.g., `input[type="email"]`)
 - ✅ `role` attribute (e.g., `[role="checkbox"]`)
 - ✅ `aria-*` attributes (e.g., `[aria-haspopup="listbox"]`)
@@ -519,8 +629,8 @@ cy.contains("button", "Submit").click();
 
 ### 1. "Element not found" errors
 
-**Problem**: Using `name` or standard `id` attributes
-**Solution**: Use `type`, `role`, or `placeholder` attributes instead
+**Problem**: Using standard `id` attributes (HeroUI uses React aria IDs)
+**Solution**: Use `name`, `type`, `role`, or `placeholder` attributes instead
 
 ### 2. "Element not visible" errors
 

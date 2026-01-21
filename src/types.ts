@@ -1,5 +1,6 @@
 import type { ComponentProps } from "react";
 import type {
+  ArrayPath,
   Control,
   FieldErrors,
   FieldValues,
@@ -21,7 +22,45 @@ import type {
   Textarea,
 } from "#ui";
 
+/**
+ * All supported field types that can be used in form builders
+ * This type is used throughout the codebase to ensure consistency
+ */
+export type FormFieldType =
+  | "input"
+  | "textarea"
+  | "select"
+  | "autocomplete"
+  | "checkbox"
+  | "switch"
+  | "radio"
+  | "slider"
+  | "date"
+  | "file"
+  | "fontPicker"
+  | "stringArray";
+
+/**
+ * Helper to convert a Path<T>, ArrayPath<T>, or string to a string for use in React keys and DOM operations.
+ * Path<T> and ArrayPath<T> are branded string types, so this is safe - it's just removing the brand.
+ *
+ * @param path - The path to convert (can be Path<T>, ArrayPath<T>, string, or undefined)
+ * @returns The path as a plain string, or empty string if undefined
+ */
+export function pathToString<T extends FieldValues>(
+  path: Path<T> | ArrayPath<T> | string | undefined,
+): string {
+  if (path === undefined) return "";
+
+  // Path<T> and ArrayPath<T> are branded strings, so this cast is safe
+  return path as unknown as string;
+}
+
 export interface FieldBaseProps<TFieldValues extends FieldValues, TValue> {
+  // name must be Path<TFieldValues> - Controller requires this exact type
+  // When field configs come from FormFieldHelpers without generics, they have string
+  // but at runtime it's always a valid path, so we accept both for flexibility
+  // The field components will pass it to Controller which accepts it at runtime
   name: Path<TFieldValues>;
   label?: string;
   description?: string;
@@ -35,7 +74,9 @@ export interface FieldBaseProps<TFieldValues extends FieldValues, TValue> {
 }
 
 export interface WithControl<TFieldValues extends FieldValues> {
-  control: Control<TFieldValues>;
+  // Accept Control type from react-hook-form.
+  // Controller uses structural typing internally, so it will accept compatible Control types.
+  control: Control<TFieldValues, any>;
 }
 
 // Base form field config without type-specific props
@@ -135,6 +176,24 @@ export interface RadioFieldConfig<TFieldValues extends FieldValues>
   radioOptions?: { label: string; value: string | number }[];
 }
 
+// Checkbox group field config
+export interface CheckboxGroupFieldConfig<TFieldValues extends FieldValues>
+  extends BaseFormFieldConfig<TFieldValues> {
+  type: "checkboxGroup";
+  defaultValue?: (string | number)[];
+  checkboxGroupOptions?: { label: string; value: string | number }[];
+  checkboxProps?: Omit<
+    React.ComponentProps<typeof import("#ui").Checkbox>,
+    | "isSelected"
+    | "onValueChange"
+    | "isInvalid"
+    | "errorMessage"
+    | "isDisabled"
+    | "name"
+  >;
+  orientation?: "vertical" | "horizontal";
+}
+
 // Slider field config
 export interface SliderFieldConfig<TFieldValues extends FieldValues>
   extends BaseFormFieldConfig<TFieldValues> {
@@ -189,12 +248,41 @@ export interface FontPickerFieldConfig<TFieldValues extends FieldValues>
   };
 }
 
+// String array field config for arrays of strings (like tags, skills, etc.)
+export interface StringArrayFieldConfig<TFieldValues extends FieldValues>
+  extends BaseFormFieldConfig<TFieldValues> {
+  type: "stringArray";
+  defaultValue?: string[];
+  stringArrayProps?: {
+    /** Placeholder text for the input */
+    placeholder?: string;
+    /** Maximum number of items allowed */
+    maxItems?: number;
+    /** Minimum number of items required */
+    minItems?: number;
+    /** Allow duplicate values */
+    allowDuplicates?: boolean;
+    /** Custom validation function for each item */
+    validateItem?: (item: string) => string | true;
+    /** Transform item before adding (e.g., trim whitespace) */
+    transformItem?: (item: string) => string;
+    /** Custom chip render function */
+    renderChip?: (item: string, onRemove: () => void) => React.ReactNode;
+    /** Custom add button text */
+    addButtonText?: string;
+    /** Whether to show add button or use enter key */
+    showAddButton?: boolean;
+  };
+}
+
 // Custom field config for advanced use cases
 export interface CustomFieldConfig<TFieldValues extends FieldValues>
-  extends BaseFormFieldConfig<TFieldValues> {
+  extends Omit<BaseFormFieldConfig<TFieldValues>, "name"> {
   type: "custom";
+  // Accept both Path and ArrayPath to support field arrays
+  name: Path<TFieldValues> | ArrayPath<TFieldValues>;
   render: (field: {
-    name: Path<TFieldValues>;
+    name: Path<TFieldValues> | ArrayPath<TFieldValues>;
     control: Control<TFieldValues>;
     form: UseFormReturn<TFieldValues>;
     errors: FieldErrors<TFieldValues>;
@@ -220,8 +308,10 @@ export interface ConditionalFieldConfig<TFieldValues extends FieldValues>
  * @template TFieldValues - The form data type
  */
 export interface FieldArrayConfig<TFieldValues extends FieldValues>
-  extends BaseFormFieldConfig<TFieldValues> {
+  extends Omit<BaseFormFieldConfig<TFieldValues>, "name"> {
   type: "fieldArray";
+  /** Field array name - must be an ArrayPath (points to an array field) */
+  name: ArrayPath<TFieldValues>;
   /** Field configurations for each array item */
   fields: ZodFormFieldConfig<TFieldValues>[];
   /** Minimum number of items (default: 0) */
@@ -294,8 +384,8 @@ export interface ContentFieldConfig<
 > {
   type: "content";
   // Optional name - if not provided, won't be part of form schema
-  // Using string instead of Path<TFieldValues> to allow compatibility with any form type
-  name?: string;
+  // When provided, must be a valid Path<TFieldValues>
+  name?: Path<TFieldValues>;
   // Optional title for simple header rendering
   title?: string;
   // Optional description/subtitle
@@ -317,10 +407,12 @@ export type FormFieldConfig<TFieldValues extends FieldValues> =
   | StringFieldConfig<TFieldValues>
   | BooleanFieldConfig<TFieldValues>
   | RadioFieldConfig<TFieldValues>
+  | CheckboxGroupFieldConfig<TFieldValues>
   | SliderFieldConfig<TFieldValues>
   | DateFieldConfig<TFieldValues>
   | FileFieldConfig<TFieldValues>
   | FontPickerFieldConfig<TFieldValues>
+  | StringArrayFieldConfig<TFieldValues>
   | CustomFieldConfig<TFieldValues>
   | ConditionalFieldConfig<TFieldValues>
   | FieldArrayConfig<TFieldValues>
@@ -347,10 +439,12 @@ export type ZodFormFieldConfig<TFieldValues extends FieldValues> =
   | Omit<StringFieldConfig<TFieldValues>, "rules">
   | Omit<BooleanFieldConfig<TFieldValues>, "rules">
   | Omit<RadioFieldConfig<TFieldValues>, "rules">
+  | Omit<CheckboxGroupFieldConfig<TFieldValues>, "rules">
   | Omit<SliderFieldConfig<TFieldValues>, "rules">
   | Omit<DateFieldConfig<TFieldValues>, "rules">
   | Omit<FileFieldConfig<TFieldValues>, "rules">
   | Omit<FontPickerFieldConfig<TFieldValues>, "rules">
+  | Omit<StringArrayFieldConfig<TFieldValues>, "rules">
   | Omit<CustomFieldConfig<TFieldValues>, "rules">
   | Omit<ConditionalFieldConfig<TFieldValues>, "rules">
   | Omit<FieldArrayConfig<TFieldValues>, "rules">
@@ -360,7 +454,16 @@ export type ZodFormFieldConfig<TFieldValues extends FieldValues> =
 export interface ZodFormConfig<TFieldValues extends FieldValues>
   extends UseFormProps<TFieldValues> {
   schema: import("zod").ZodSchema<TFieldValues>;
-  fields: ZodFormFieldConfig<TFieldValues>[];
+  // Fields can be created with FormFieldHelpers - TypeScript will ensure compatibility
+  // Each field config must have a name that's a valid path in TFieldValues
+  // Template literal types from FormFieldHelpers (e.g., "email" | `email.${string}`) are
+  // compatible with Path<TFieldValues> when the base path exists in TFieldValues
+  fields: (
+    | ZodFormFieldConfig<TFieldValues>
+    | (Omit<ZodFormFieldConfig<FieldValues>, "name"> & {
+        name: Path<TFieldValues>;
+      })
+  )[];
 
   // Enhanced error handling
   onError?: (errors: FieldErrors<TFieldValues>) => void;

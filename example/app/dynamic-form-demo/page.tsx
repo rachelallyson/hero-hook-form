@@ -7,7 +7,6 @@ import {
   createAdvancedBuilder,
   createField,
   createFieldArrayItemBuilder,
-  defineInferredForm,
 } from "@rachelallyson/hero-hook-form";
 
 // Example 1: Dynamic Form with Conditional Fields and Field Arrays
@@ -41,36 +40,51 @@ type UserForm = z.infer<typeof userFormSchema>;
 
 // Using Advanced Builder
 const userFormFields = createAdvancedBuilder<UserForm>()
-  .field("input", "firstName", "First Name", {
-    placeholder: "Enter your first name",
+  .field({
+    type: "input",
+    name: "firstName",
+    label: "First Name",
+    props: { placeholder: "Enter your first name" },
   })
-  .field("input", "lastName", "Last Name", {
-    placeholder: "Enter your last name",
+  .field({
+    type: "input",
+    name: "lastName",
+    label: "Last Name",
+    props: { placeholder: "Enter your last name" },
   })
-  .field("input", "email", "Email Address", {
-    placeholder: "Enter your email",
-    type: "email",
+  .field({
+    type: "input",
+    name: "email",
+    label: "Email Address",
+    props: { placeholder: "Enter your email", type: "email" },
   })
-  .field("select", "contactMethod", "Preferred Contact Method", [
-    { label: "Email Only", value: "email" },
-    { label: "Phone Only", value: "phone" },
-    { label: "Both Email and Phone", value: "both" },
-  ])
+  .field({
+    type: "select",
+    name: "contactMethod",
+    label: "Preferred Contact Method",
+    options: [
+      { label: "Email Only", value: "email" },
+      { label: "Phone Only", value: "phone" },
+      { label: "Both Email and Phone", value: "both" },
+    ],
+  })
   .conditionalField(
     "phone",
     (data) => data.contactMethod === "phone" || data.contactMethod === "both",
-    createField("input", "phone", "Phone Number", {
-      placeholder: "Enter your phone number",
-      type: "tel",
+    createField({
+      type: "input",
+      name: "phone",
+      label: "Phone Number",
+      props: { placeholder: "Enter your phone number", type: "tel" },
     }),
   )
   .fieldArray(
     "addresses",
     "Addresses",
     createFieldArrayItemBuilder<{ street: string; city: string; zip: string }>()
-      .field("input", "street", "Street Address")
-      .field("input", "city", "City")
-      .field("input", "zip", "ZIP Code")
+      .field({ type: "input", name: "street", label: "Street Address" })
+      .field({ type: "input", name: "city", label: "City" })
+      .field({ type: "input", name: "zip", label: "ZIP Code" })
       .build() as any,
     {
       addButtonText: "Add Address",
@@ -87,9 +101,14 @@ const userFormFields = createAdvancedBuilder<UserForm>()
       relationship: string;
       phone: string;
     }>()
-      .field("input", "name", "Contact Name")
-      .field("input", "relationship", "Relationship")
-      .field("input", "phone", "Phone Number", { type: "tel" })
+      .field({ type: "input", name: "name", label: "Contact Name" })
+      .field({ type: "input", name: "relationship", label: "Relationship" })
+      .field({
+        type: "input",
+        name: "phone",
+        label: "Phone Number",
+        props: { type: "tel" },
+      })
       .build() as any,
     {
       addButtonText: "Add Emergency Contact",
@@ -111,23 +130,41 @@ const productFormSchema = z.object({
 });
 
 const productFormConfig = createAdvancedBuilder<ProductForm>()
-  .field("input", "name", "Product Name", { placeholder: "Enter product name" })
-  .field("textarea", "description", "Description", {
-    placeholder: "Enter product description",
+  .field({
+    type: "input",
+    name: "name",
+    label: "Product Name",
+    props: { placeholder: "Enter product name" },
   })
-  .field("input", "price", "Price", {
-    placeholder: "Enter price",
-    type: "number",
+  .field({
+    type: "textarea",
+    name: "description",
+    label: "Description",
+    props: { placeholder: "Enter product description" },
   })
-  .field("select", "category", "Category", [
-    { label: "Electronics", value: "electronics" },
-    { label: "Clothing", value: "clothing" },
-    { label: "Books", value: "books" },
-    { label: "Home & Garden", value: "home" },
-  ])
-  .field("checkbox", "inStock", "In Stock")
-  .field("input", "tags", "Tags", {
-    placeholder: "Enter tags separated by commas",
+  .field({
+    type: "input",
+    name: "price",
+    label: "Price",
+    props: { placeholder: "Enter price", type: "number" },
+  })
+  .field({
+    type: "select",
+    name: "category",
+    label: "Category",
+    options: [
+      { label: "Electronics", value: "electronics" },
+      { label: "Clothing", value: "clothing" },
+      { label: "Books", value: "books" },
+      { label: "Home & Garden", value: "home" },
+    ],
+  })
+  .field({ type: "checkbox", name: "inStock", label: "In Stock" })
+  .field({
+    type: "input",
+    name: "tags",
+    label: "Tags",
+    props: { placeholder: "Enter tags separated by commas" },
   })
   .build();
 
@@ -180,16 +217,16 @@ export default function DynamicFormDemo() {
         </p>
 
         <ZodForm
+          columns={2}
           config={{
             fields: userFormFields,
             schema: userFormSchema,
           }}
-          onSubmit={handleUserSubmit}
-          title="User Registration"
-          subtitle="Complete your profile with dynamic fields"
-          columns={2}
           layout="grid"
           showResetButton={true}
+          subtitle="Complete your profile with dynamic fields"
+          title="User Registration"
+          onSubmit={handleUserSubmit}
         />
       </section>
 
@@ -204,13 +241,13 @@ export default function DynamicFormDemo() {
         </p>
 
         <ZodForm
-          config={productFormConfigWithSchema}
-          onSubmit={handleProductSubmit}
-          title="Product Information"
-          subtitle="Add a new product with auto-generated validation"
           columns={2}
+          config={productFormConfigWithSchema}
           layout="grid"
           showResetButton={true}
+          subtitle="Add a new product with auto-generated validation"
+          title="Product Information"
+          onSubmit={handleProductSubmit}
         />
       </section>
 
@@ -225,8 +262,8 @@ export default function DynamicFormDemo() {
               Conditional Fields
             </h3>
             <p className="text-sm text-gray-600">
-              Phone field appears only when "Phone" or "Both" contact methods
-              are selected.
+              Phone field appears only when &quot;Phone&quot; or
+              &quot;Both&quot; contact methods are selected.
             </p>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">

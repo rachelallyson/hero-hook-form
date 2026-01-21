@@ -80,6 +80,7 @@ function CoercedSlider<TFieldValues extends FieldValues>(props: {
       isDisabled={disabled}
       isInvalid={Boolean(errorMessage)}
       label={label}
+      name={field.name}
       value={field.value ?? 0}
       onBlur={field.onBlur}
       onValueChange={field.onChange}

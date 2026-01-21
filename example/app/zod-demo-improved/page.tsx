@@ -91,8 +91,8 @@ export default function ZodDemoImproved() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Zod Form Demo (Improved)</h1>
         <p className="text-gray-600">
-          This form uses helper functions to avoid repetitive "as const"
-          assertions.
+          This form uses helper functions to avoid repetitive &quot;as
+          const&quot; assertions.
         </p>
       </div>
 
@@ -101,12 +101,12 @@ export default function ZodDemoImproved() {
           fields: contactFields,
           schema: contactSchema,
         }}
-        onSubmit={handleSubmit}
-        title="Contact Form"
-        subtitle="Fill out the form below and we'll get back to you"
+        resetButtonText="Clear Form"
         showResetButton={true}
         submitButtonText="Send Message"
-        resetButtonText="Clear Form"
+        subtitle="Fill out the form below and we'll get back to you"
+        title="Contact Form"
+        onSubmit={handleSubmit}
       />
     </div>
   );

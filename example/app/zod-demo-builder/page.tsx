@@ -20,75 +20,51 @@ const contactSchema = z.object({
 
 type ContactFormData = z.infer<typeof contactSchema>;
 
-// Builder pattern for maximum flexibility and type safety
-class FormFieldBuilder<T> {
-  private fields: any[] = [];
-
-  input(name: keyof T, label: string, props?: any) {
-    this.fields.push({
-      label,
-      name,
-      type: "input",
-      ...(props && { inputProps: props }),
-    });
-
-    return this;
-  }
-
-  textarea(name: keyof T, label: string, props?: any) {
-    this.fields.push({
-      label,
-      name,
-      type: "textarea",
-      ...(props && { textareaProps: props }),
-    });
-
-    return this;
-  }
-
-  select(name: keyof T, label: string, options: any[]) {
-    this.fields.push({
-      label,
-      name,
-      options,
-      type: "select",
-    });
-
-    return this;
-  }
-
-  checkbox(name: keyof T, label: string) {
-    this.fields.push({
-      label,
-      name,
-      type: "checkbox",
-    });
-
-    return this;
-  }
-
-  build() {
-    return this.fields;
-  }
-}
-
 // Super clean and fluent API!
 const contactFields = createAdvancedBuilder<ContactFormData>()
-  .field("input", "firstName", "First Name")
-  .field("input", "lastName", "Last Name")
-  .field("input", "email", "Email", { type: "email" })
-  .field("input", "phone", "Phone", { type: "tel" })
-  .field("textarea", "message", "Message", {
-    placeholder: "Tell us about your project...",
+  .field({ type: "input", name: "firstName", label: "First Name" })
+  .field({ type: "input", name: "lastName", label: "Last Name" })
+  .field({
+    type: "input",
+    name: "email",
+    label: "Email",
+    props: { type: "email" },
   })
-  .field("select", "country", "Country", [
-    { label: "Select a country", value: "" },
-    { label: "United States", value: "us" },
-    { label: "Canada", value: "ca" },
-    { label: "United Kingdom", value: "uk" },
-  ])
-  .field("checkbox", "newsletter", "Subscribe to newsletter")
-  .field("checkbox", "terms", "I agree to the terms and conditions")
+  .field({
+    type: "input",
+    name: "phone",
+    label: "Phone",
+    props: { type: "tel" },
+  })
+  .field({
+    type: "textarea",
+    name: "message",
+    label: "Message",
+    props: {
+      placeholder: "Tell us about your project...",
+    },
+  })
+  .field({
+    type: "select",
+    name: "country",
+    label: "Country",
+    options: [
+      { label: "Select a country", value: "" },
+      { label: "United States", value: "us" },
+      { label: "Canada", value: "ca" },
+      { label: "United Kingdom", value: "uk" },
+    ],
+  })
+  .field({
+    type: "checkbox",
+    name: "newsletter",
+    label: "Subscribe to newsletter",
+  })
+  .field({
+    type: "checkbox",
+    name: "terms",
+    label: "I agree to the terms and conditions",
+  })
   .build();
 
 export default function ZodDemoBuilder() {
@@ -115,12 +91,12 @@ export default function ZodDemoBuilder() {
           fields: contactFields,
           schema: contactSchema,
         }}
-        onSubmit={handleSubmit}
-        title="Contact Form"
-        subtitle="Fill out the form below and we'll get back to you"
+        resetButtonText="Clear Form"
         showResetButton={true}
         submitButtonText="Send Message"
-        resetButtonText="Clear Form"
+        subtitle="Fill out the form below and we'll get back to you"
+        title="Contact Form"
+        onSubmit={handleSubmit}
       />
     </div>
   );

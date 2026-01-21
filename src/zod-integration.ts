@@ -32,8 +32,20 @@ function createZodResolver<T extends FieldValues>(
           errors[path] = { message: err.message };
         });
 
+        // Convert Zod errors to FieldErrors format
+        // Zod errors are structured differently, so we need to transform them
+        // We build the errors object and then type it as FieldErrors<T>
+        const fieldErrors: Record<string, { message: string }> = {};
+
+        Object.entries(errors).forEach(([path, error]) => {
+          fieldErrors[path] = error;
+        });
+
         return {
-          errors: errors as FieldErrors<T>,
+          // TypeScript can't prove all paths are valid field paths, but at runtime they will be
+          // because Zod validates against the schema which matches T
+          // This is a necessary type assertion due to TypeScript's limitations with dynamic paths
+          errors: fieldErrors as FieldErrors<T>,
           values: {} as Record<string, never>,
         };
       }
@@ -62,13 +74,11 @@ export function useZodForm<TFieldValues extends FieldValues>(
 export function createZodFormConfig<TFieldValues extends FieldValues>(
   schema: z.ZodSchema<TFieldValues>,
   fields: ZodFormFieldConfig<TFieldValues>[],
-  defaultValues?: Partial<TFieldValues>,
+  defaultValues?: DefaultValues<TFieldValues>,
 ): ZodFormConfig<TFieldValues> {
   return {
     fields,
     schema,
-    ...(defaultValues && {
-      defaultValues: defaultValues as DefaultValues<TFieldValues>,
-    }),
+    ...(defaultValues && { defaultValues }),
   };
 }

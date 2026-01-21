@@ -32,6 +32,7 @@ export {
   createAdvancedBuilder,
   createFieldArrayItemBuilder,
   createFieldArrayBuilder,
+  type FieldCreationParams,
 } from "./AdvancedFormBuilder";
 export {
   createTypeInferredBuilder,

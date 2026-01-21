@@ -47,7 +47,8 @@ export default function Home() {
       title: "Configurable Form Demo",
     },
     {
-      description: "Next.js Server Actions integration with authentication patterns",
+      description:
+        "Next.js Server Actions integration with authentication patterns",
       href: "/server-action-demo",
       title: "Server Action Demo",
     },

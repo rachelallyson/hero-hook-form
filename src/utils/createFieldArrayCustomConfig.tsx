@@ -116,11 +116,11 @@ export function createFieldArrayCustomConfig<TFieldValues extends FieldValues>(
   return {
     className,
     label,
-    name: name as any, // ArrayPath is compatible with Path for CustomFieldConfig
+    name, // ArrayPath is now accepted by CustomFieldConfig
     render: ({ control, errors, form }) => {
       const { append, fields, move, remove } = useFieldArray({
         control,
-        name: name as any,
+        name, // ArrayPath is the correct type for useFieldArray
       });
 
       const canAdd = fields.length < max;
@@ -131,7 +131,9 @@ export function createFieldArrayCustomConfig<TFieldValues extends FieldValues>(
           if (defaultItem) {
             append(defaultItem());
           } else {
-            append({} as any);
+            // When defaultItem is not provided, we can't know the item type at compile time
+            // This is a runtime decision - the form will handle the empty object
+            append({} as never);
           }
         }
       };
@@ -168,14 +170,9 @@ export function createFieldArrayCustomConfig<TFieldValues extends FieldValues>(
                     canMoveUp,
                     control,
                     errors,
-                    field: field as FieldArrayWithId<
-                      TFieldValues,
-                      ArrayPath<TFieldValues>
-                    >,
-                    fields: fields as FieldArrayWithId<
-                      TFieldValues,
-                      ArrayPath<TFieldValues>
-                    >[],
+                    // fields from useFieldArray are already typed correctly
+                    field,
+                    fields,
                     form,
                     index,
                     onMoveDown: () => handleMoveDown(index),

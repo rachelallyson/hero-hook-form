@@ -5,9 +5,7 @@ import { z } from "zod";
 import {
   ZodForm,
   createAdvancedBuilder,
-  FormStatus,
   FormToast,
-  useEnhancedFormState,
 } from "@rachelallyson/hero-hook-form";
 
 const contactFormSchema = z.object({
@@ -21,21 +19,45 @@ const contactFormSchema = z.object({
 type ContactForm = z.infer<typeof contactFormSchema>;
 
 const contactFormFields = createAdvancedBuilder<ContactForm>()
-  .field("input", "name", "Full Name", { placeholder: "Enter your full name" })
-  .field("input", "email", "Email Address", {
-    placeholder: "Enter your email",
-    type: "email",
+  .field({
+    type: "input",
+    name: "name",
+    label: "Full Name",
+    props: { placeholder: "Enter your full name" },
   })
-  .field("select", "priority", "Priority", [
-    { label: "Low", value: "low" },
-    { label: "Medium", value: "medium" },
-    { label: "High", value: "high" },
-  ])
-  .field("textarea", "message", "Message", {
-    placeholder: "Enter your message",
-    rows: 4,
+  .field({
+    type: "input",
+    name: "email",
+    label: "Email Address",
+    props: {
+      placeholder: "Enter your email",
+      type: "email",
+    },
   })
-  .field("checkbox", "subscribe", "Subscribe to newsletter")
+  .field({
+    type: "select",
+    name: "priority",
+    label: "Priority",
+    options: [
+      { label: "Low", value: "low" },
+      { label: "Medium", value: "medium" },
+      { label: "High", value: "high" },
+    ],
+  })
+  .field({
+    type: "textarea",
+    name: "message",
+    label: "Message",
+    props: {
+      placeholder: "Enter your message",
+      rows: 4,
+    },
+  })
+  .field({
+    type: "checkbox",
+    name: "subscribe",
+    label: "Subscribe to newsletter",
+  })
   .build();
 
 export default function EnhancedStateDemo() {
@@ -95,12 +117,12 @@ export default function EnhancedStateDemo() {
           ).map((position) => (
             <button
               key={position}
-              onClick={() => setToastPosition(position)}
               className={`px-3 py-1 rounded text-sm ${
                 toastPosition === position
                   ? "bg-blue-500 text-white"
                   : "bg-white text-gray-700 border"
               }`}
+              onClick={() => setToastPosition(position)}
             >
               {position.replace("-", " ")}
             </button>
@@ -111,19 +133,19 @@ export default function EnhancedStateDemo() {
       {/* Main Form */}
       <div className="bg-white rounded-lg shadow-lg p-6">
         <ZodForm
+          columns={1}
           config={{
             fields: contactFormFields,
             schema: contactFormSchema,
+            errorDisplay: "inline",
           }}
-          onSubmit={handleSubmit}
-          onSuccess={handleSuccess}
-          onError={handleError}
-          title="Contact Us"
-          subtitle="Send us a message with enhanced state management"
-          columns={1}
           layout="vertical"
           showResetButton={true}
-          errorDisplay="inline"
+          subtitle="Send us a message with enhanced state management"
+          title="Contact Us"
+          onError={handleError}
+          onSubmit={handleSubmit}
+          onSuccess={handleSuccess}
         />
       </div>
 
@@ -173,6 +195,8 @@ export default function EnhancedStateDemo() {
       {/* Toast Demo */}
       {showToast && (
         <FormToast
+          duration={5000}
+          position={toastPosition}
           state={{
             dirtyFields: new Set<string>(),
             errorCount: 0,
@@ -187,8 +211,6 @@ export default function EnhancedStateDemo() {
             touchedFields: new Set<string>(),
           }}
           onDismiss={() => setShowToast(false)}
-          position={toastPosition}
-          duration={5000}
         />
       )}
 

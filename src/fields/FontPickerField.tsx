@@ -186,6 +186,8 @@ export function FontPickerField<
   }
 
   // Use the font picker package
+  // Controller accepts control structurally, so compatible control types from
+  // different react-hook-form versions will work at runtime
   return (
     <Controller<TFieldValues, Path<TFieldValues>>
       control={control}

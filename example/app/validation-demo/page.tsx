@@ -5,10 +5,7 @@ import { z } from "zod";
 import {
   ZodForm,
   createAdvancedBuilder,
-  crossFieldValidation,
-  validationPatterns,
   asyncValidation,
-  errorMessages,
 } from "@rachelallyson/hero-hook-form";
 
 // Enhanced validation schema with cross-field validation
@@ -68,60 +65,107 @@ const userRegistrationSchema = z
 type UserRegistrationForm = z.infer<typeof userRegistrationSchema>;
 
 const userRegistrationFields = createAdvancedBuilder<UserRegistrationForm>()
-  .field("input", "firstName", "First Name", {
-    placeholder: "Enter your first name",
+  .field({
+    type: "input",
+    name: "firstName",
+    label: "First Name",
+    props: {
+      placeholder: "Enter your first name",
+    },
   })
-  .field("input", "lastName", "Last Name", {
-    placeholder: "Enter your last name",
+  .field({
+    type: "input",
+    name: "lastName",
+    label: "Last Name",
+    props: {
+      placeholder: "Enter your last name",
+    },
   })
-  .field("input", "email", "Email Address", { placeholder: "Enter your email" })
-  .field("input", "password", "Password", {
-    placeholder: "Enter a strong password",
-    type: "password",
+  .field({
+    type: "input",
+    name: "email",
+    label: "Email Address",
+    props: { placeholder: "Enter your email" },
   })
-  .field("input", "confirmPassword", "Confirm Password", {
-    placeholder: "Confirm your password",
-    type: "password",
+  .field({
+    type: "input",
+    name: "password",
+    label: "Password",
+    props: {
+      placeholder: "Enter a strong password",
+      type: "password",
+    },
   })
-  .field("input", "phone", "Phone Number", {
-    placeholder: "(XXX) XXX-XXXX",
-    type: "tel",
+  .field({
+    type: "input",
+    name: "confirmPassword",
+    label: "Confirm Password",
+    props: {
+      placeholder: "Confirm your password",
+      type: "password",
+    },
   })
-  .field("input", "birthDate", "Birth Date", {
-    placeholder: "MM/DD/YYYY",
+  .field({
+    type: "input",
+    name: "phone",
+    label: "Phone Number",
+    props: {
+      placeholder: "(XXX) XXX-XXXX",
+      type: "tel",
+    },
   })
-  .field("input", "website", "Website", {
-    placeholder: "https://example.com",
-    type: "url",
+  .field({
+    type: "input",
+    name: "birthDate",
+    label: "Birth Date",
+    props: {
+      placeholder: "MM/DD/YYYY",
+    },
   })
-  .field("input", "creditCard", "Credit Card", {
-    placeholder: "1234 5678 9012 3456",
+  .field({
+    type: "input",
+    name: "website",
+    label: "Website",
+    props: {
+      placeholder: "https://example.com",
+      type: "url",
+    },
   })
-  .field("input", "ssn", "Social Security Number", {
-    placeholder: "XXX-XX-XXXX",
+  .field({
+    type: "input",
+    name: "creditCard",
+    label: "Credit Card",
+    props: {
+      placeholder: "1234 5678 9012 3456",
+    },
   })
-  .field("input", "zipCode", "ZIP Code", {
-    placeholder: "12345 or 12345-6789",
+  .field({
+    type: "input",
+    name: "ssn",
+    label: "Social Security Number",
+    props: {
+      placeholder: "XXX-XX-XXXX",
+    },
   })
-  .field("checkbox", "terms", "I agree to the Terms of Service", {
-    required: true,
+  .field({
+    type: "input",
+    name: "zipCode",
+    label: "ZIP Code",
+    props: {
+      placeholder: "12345 or 12345-6789",
+    },
   })
-  .field("checkbox", "newsletter", "Subscribe to newsletter")
-  .build();
-
-// Async validation demo
-const asyncValidationSchema = z.object({
-  email: z.string().email("Please enter a valid email"),
-  username: z.string().min(3, "Username must be at least 3 characters"),
-});
-
-type AsyncValidationForm = z.infer<typeof asyncValidationSchema>;
-
-const asyncValidationFields = createAdvancedBuilder<AsyncValidationForm>()
-  .field("input", "username", "Username", {
-    placeholder: "Enter your username",
+  .field({
+    type: "checkbox",
+    name: "terms",
+    label: "I agree to the Terms of Service",
+    props: {},
   })
-  .field("input", "email", "Email Address", { placeholder: "Enter your email" })
+  .field({
+    type: "checkbox",
+    name: "newsletter",
+    label: "Subscribe to newsletter",
+  })
   .build();
 
 export default function ValidationDemo() {
@@ -132,12 +176,6 @@ export default function ValidationDemo() {
 
   const handleUserSubmit = async (data: UserRegistrationForm) => {
     console.log("User registration submitted:", data);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-  };
-
-  const handleAsyncSubmit = async (data: AsyncValidationForm) => {
-    console.log("Async validation form submitted:", data);
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1000));
   };
@@ -162,7 +200,7 @@ export default function ValidationDemo() {
           return rest;
         });
       }
-    } catch (error) {
+    } catch (_error) {
       setAsyncErrors((prev) => ({
         ...prev,
         username: "Error checking username availability",
@@ -191,7 +229,7 @@ export default function ValidationDemo() {
           return rest;
         });
       }
-    } catch (error) {
+    } catch {
       setAsyncErrors((prev) => ({
         ...prev,
         email: "Error checking email availability",
@@ -275,16 +313,16 @@ export default function ValidationDemo() {
         </p>
 
         <ZodForm
+          columns={2}
           config={{
             fields: userRegistrationFields,
             schema: userRegistrationSchema,
           }}
-          onSubmit={handleUserSubmit}
-          title="Create Account"
-          subtitle="Complete registration with comprehensive validation"
-          columns={2}
           layout="grid"
           showResetButton={true}
+          subtitle="Complete registration with comprehensive validation"
+          title="Create Account"
+          onSubmit={handleUserSubmit}
         />
       </div>
 
@@ -304,10 +342,10 @@ export default function ValidationDemo() {
               Username
             </label>
             <input
-              type="text"
-              placeholder="Enter your username"
-              onChange={(e) => handleUsernameChange(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter your username"
+              type="text"
+              onChange={(e) => handleUsernameChange(e.target.value)}
             />
             {asyncErrors.username && (
               <p className="text-red-600 text-sm mt-1">
@@ -326,10 +364,10 @@ export default function ValidationDemo() {
               Email
             </label>
             <input
-              type="email"
-              placeholder="Enter your email"
-              onChange={(e) => handleEmailChange(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter your email"
+              type="email"
+              onChange={(e) => handleEmailChange(e.target.value)}
             />
             {asyncErrors.email && (
               <p className="text-red-600 text-sm mt-1">{asyncErrors.email}</p>

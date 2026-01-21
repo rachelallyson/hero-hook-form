@@ -99,11 +99,16 @@ function CoercedFileInput<TFieldValues extends FieldValues>(props: {
       isInvalid={Boolean(errorMessage)}
       label={label}
       multiple={multiple}
+      name={field.name}
       type="file"
       value={field.value ? "" : ""} // File inputs don't use value prop
       onBlur={field.onBlur}
       onChange={(e) => {
-        const target = e.target as HTMLInputElement;
+        // Type guard: ensure target is HTMLInputElement
+        if (!(e.target instanceof HTMLInputElement)) {
+          return;
+        }
+        const target = e.target;
 
         field.onChange(target.files);
       }}

@@ -77,6 +77,7 @@ function CoercedDateInput<TFieldValues extends FieldValues>(props: {
       isDisabled={disabled}
       isInvalid={Boolean(errorMessage)}
       label={label}
+      name={field.name}
       value={field.value ?? null}
       onBlur={field.onBlur}
       onChange={field.onChange}

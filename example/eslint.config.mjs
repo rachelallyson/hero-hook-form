@@ -1,23 +1,10 @@
 import { defineConfig, globalIgnores } from "eslint/config";
-import { fixupConfigRules, fixupPluginRules } from "@eslint/compat";
-import react from "eslint-plugin-react";
+import { fixupPluginRules } from "@eslint/compat";
 import unusedImports from "eslint-plugin-unused-imports";
-import _import from "eslint-plugin-import";
-import typescriptEslint from "@typescript-eslint/eslint-plugin";
-import jsxA11Y from "eslint-plugin-jsx-a11y";
 import prettier from "eslint-plugin-prettier";
 import globals from "globals";
 import tsParser from "@typescript-eslint/parser";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-
-import { FlatCompat } from "@eslint/eslintrc";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
+import nextConfig from "eslint-config-next";
 
 export default defineConfig([
   globalIgnores([
@@ -42,17 +29,12 @@ export default defineConfig([
     "!**/react-shim.js",
     "!**/tsup.config.ts",
   ]),
-  {
-    extends: fixupConfigRules(
-      compat.extends(
-        "plugin:react/recommended",
-        "plugin:prettier/recommended",
-        "plugin:react-hooks/recommended",
-        "plugin:jsx-a11y/recommended",
-        "plugin:@next/next/recommended",
-      ),
-    ),
 
+  // Next.js recommended config (includes React, import, and jsx-a11y rules)
+  ...nextConfig,
+
+  // Additional configuration for TypeScript files
+  {
     files: ["**/*.ts", "**/*.tsx"],
 
     languageOptions: {
@@ -75,23 +57,11 @@ export default defineConfig([
     },
 
     plugins: {
-      "@typescript-eslint": typescriptEslint,
-      import: fixupPluginRules(_import),
-      "jsx-a11y": fixupPluginRules(jsxA11Y),
       prettier: fixupPluginRules(prettier),
-      react: fixupPluginRules(react),
       "unused-imports": unusedImports,
     },
 
     rules: {
-      "@typescript-eslint/no-unused-vars": [
-        "warn",
-        {
-          args: "after-used",
-          argsIgnorePattern: "^_.*?$",
-          ignoreRestSiblings: false,
-        },
-      ],
       "import/order": [
         "warn",
         {
@@ -117,8 +87,15 @@ export default defineConfig([
       ],
       "jsx-a11y/click-events-have-key-events": "warn",
       "jsx-a11y/interactive-supports-focus": "warn",
-      "no-console": "warn",
-      "no-unused-vars": "off",
+      "no-console": "off", // Allow console statements in demo files for educational purposes
+      "no-unused-vars": [
+        "error",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_"
+        }
+      ],
       "padding-line-between-statements": [
         "warn",
         {
@@ -149,15 +126,10 @@ export default defineConfig([
       ],
       "react/jsx-uses-react": "off",
       "react/prop-types": "off",
-
       "react/react-in-jsx-scope": "off",
-
       "react/self-closing-comp": "warn",
-
-      "react-hooks/exhaustive-deps": "off",
-
+      "react-hooks/exhaustive-deps": "error",
       "unused-imports/no-unused-imports": "warn",
-
       "unused-imports/no-unused-vars": "off",
     },
 

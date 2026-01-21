@@ -1,20 +1,13 @@
 "use client";
 
 import React from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-
 import {
   createAdvancedBuilder,
   createTypeInferredBuilder,
   createField,
   createFieldArrayBuilder,
   ZodForm,
-  FormStatus,
-  useEnhancedFormState,
-  useDebouncedValidation,
-  validationPatterns,
-  crossFieldValidation,
 } from "@rachelallyson/hero-hook-form";
 
 // Enhanced form with all new features
@@ -37,11 +30,10 @@ const enhancedFormSchema = z
     // Basic fields
     name: z.string().min(2, "Name must be at least 2 characters"),
 
-    
     confirmPassword: z.string(),
 
     // Cross-field validation
-password: z.string().min(8, "Password must be at least 8 characters"),
+    password: z.string().min(8, "Password must be at least 8 characters"),
 
     phone: z.string().optional(),
 
@@ -71,34 +63,66 @@ const EnhancedFeaturesPage = () => {
   // Advanced Form Builder
   const advancedBuilder = createAdvancedBuilder<EnhancedFormData>();
   const advancedFields = advancedBuilder
-    .field("input", "name", "Full Name", {
-      placeholder: "Enter your full name",
-      required: true,
+    .field({
+      type: "input",
+      name: "name",
+      label: "Full Name",
+      props: {
+        placeholder: "Enter your full name",
+      },
     })
-    .field("input", "email", "Email Address", {
-      placeholder: "Enter your email",
-      required: true,
-      type: "email",
+    .field({
+      type: "input",
+      name: "email",
+      label: "Email Address",
+      props: {
+        placeholder: "Enter your email",
+        type: "email",
+      },
     })
-    .field("input", "phone", "Phone Number", {
-      placeholder: "Enter your phone number",
-      type: "tel",
+    .field({
+      type: "input",
+      name: "phone",
+      label: "Phone Number",
+      props: {
+        placeholder: "Enter your phone number",
+        type: "tel",
+      },
     })
-    .field("switch", "showAdvanced", "Show Advanced Options")
+    .field({
+      type: "switch",
+      name: "showAdvanced",
+      label: "Show Advanced Options",
+    })
     .conditionalField(
       "advancedField",
       (data) => data.showAdvanced === true,
-      createField("input", "advancedField", "Advanced Field", {
-        placeholder: "This field appears when switch is on",
+      createField({
+        type: "input",
+        name: "advancedField",
+        label: "Advanced Field",
+        props: {
+          placeholder: "This field appears when switch is on",
+        },
       }),
     )
     .fieldArray(
       "items",
       "Items",
-      createFieldArrayBuilder("items")
-        .field("input", "name", "Item Name", { placeholder: "Enter item name" })
-        .field("input", "value", "Item Value", {
-          placeholder: "Enter item value",
+      createFieldArrayBuilder<EnhancedFormData, "items">("items")
+        .field({
+          type: "input",
+          name: "name",
+          label: "Item Name",
+          props: { placeholder: "Enter item name" },
+        })
+        .field({
+          type: "input",
+          name: "value",
+          label: "Item Value",
+          props: {
+            placeholder: "Enter item value",
+          },
         })
         .build(),
       {
@@ -108,30 +132,52 @@ const EnhancedFeaturesPage = () => {
         removeButtonText: "Remove",
       },
     )
-    .field("switch", "showSection", "Show Dynamic Section")
+    .field({
+      type: "switch",
+      name: "showSection",
+      label: "Show Dynamic Section",
+    })
     .conditionalField(
       "sectionField1",
       (data) => data.showSection === true,
-      createField("input", "sectionField1", "Section Field 1", {
-        placeholder: "Enter section field 1",
+      createField({
+        type: "input",
+        name: "sectionField1",
+        label: "Section Field 1",
+        props: {
+          placeholder: "Enter section field 1",
+        },
       }),
     )
     .conditionalField(
       "sectionField2",
       (data) => data.showSection === true,
-      createField("input", "sectionField2", "Section Field 2", {
-        placeholder: "Enter section field 2",
+      createField({
+        type: "input",
+        name: "sectionField2",
+        label: "Section Field 2",
+        props: {
+          placeholder: "Enter section field 2",
+        },
       }),
     )
-    .field("input", "password", "Password", {
-      placeholder: "Enter your password",
-      required: true,
-      type: "password",
+    .field({
+      type: "input",
+      name: "password",
+      label: "Password",
+      props: {
+        placeholder: "Enter your password",
+        type: "password",
+      },
     })
-    .field("input", "confirmPassword", "Confirm Password", {
-      placeholder: "Confirm your password",
-      required: true,
-      type: "password",
+    .field({
+      type: "input",
+      name: "confirmPassword",
+      label: "Confirm Password",
+      props: {
+        placeholder: "Confirm your password",
+        type: "password",
+      },
     })
     .build();
 
@@ -190,14 +236,14 @@ const EnhancedFeaturesPage = () => {
         {/* Form status would go here */}
 
         <ZodForm
+          className="space-y-4"
           config={{
             fields: advancedFields,
             schema: enhancedFormSchema,
           }}
-          onSubmit={handleSubmit}
-          onError={(error) => console.error("Form error:", error)}
           submitButtonText="Submit Enhanced Form"
-          className="space-y-4"
+          onError={(error) => console.error("Form error:", error)}
+          onSubmit={handleSubmit}
         />
       </div>
 
@@ -211,16 +257,16 @@ const EnhancedFeaturesPage = () => {
         </p>
 
         <ZodForm
+          className="space-y-4"
           config={typeInferredConfig}
+          submitButtonText="Submit Type-Inferred Form"
+          onError={(error) => console.error("Type-inferred form error:", error)}
           onSubmit={(data) => {
             console.log("Type-inferred form submitted:", data);
             alert(
               `Type-inferred form submitted: ${JSON.stringify(data, null, 2)}`,
             );
           }}
-          onError={(error) => console.error("Type-inferred form error:", error)}
-          submitButtonText="Submit Type-Inferred Form"
-          className="space-y-4"
         />
       </div>
 
@@ -237,9 +283,9 @@ const EnhancedFeaturesPage = () => {
               Debounced Email Validation
             </label>
             <input
-              type="email"
-              placeholder="Type to see debounced validation"
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Type to see debounced validation"
+              type="email"
               onChange={(e) => console.log("Email validation:", e.target.value)}
             />
           </div>

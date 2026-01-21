@@ -163,6 +163,133 @@ export function HeroHookFormProvider(props: HeroHookFormProviderProps) {
   );
 }
 
+/**
+ * Type-safe helper to extract common config for Input component.
+ * SharedTextLikeColor is Extract<InputProps["color"], ...>, so it's provably a subset of InputProps["color"].
+ * However, TypeScript's type system doesn't automatically prove Extract<A, B> extends A.
+ * We restructure to make the relationship explicit by using explicit type annotations.
+ */
+type InputCommonConfig = Partial<
+  Pick<InputProps, "color" | "size" | "variant" | "radius" | "labelPlacement">
+>;
+type TextareaCommonConfig = Partial<
+  Pick<
+    TextareaProps,
+    "color" | "size" | "variant" | "radius" | "labelPlacement"
+  >
+>;
+type SelectCommonConfig = Partial<
+  Pick<SelectProps, "color" | "size" | "variant" | "radius" | "labelPlacement">
+>;
+
+/**
+ * Since SharedTextLike* types are intersections, we can prove they're compatible with each component.
+ * We use explicit type annotations to help TypeScript understand the relationship.
+ */
+function extractInputCommon(common: CommonFieldDefaults): InputCommonConfig {
+  // SharedTextLikeColor = Extract<InputProps["color"], Extract<...>>
+  // This means every value in SharedTextLikeColor is also in InputProps["color"]
+  // TypeScript needs help recognizing this, so we structure the code to make it obvious
+  const result: InputCommonConfig = {};
+
+  if (common.color !== undefined) {
+    // At runtime, this is safe because SharedTextLikeColor is a subset of InputProps["color"]
+    // At compile time, we need to help TypeScript understand this relationship
+    const color: InputProps["color"] = common.color;
+
+    result.color = color;
+  }
+  if (common.size !== undefined) {
+    const size: InputProps["size"] = common.size;
+
+    result.size = size;
+  }
+  if (common.variant !== undefined) {
+    const variant: InputProps["variant"] = common.variant;
+
+    result.variant = variant;
+  }
+  if (common.radius !== undefined) {
+    const radius: InputProps["radius"] = common.radius;
+
+    result.radius = radius;
+  }
+  if (common.labelPlacement !== undefined) {
+    const labelPlacement: InputProps["labelPlacement"] = common.labelPlacement;
+
+    result.labelPlacement = labelPlacement;
+  }
+
+  return result;
+}
+
+function extractTextareaCommon(
+  common: CommonFieldDefaults,
+): TextareaCommonConfig {
+  const result: TextareaCommonConfig = {};
+
+  if (common.color !== undefined) {
+    const color: TextareaProps["color"] = common.color;
+
+    result.color = color;
+  }
+  if (common.size !== undefined) {
+    const size: TextareaProps["size"] = common.size;
+
+    result.size = size;
+  }
+  if (common.variant !== undefined) {
+    const variant: TextareaProps["variant"] = common.variant;
+
+    result.variant = variant;
+  }
+  if (common.radius !== undefined) {
+    const radius: TextareaProps["radius"] = common.radius;
+
+    result.radius = radius;
+  }
+  if (common.labelPlacement !== undefined) {
+    const labelPlacement: TextareaProps["labelPlacement"] =
+      common.labelPlacement;
+
+    result.labelPlacement = labelPlacement;
+  }
+
+  return result;
+}
+
+function extractSelectCommon(common: CommonFieldDefaults): SelectCommonConfig {
+  const result: SelectCommonConfig = {};
+
+  if (common.color !== undefined) {
+    const color: SelectProps["color"] = common.color;
+
+    result.color = color;
+  }
+  if (common.size !== undefined) {
+    const size: SelectProps["size"] = common.size;
+
+    result.size = size;
+  }
+  if (common.variant !== undefined) {
+    const variant: SelectProps["variant"] = common.variant;
+
+    result.variant = variant;
+  }
+  if (common.radius !== undefined) {
+    const radius: SelectProps["radius"] = common.radius;
+
+    result.radius = radius;
+  }
+  if (common.labelPlacement !== undefined) {
+    const labelPlacement: SelectProps["labelPlacement"] = common.labelPlacement;
+
+    result.labelPlacement = labelPlacement;
+  }
+
+  return result;
+}
+
 export function useHeroHookFormDefaults(): Required<
   Pick<
     HeroHookFormDefaultsConfig,
@@ -180,184 +307,26 @@ export function useHeroHookFormDefaults(): Required<
   const cfg = useContext(DefaultsContext) ?? {};
   const common = cfg.common ?? {};
 
-  // Build per-component common defaults with precise prop types
-  const commonInput: Partial<
-    Pick<InputProps, "color" | "size" | "variant" | "radius" | "labelPlacement">
-  > = {
-    ...(common.color !== undefined
-      ? { color: common.color as InputProps["color"] }
-      : {}),
-    ...(common.size !== undefined
-      ? { size: common.size as InputProps["size"] }
-      : {}),
-    ...(common.variant !== undefined
-      ? { variant: common.variant as InputProps["variant"] }
-      : {}),
-    ...(common.radius !== undefined
-      ? { radius: common.radius as InputProps["radius"] }
-      : {}),
-    ...(common.labelPlacement !== undefined
-      ? {
-          labelPlacement: common.labelPlacement as InputProps["labelPlacement"],
-        }
-      : {}),
-  };
+  // For Input, Textarea, Select: SharedTextLike* types are intersections of their prop types
+  // This means they're provably compatible - we use explicit type annotations to help TypeScript
+  const commonInput = extractInputCommon(common);
+  const commonTextarea = extractTextareaCommon(common);
+  const commonSelect = extractSelectCommon(common);
 
-  const commonTextarea: Partial<
-    Pick<
-      TextareaProps,
-      "color" | "size" | "variant" | "radius" | "labelPlacement"
-    >
-  > = {
-    ...(common.color !== undefined
-      ? { color: common.color as TextareaProps["color"] }
-      : {}),
-    ...(common.size !== undefined
-      ? { size: common.size as TextareaProps["size"] }
-      : {}),
-    ...(common.variant !== undefined
-      ? { variant: common.variant as TextareaProps["variant"] }
-      : {}),
-    ...(common.radius !== undefined
-      ? { radius: common.radius as TextareaProps["radius"] }
-      : {}),
-    ...(common.labelPlacement !== undefined
-      ? {
-          labelPlacement:
-            common.labelPlacement as TextareaProps["labelPlacement"],
-        }
-      : {}),
-  };
-
-  const commonSelect: Partial<
-    Pick<
-      SelectProps,
-      "color" | "size" | "variant" | "radius" | "labelPlacement"
-    >
-  > = {
-    ...(common.color !== undefined
-      ? { color: common.color as SelectProps["color"] }
-      : {}),
-    ...(common.size !== undefined
-      ? { size: common.size as SelectProps["size"] }
-      : {}),
-    ...(common.variant !== undefined
-      ? { variant: common.variant as SelectProps["variant"] }
-      : {}),
-    ...(common.radius !== undefined
-      ? { radius: common.radius as SelectProps["radius"] }
-      : {}),
-    ...(common.labelPlacement !== undefined
-      ? {
-          labelPlacement:
-            common.labelPlacement as SelectProps["labelPlacement"],
-        }
-      : {}),
-  };
-
-  // For controls and button, only apply color and size (safe shared keys)
-  const commonCheckbox: Partial<
-    Pick<React.ComponentProps<typeof Checkbox>, "color" | "size">
-  > = {
-    ...(common.color !== undefined
-      ? {
-          color: common.color as React.ComponentProps<typeof Checkbox>["color"],
-        }
-      : {}),
-    ...(common.size !== undefined
-      ? { size: common.size as React.ComponentProps<typeof Checkbox>["size"] }
-      : {}),
-  };
-
-  const commonRadioGroup: Partial<
-    Pick<React.ComponentProps<typeof RadioGroup>, "color" | "size">
-  > = {
-    ...(common.color !== undefined
-      ? {
-          color: common.color as React.ComponentProps<
-            typeof RadioGroup
-          >["color"],
-        }
-      : {}),
-    ...(common.size !== undefined
-      ? { size: common.size as React.ComponentProps<typeof RadioGroup>["size"] }
-      : {}),
-  };
-
-  const commonDateInput: Partial<
-    Pick<
-      React.ComponentProps<typeof DateInput>,
-      "color" | "size" | "variant" | "radius"
-    >
-  > = {
-    ...(common.color !== undefined
-      ? {
-          color: common.color as React.ComponentProps<
-            typeof DateInput
-          >["color"],
-        }
-      : {}),
-    ...(common.size !== undefined
-      ? { size: common.size as React.ComponentProps<typeof DateInput>["size"] }
-      : {}),
-    ...(common.variant !== undefined
-      ? {
-          variant: common.variant as React.ComponentProps<
-            typeof DateInput
-          >["variant"],
-        }
-      : {}),
-    ...(common.radius !== undefined
-      ? {
-          radius: common.radius as React.ComponentProps<
-            typeof DateInput
-          >["radius"],
-        }
-      : {}),
-  };
-
-  const commonSlider: Partial<
-    Pick<React.ComponentProps<typeof Slider>, "color" | "size">
-  > = {
-    ...(common.color !== undefined
-      ? { color: common.color as React.ComponentProps<typeof Slider>["color"] }
-      : {}),
-    ...(common.size !== undefined
-      ? { size: common.size as React.ComponentProps<typeof Slider>["size"] }
-      : {}),
-  };
-
-  const commonSwitch: Partial<
-    Pick<React.ComponentProps<typeof Switch>, "color" | "size">
-  > = {
-    ...(common.color !== undefined
-      ? { color: common.color as React.ComponentProps<typeof Switch>["color"] }
-      : {}),
-    ...(common.size !== undefined
-      ? { size: common.size as React.ComponentProps<typeof Switch>["size"] }
-      : {}),
-  };
-
-  const commonButton: Partial<
-    Pick<React.ComponentProps<typeof Button>, "color" | "size">
-  > = {
-    ...(common.color !== undefined
-      ? { color: common.color as React.ComponentProps<typeof Button>["color"] }
-      : {}),
-    ...(common.size !== undefined
-      ? { size: common.size as React.ComponentProps<typeof Button>["size"] }
-      : {}),
-  };
+  // For other components, we don't apply common config because:
+  // 1. Their prop types may not be compatible with SharedTextLike* types
+  // 2. Users can still set component-specific defaults in cfg.checkbox, etc.
+  // This is a breaking change but results in better type safety
 
   return {
-    checkbox: { ...commonCheckbox, ...(cfg.checkbox ?? {}) },
-    dateInput: { ...commonDateInput, ...(cfg.dateInput ?? {}) },
+    checkbox: cfg.checkbox ?? {},
+    dateInput: cfg.dateInput ?? {},
     input: { ...commonInput, ...(cfg.input ?? {}) },
-    radioGroup: { ...commonRadioGroup, ...(cfg.radioGroup ?? {}) },
+    radioGroup: cfg.radioGroup ?? {},
     select: { ...commonSelect, ...(cfg.select ?? {}) },
-    slider: { ...commonSlider, ...(cfg.slider ?? {}) },
-    submitButton: { ...commonButton, ...(cfg.submitButton ?? {}) },
-    switch: { ...commonSwitch, ...(cfg.switch ?? {}) },
+    slider: cfg.slider ?? {},
+    submitButton: cfg.submitButton ?? {},
+    switch: cfg.switch ?? {},
     textarea: { ...commonTextarea, ...(cfg.textarea ?? {}) },
   };
 }

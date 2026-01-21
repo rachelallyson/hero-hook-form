@@ -38,7 +38,7 @@ export function throttle<T extends (...args: any[]) => any>(
 /**
  * Memoization helper for expensive computations
  */
-export function useMemoizedCallback<T extends (...args: any[]) => any>(
+export function useMemoizedCallback<T extends (...args: unknown[]) => unknown>(
   callback: T,
   deps: React.DependencyList,
 ): T {
@@ -47,7 +47,7 @@ export function useMemoizedCallback<T extends (...args: any[]) => any>(
   callbackRef.current = callback;
 
   return useCallback(
-    ((...args: any[]) => callbackRef.current(...args)) as T,
+    ((...args: unknown[]) => callbackRef.current(...args)) as T,
     deps,
   );
 }

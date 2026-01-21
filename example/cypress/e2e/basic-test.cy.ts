@@ -58,8 +58,8 @@ describe("Core Form Functionality Tests", () => {
       cy.fillInputByType("email", "jane@example.com");
       cy.fillInputByType("tel", "555-123-4567");
 
-      // Select from dropdowns using helper
-      cy.selectDropdownOption();
+      // Select from dropdowns using package helper
+      cy.selectDropdownByLabel("Country", "United States");
 
       // Submit form using helper
       cy.submitForm();

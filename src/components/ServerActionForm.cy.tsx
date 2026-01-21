@@ -377,6 +377,7 @@ describe("ServerActionForm", () => {
       .parent()
       .find("textarea")
       .type("This is a valid message that is long enough");
+    cy.contains("label", "Subscribe to newsletter").parent().find("input").check();
 
     cy.get("button[type='submit']").click();
 

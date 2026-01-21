@@ -92,8 +92,8 @@ export function ConditionalField<TFieldValues extends FieldValues>({
   // Render the child field when condition is met
   return (
     <div className={className}>
-      <FormField
-        config={field as any}
+      <FormField<TFieldValues>
+        config={field}
         form={form}
         submissionState={{
           error: undefined,

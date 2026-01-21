@@ -1,14 +1,16 @@
 "use client";
 
 import { useCallback, useEffect, useRef } from "react";
-import type { UseFormReturn } from "react-hook-form";
+import type { FieldValues, Path, UseFormReturn } from "react-hook-form";
 
 /**
  * Options for the useDebouncedValidation hook.
  */
-export interface UseDebouncedValidationOptions {
+export interface UseDebouncedValidationOptions<
+  T extends FieldValues = FieldValues,
+> {
   delay?: number;
-  fields?: string[];
+  fields?: Path<T>[];
   enabled?: boolean;
 }
 
@@ -62,9 +64,9 @@ export interface UseDebouncedValidationOptions {
  * @see {@link useDebouncedFieldValidation} for single field debouncing
  * @category Hooks
  */
-export function useDebouncedValidation<T extends Record<string, any>>(
+export function useDebouncedValidation<T extends FieldValues>(
   form: UseFormReturn<T>,
-  options: UseDebouncedValidationOptions = {},
+  options: UseDebouncedValidationOptions<T> = {},
 ) {
   const { delay = 300, enabled = true, fields } = options;
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(
@@ -99,7 +101,8 @@ export function useDebouncedValidation<T extends Record<string, any>>(
 
         // Trigger validation for specific fields or all fields
         if (fields && fields.length > 0) {
-          await form.trigger(fields as any);
+          // trigger accepts Path<TFieldValues>[] - fields is already typed as Path<TFieldValues>[]
+          await form.trigger(fields);
         } else {
           await form.trigger();
         }
@@ -177,9 +180,9 @@ export function useDebouncedValidation<T extends Record<string, any>>(
  * @see {@link useDebouncedValidation} for multiple fields
  * @category Hooks
  */
-export function useDebouncedFieldValidation<T extends Record<string, any>>(
+export function useDebouncedFieldValidation<T extends FieldValues>(
   form: UseFormReturn<T>,
-  fieldName: keyof T,
+  fieldName: Path<T>,
   options: { delay?: number; enabled?: boolean } = {},
 ) {
   const { delay = 300, enabled = true } = options;
@@ -195,7 +198,8 @@ export function useDebouncedFieldValidation<T extends Record<string, any>>(
     }
 
     timeoutRef.current = setTimeout(async () => {
-      await form.trigger(fieldName as any);
+      // fieldName is already typed as Path<TFieldValues>
+      await form.trigger(fieldName);
     }, delay);
   }, [form, fieldName, delay, enabled]);
 

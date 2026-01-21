@@ -55,41 +55,51 @@ export default function NestedPathsDemo() {
   // Nested Path Builder - The single, best approach
   const nestedPathFields = createNestedPathBuilder<NestedFormData>()
     // Basic fields
-    .field("firstName", "First Name")
-    .field("lastName", "Last Name")
-    .field("email", "Email Address", "email")
+    .field({ type: "input", name: "firstName", label: "First Name" })
+    .field({ type: "input", name: "lastName", label: "Last Name" })
+    .field({
+      type: "input",
+      name: "email",
+      label: "Email Address",
+      props: { type: "email" },
+    })
 
     // Nested address using nest()
     .nest("address")
-    .field("street", "Street Address")
-    .field("city", "City")
-    .field("state", "State/Province")
-    .field("zipCode", "ZIP/Postal Code")
-    .field("country", "Country")
+    .field({ type: "input", name: "street", label: "Street Address" })
+    .field({ type: "input", name: "city", label: "City" })
+    .field({ type: "input", name: "state", label: "State/Province" })
+    .field({ type: "input", name: "zipCode", label: "ZIP/Postal Code" })
+    .field({ type: "input", name: "country", label: "Country" })
     .end()
 
     // Nested profile using nest()
     .nest("profile")
-    .field("bio", "Bio", "textarea")
-    .field("website", "Website", "url")
+    .field({ type: "textarea", name: "bio", label: "Bio" })
+    .field({
+      type: "input",
+      name: "website",
+      label: "Website",
+      props: { type: "url" },
+    })
     .nest("social")
-    .field("twitter", "Twitter Handle")
-    .field("linkedin", "LinkedIn Profile")
-    .field("github", "GitHub Username")
+    .field({ type: "input", name: "twitter", label: "Twitter Handle" })
+    .field({ type: "input", name: "linkedin", label: "LinkedIn Profile" })
+    .field({ type: "input", name: "github", label: "GitHub Username" })
     .end()
     .end()
 
     // Nested preferences using section()
-    .section("preferences" as any)
-    .nest("notifications" as any)
-    .field("email", "Email Notifications", "checkbox")
-    .field("sms", "SMS Notifications", "checkbox")
-    .field("push", "Push Notifications", "checkbox")
+    .section("preferences")
+    .nest("notifications")
+    .field({ type: "checkbox", name: "email", label: "Email Notifications" })
+    .field({ type: "checkbox", name: "sms", label: "SMS Notifications" })
+    .field({ type: "checkbox", name: "push", label: "Push Notifications" })
     .end()
-    .nest("privacy" as any)
-    .field("profilePublic", "Public Profile", "checkbox")
-    .field("showEmail", "Show Email", "checkbox")
-    .field("showPhone", "Show Phone", "checkbox")
+    .nest("privacy")
+    .field({ type: "checkbox", name: "profilePublic", label: "Public Profile" })
+    .field({ type: "checkbox", name: "showEmail", label: "Show Email" })
+    .field({ type: "checkbox", name: "showPhone", label: "Show Phone" })
     .end()
     .end()
 
@@ -117,13 +127,13 @@ export default function NestedPathsDemo() {
               intuitive nested field definition with full type safety.
             </p>
             <ZodForm
+              className="space-y-4"
               config={{
                 fields: nestedPathFields,
                 schema: nestedFormSchema,
               }}
-              onSubmit={handleSubmit}
               submitButtonText="Submit Nested Path Form"
-              className="space-y-4"
+              onSubmit={handleSubmit}
             />
           </div>
         </div>
@@ -185,7 +195,7 @@ export default function NestedPathsDemo() {
                 </li>
                 <li>
                   • <strong>Error-Prone:</strong> Silent failures when paths
-                  don't match schema
+                  don&apos;t match schema
                 </li>
                 <li>
                   • <strong>Poor Developer Experience:</strong> No IDE

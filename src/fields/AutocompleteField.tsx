@@ -187,6 +187,7 @@ export function AutocompleteField<
               isDisabled={isDisabled}
               isInvalid={Boolean(fieldState.error)}
               label={label}
+              name={name}
               placeholder={placeholder}
               selectedKey={
                 allowsCustomValue

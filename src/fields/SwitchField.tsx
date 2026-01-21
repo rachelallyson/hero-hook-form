@@ -121,6 +121,7 @@ export function SwitchField<TFieldValues extends FieldValues>(
             {...switchProps}
             isDisabled={isDisabled}
             isSelected={Boolean(field.value)}
+            name={name}
             onBlur={field.onBlur}
             onValueChange={(val: boolean) => field.onChange(val)}
           >

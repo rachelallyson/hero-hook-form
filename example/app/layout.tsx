@@ -3,10 +3,10 @@ import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
 import clsx from "clsx";
 
-import { Providers } from "./providers";
-
 import { Navbar } from "@/components/navbar";
 import { fontSans } from "@/config/fonts";
+
+import { Providers } from "./providers";
 
 export const metadata: Metadata = {
   description: "Hero Hook Form - Demo and testing application",

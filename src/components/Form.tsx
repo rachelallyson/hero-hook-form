@@ -3,10 +3,16 @@
 import React from "react";
 
 import { Button } from "@heroui/react";
-import type { FieldValues, SubmitHandler } from "react-hook-form";
+import type {
+  DefaultValues,
+  FieldValues,
+  SubmitHandler,
+  UseFormReturn,
+} from "react-hook-form";
 
 import { useFormHelper } from "../hooks/useFormHelper";
 import type { FormFieldConfig, FormValidationError } from "../types";
+import { pathToString } from "../types";
 
 import { FormField } from "./FormField";
 
@@ -30,7 +36,7 @@ interface FormProps<T extends FieldValues> {
   submitButtonText?: string;
   subtitle?: string;
   title?: string;
-  defaultValues?: Partial<T>;
+  defaultValues?: DefaultValues<T>;
 }
 
 /**
@@ -130,10 +136,10 @@ export function ConfigurableForm<T extends FieldValues>({
           }`}
         >
           {fields.map((field) => (
-            <FormField
-              key={field.name as string}
+            <FormField<T>
+              key={field.name}
               config={field}
-              form={form}
+              form={form as UseFormReturn<T>}
               submissionState={submissionState}
             />
           ))}
@@ -145,8 +151,8 @@ export function ConfigurableForm<T extends FieldValues>({
       return (
         <div className={`grid gap-${spacing} grid-cols-1 md:grid-cols-2`}>
           {fields.map((field) => (
-            <FormField
-              key={field.name as string}
+            <FormField<T>
+              key={field.name}
               config={field}
               form={form}
               submissionState={submissionState}
@@ -161,9 +167,11 @@ export function ConfigurableForm<T extends FieldValues>({
       <div className={`space-y-${spacing}`}>
         {fields.map((field) => (
           <FormField
-            key={field.name as string}
+            key={
+              field.name ? pathToString(field.name) : `field-${Math.random()}`
+            }
             config={field}
-            form={form}
+            form={form as UseFormReturn<T>}
             submissionState={submissionState}
           />
         ))}

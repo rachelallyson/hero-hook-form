@@ -114,33 +114,69 @@ export function CheckboxField<TFieldValues extends FieldValues>(
   } = props;
   const defaults = useHeroHookFormDefaults();
 
+  // Default to "on" (HTML standard), but allow users to customize via checkboxProps
+  const checkboxValue = checkboxProps?.value ?? "on";
+
   return (
     <Controller<TFieldValues, Path<TFieldValues>>
       control={control}
       name={name}
-      render={({ field, fieldState }) => (
-        <div className={className}>
-          <Checkbox
-            {...defaults.checkbox}
-            {...checkboxProps}
-            isDisabled={isDisabled}
-            isInvalid={Boolean(fieldState.error)}
-            isSelected={Boolean(field.value)}
-            onBlur={field.onBlur}
-            onValueChange={(val: boolean) => field.onChange(val)}
-          >
-            {label}
-          </Checkbox>
-          {description ? (
-            <p className="text-small text-default-400">{description}</p>
-          ) : null}
-          {fieldState.error?.message ? (
-            <p className="text-tiny text-danger mt-1">
-              {fieldState.error.message}
-            </p>
-          ) : null}
-        </div>
-      )}
+      render={({ field, fieldState }) => {
+        // Use a ref and useLayoutEffect to ensure the value attribute is set on the underlying input
+        // HeroUI Checkbox may not always forward the value prop correctly
+        const containerRef = React.useRef<HTMLDivElement>(null);
+
+        React.useLayoutEffect(() => {
+          const setValue = () => {
+            if (containerRef.current) {
+              const input = containerRef.current.querySelector(
+                `input[type="checkbox"][name="${name}"]`,
+              );
+
+              // Type guard: check if element is HTMLInputElement
+              if (input instanceof HTMLInputElement) {
+                input.setAttribute("value", checkboxValue);
+                // Also set the value property directly as a fallback
+                input.value = checkboxValue;
+              }
+            }
+          };
+
+          // Set immediately
+          setValue();
+
+          // Also set after a short delay to catch async rendering
+          const timeoutId = setTimeout(setValue, 0);
+
+          return () => clearTimeout(timeoutId);
+        }, [name, checkboxValue, field.value]);
+
+        return (
+          <div ref={containerRef} className={className}>
+            <Checkbox
+              {...defaults.checkbox}
+              {...checkboxProps}
+              isDisabled={isDisabled}
+              isInvalid={Boolean(fieldState.error)}
+              isSelected={Boolean(field.value)}
+              name={name}
+              value={checkboxValue}
+              onBlur={field.onBlur}
+              onValueChange={(val: boolean) => field.onChange(val)}
+            >
+              {label}
+            </Checkbox>
+            {description ? (
+              <p className="text-small text-default-400">{description}</p>
+            ) : null}
+            {fieldState.error?.message ? (
+              <p className="text-tiny text-danger mt-1">
+                {fieldState.error.message}
+              </p>
+            ) : null}
+          </div>
+        );
+      }}
       rules={rules}
     />
   );

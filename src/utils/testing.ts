@@ -7,6 +7,15 @@ import type {
 import type { FormTestUtils } from "../types";
 
 /**
+ * React Hook Form field error structure
+ */
+interface FieldError {
+  message: string;
+  type?: string;
+  ref?: any;
+}
+
+/**
  * Testing utilities for forms
  * These utilities help with testing form behavior and state
  */
@@ -185,7 +194,7 @@ export function getFormErrors<TFieldValues extends FieldValues>(
   form: UseFormReturn<TFieldValues>,
 ): string[] {
   return Object.values(form.formState.errors).map(
-    (error: unknown) => (error as { message: string }).message,
+    (error: unknown) => (error as FieldError).message,
   );
 }
 
@@ -208,5 +217,5 @@ export function getFieldError<TFieldValues extends FieldValues>(
 ): string | undefined {
   const error = form.formState.errors[name];
 
-  return (error as { message?: string })?.message;
+  return (error as FieldError | undefined)?.message;
 }

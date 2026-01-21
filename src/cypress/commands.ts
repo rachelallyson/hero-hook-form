@@ -4,18 +4,31 @@
 
 import {
   // Field Interaction Helpers
+  fillInputByName,
   fillInputByType,
   fillInputByPlaceholder,
   fillInputByLabel,
+  fillTextareaByName,
   fillTextarea,
+  selectDropdownByName,
   selectDropdownOption,
   selectDropdownByLabel,
+  checkCheckboxByName,
   checkCheckbox,
   checkCheckboxByLabel,
+  checkSwitchByName,
   checkSwitch,
+  uncheckCheckboxByName,
   uncheckCheckbox,
+  uncheckSwitchByName,
   uncheckSwitch,
   moveSlider,
+  moveSliderByName,
+  selectRadioByName,
+  checkCheckboxInGroupByName,
+  selectAutocompleteByName,
+  fillDateInputByName,
+  selectFileByName,
   
   // Validation & Error Testing Helpers
   expectValidationError,
@@ -40,6 +53,7 @@ import {
   // Form State Helpers
   verifyFormExists,
   verifyFieldExists,
+  verifyFieldValueByName,
   verifyFieldValue,
   verifyFieldCount,
   getFormData,
@@ -50,8 +64,45 @@ import {
   testFormFlow,
 } from './helpers';
 
+import {
+  waitForFormReady,
+  waitForReactUpdate,
+  waitForElementState,
+  waitForDropdownOpen,
+  waitForDropdownClose,
+  getFormDataValue,
+  verifyFormDataValue,
+  findButtonNearLabel,
+  waitForValidation,
+  getFormDataArray,
+  verifyFormDataArray,
+  verifyFormDataFieldExists,
+  verifyNameAttribute,
+  verifyFormDataStructure,
+  verifyFormCleared,
+  verifyDropdownNameAttribute,
+} from './utils';
+
 /**
  * Register field interaction commands
+ * New name-based helpers (recommended - most reliable)
+ */
+Cypress.Commands.add('fillInputByName', fillInputByName);
+Cypress.Commands.add('fillTextareaByName', fillTextareaByName);
+Cypress.Commands.add('selectDropdownByName', selectDropdownByName);
+Cypress.Commands.add('checkCheckboxByName', checkCheckboxByName);
+Cypress.Commands.add('checkSwitchByName', checkSwitchByName);
+Cypress.Commands.add('uncheckCheckboxByName', uncheckCheckboxByName);
+Cypress.Commands.add('uncheckSwitchByName', uncheckSwitchByName);
+Cypress.Commands.add('moveSliderByName', moveSliderByName);
+Cypress.Commands.add('selectRadioByName', selectRadioByName);
+Cypress.Commands.add('checkCheckboxInGroupByName', checkCheckboxInGroupByName);
+Cypress.Commands.add('selectAutocompleteByName', selectAutocompleteByName);
+Cypress.Commands.add('fillDateInputByName', fillDateInputByName);
+Cypress.Commands.add('selectFileByName', selectFileByName);
+
+/**
+ * Legacy field interaction commands (still supported)
  */
 Cypress.Commands.add('fillInputByType', fillInputByType);
 Cypress.Commands.add('fillInputByPlaceholder', fillInputByPlaceholder);
@@ -82,6 +133,7 @@ Cypress.Commands.add('submitAndExpectErrors', submitAndExpectErrors);
  */
 Cypress.Commands.add('verifyFormExists', verifyFormExists);
 Cypress.Commands.add('verifyFieldExists', verifyFieldExists);
+Cypress.Commands.add('verifyFieldValueByName', verifyFieldValueByName);
 Cypress.Commands.add('verifyFieldValue', verifyFieldValue);
 Cypress.Commands.add('verifyFieldCount', verifyFieldCount);
 Cypress.Commands.add('getFormData', getFormData);
@@ -135,11 +187,108 @@ Cypress.Commands.add('logFormState', () => {
 });
 
 /**
- * Wait for form to be ready
+ * Wait for form to be ready (uses improved utility)
  */
-Cypress.Commands.add('waitForFormReady', () => {
-  cy.get('form').should('exist');
-  cy.get('input, textarea, select').should('be.visible');
+Cypress.Commands.add('waitForFormReady', (timeout?: number) => {
+  return waitForFormReady(timeout);
+});
+
+/**
+ * Wait for React to finish rendering updates
+ */
+Cypress.Commands.add('waitForReactUpdate', (timeout?: number) => {
+  return waitForReactUpdate(timeout);
+});
+
+/**
+ * Wait for element to be in a specific state
+ */
+Cypress.Commands.add('waitForElementState', (selector: string, state: 'visible' | 'hidden' | 'enabled' | 'disabled' | 'exist', timeout?: number) => {
+  return waitForElementState(selector, state, timeout);
+});
+
+/**
+ * Wait for dropdown to open
+ */
+Cypress.Commands.add('waitForDropdownOpen', (timeout?: number) => {
+  return waitForDropdownOpen(timeout);
+});
+
+/**
+ * Wait for dropdown to close
+ */
+Cypress.Commands.add('waitForDropdownClose', (buttonSelector?: string, timeout?: number) => {
+  return waitForDropdownClose(buttonSelector, timeout);
+});
+
+/**
+ * Get FormData value by field name
+ */
+Cypress.Commands.add('getFormDataValue', (fieldName: string) => {
+  return getFormDataValue(fieldName);
+});
+
+/**
+ * Verify FormData contains expected value
+ */
+Cypress.Commands.add('verifyFormDataValue', (fieldName: string, expectedValue: string | number, timeout?: number) => {
+  return verifyFormDataValue(fieldName, expectedValue, timeout);
+});
+
+/**
+ * Wait for validation errors to appear or disappear
+ */
+Cypress.Commands.add('waitForValidation', (shouldHaveErrors?: boolean, timeout?: number) => {
+  return waitForValidation(shouldHaveErrors, timeout);
+});
+
+/**
+ * Get FormData array values by field name
+ */
+Cypress.Commands.add('getFormDataArray', (fieldName: string) => {
+  return getFormDataArray(fieldName);
+});
+
+/**
+ * Verify FormData contains array with expected values
+ */
+Cypress.Commands.add('verifyFormDataArray', (fieldName: string, expectedValues: string[], exactMatch?: boolean) => {
+  return verifyFormDataArray(fieldName, expectedValues, exactMatch);
+});
+
+/**
+ * Verify FormData field exists (name attribute is set)
+ */
+Cypress.Commands.add('verifyFormDataFieldExists', (fieldName: string) => {
+  return verifyFormDataFieldExists(fieldName);
+});
+
+/**
+ * Verify name attribute exists on element (either on element or via FormData)
+ */
+Cypress.Commands.add('verifyNameAttribute', (fieldName: string, selector?: string) => {
+  return verifyNameAttribute(fieldName, selector);
+});
+
+/**
+ * Verify complete form data structure matches expected values
+ */
+Cypress.Commands.add('verifyFormDataStructure', (expectedData: Record<string, string | number | string[]>) => {
+  return verifyFormDataStructure(expectedData);
+});
+
+/**
+ * Verify form is cleared (all specified fields are empty)
+ */
+Cypress.Commands.add('verifyFormCleared', (fieldNames: string[]) => {
+  return verifyFormCleared(fieldNames);
+});
+
+/**
+ * Verify dropdown name attribute (checks button or FormData)
+ */
+Cypress.Commands.add('verifyDropdownNameAttribute', (fieldName: string, labelText?: string) => {
+  return verifyDropdownNameAttribute(fieldName, labelText);
 });
 
 /**

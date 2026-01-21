@@ -128,9 +128,9 @@ export function DynamicSectionField<TFieldValues extends FieldValues>({
 
       <div className="space-y-4">
         {fields.map((fieldConfig, index) => (
-          <FormField
+          <FormField<TFieldValues>
             key={`${fieldConfig.name}-${index}`}
-            config={fieldConfig as any}
+            config={fieldConfig}
             form={form}
             submissionState={{
               error: undefined,

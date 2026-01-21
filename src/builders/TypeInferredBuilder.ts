@@ -3,6 +3,7 @@
 import type { FieldValues, Path } from "react-hook-form";
 import { z } from "zod";
 import type { ZodFormFieldConfig } from "../types";
+import { pathToString } from "../types";
 
 /**
  * Type-inferred form builder that auto-generates both schema and field configs
@@ -48,7 +49,8 @@ export class TypeInferredBuilder<T extends FieldValues> {
         `${label} format is invalid`,
       );
 
-    this.schemaFields[name as string] = zodType;
+    // Path<T> is a branded string type - use pathToString to convert for Record key
+    this.schemaFields[pathToString(name)] = zodType;
 
     // Build form field
     this.formFields.push({
@@ -75,7 +77,8 @@ export class TypeInferredBuilder<T extends FieldValues> {
     },
   ): this {
     // Build Zod schema
-    this.schemaFields[name as string] = z
+    // Path<T> is a branded string type - use pathToString to convert for Record key
+    this.schemaFields[pathToString(name)] = z
       .string()
       .email(`Please enter a valid email address`);
 
@@ -116,7 +119,8 @@ export class TypeInferredBuilder<T extends FieldValues> {
     if (max !== undefined)
       zodType = zodType.max(max, `${label} must be no more than ${max}`);
 
-    this.schemaFields[name as string] = zodType;
+    // Path<T> is a branded string type - use pathToString to convert for Record key
+    this.schemaFields[pathToString(name)] = zodType;
 
     // Build form field
     this.formFields.push({
@@ -155,7 +159,8 @@ export class TypeInferredBuilder<T extends FieldValues> {
         `${label} must be at least ${minLength} characters`,
       );
 
-    this.schemaFields[name as string] = zodType;
+    // Path<T> is a branded string type - use pathToString to convert for Record key
+    this.schemaFields[pathToString(name)] = zodType;
 
     // Build form field
     this.formFields.push({
@@ -177,7 +182,8 @@ export class TypeInferredBuilder<T extends FieldValues> {
     options: { label: string; value: string | number }[],
   ): this {
     // Build Zod schema
-    this.schemaFields[name as string] = z
+    // Path<T> is a branded string type - use pathToString to convert for Record key
+    this.schemaFields[pathToString(name)] = z
       .string()
       .min(1, `Please select a ${label.toLowerCase()}`);
 
@@ -216,7 +222,8 @@ export class TypeInferredBuilder<T extends FieldValues> {
         `You must agree to ${label.toLowerCase()}`,
       );
     }
-    this.schemaFields[name as string] = zodType;
+    // Path<T> is a branded string type - use pathToString to convert for Record key
+    this.schemaFields[pathToString(name)] = zodType;
 
     // Build form field
     this.formFields.push({
@@ -242,7 +249,8 @@ export class TypeInferredBuilder<T extends FieldValues> {
     },
   ): this {
     // Build Zod schema
-    this.schemaFields[name as string] = z.boolean().optional();
+    // Path<T> is a branded string type - use pathToString to convert for Record key
+    this.schemaFields[pathToString(name)] = z.boolean().optional();
 
     // Build form field
     this.formFields.push({
@@ -270,7 +278,8 @@ export class TypeInferredBuilder<T extends FieldValues> {
     },
   ): this {
     // Build Zod schema
-    this.schemaFields[name as string] = z
+    // Path<T> is a branded string type - use pathToString to convert for Record key
+    this.schemaFields[pathToString(name)] = z
       .string()
       .min(1, `Please select a ${label.toLowerCase()}`);
 
@@ -311,20 +320,30 @@ export class TypeInferredBuilder<T extends FieldValues> {
     if (max !== undefined)
       zodType = zodType.max(max, `${label} must be no more than ${max}`);
 
-    this.schemaFields[name as string] = zodType;
+    // Path<T> is a branded string type - use pathToString to convert for Record key
+    this.schemaFields[pathToString(name)] = zodType;
 
     // Build form field
+    // sliderProps accepts Omit<ComponentProps<Slider>, "value" | "onChange" | "label" | "isDisabled">
+    // fieldOptions contains description, isDisabled, className which are not part of sliderProps
+    // so we only include the properties that are valid for sliderProps
+    const { className, description, isDisabled, ...validSliderProps } =
+      fieldOptions || {};
+
     this.formFields.push({
+      className,
+      description,
+      isDisabled,
       label,
       name,
       sliderProps: {
         maxValue: max,
         minValue: min,
         step,
-        ...fieldOptions,
-      } as any,
+        ...validSliderProps,
+      },
       type: "slider",
-    });
+    } satisfies ZodFormFieldConfig<T>);
 
     return this;
   }
@@ -343,7 +362,8 @@ export class TypeInferredBuilder<T extends FieldValues> {
     },
   ): this {
     // Build Zod schema
-    this.schemaFields[name as string] = z
+    // Path<T> is a branded string type - use pathToString to convert for Record key
+    this.schemaFields[pathToString(name)] = z
       .string()
       .min(1, `${label} is required`);
 
@@ -373,7 +393,8 @@ export class TypeInferredBuilder<T extends FieldValues> {
     },
   ): this {
     // Build Zod schema
-    this.schemaFields[name as string] = z.any().optional();
+    // Path<T> is a branded string type - use pathToString to convert for Record key
+    this.schemaFields[pathToString(name)] = z.any().optional();
 
     // Build form field
     this.formFields.push({

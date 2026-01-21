@@ -35,8 +35,15 @@ describe("Working Comprehensive Demo Tests", () => {
   });
 
   it("should have textarea that can be filled", () => {
-    cy.get("textarea").type("This is a test message");
-    cy.get("textarea").should("have.value", "This is a test message");
+    // Target the textarea in the contact form specifically
+    cy.contains("Contact Form")
+      .parent()
+      .find("textarea")
+      .type("This is a test message");
+    cy.contains("Contact Form")
+      .parent()
+      .find("textarea")
+      .should("have.value", "This is a test message");
   });
 
   it("should have checkboxes that can be toggled", () => {

@@ -62,8 +62,8 @@ describe("HeroUI Dropdown Testing - Simplified", () => {
       cy.get('button[aria-haspopup="listbox"]').first().click();
       cy.get('[role="option"]').should("exist");
 
-      // Click outside to close
-      cy.get("h2").click();
+      // Click outside to close - use more specific selector
+      cy.contains("h2", "Checkout Information").click();
 
       // Verify dropdown closed
       cy.get('button[aria-haspopup="listbox"]')

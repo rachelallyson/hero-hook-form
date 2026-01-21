@@ -38,7 +38,7 @@ export default function SimpleFormDemo() {
         <h1 className="text-3xl font-bold mb-2">Simple Form Building Demo</h1>
         <p className="text-gray-600">
           This demonstrates the new simple form building utilities that
-          eliminate the need for "as const" assertions.
+          eliminate the need for &quot;as const&quot; assertions.
         </p>
       </div>
 
@@ -89,12 +89,12 @@ export default function SimpleFormDemo() {
               ],
               schema: contactSchema,
             }}
-            onSubmit={handleSubmit}
-            title="Contact Form (Helpers)"
-            subtitle="Using helper functions"
+            resetButtonText="Clear Form"
             showResetButton={true}
             submitButtonText="Send Message"
-            resetButtonText="Clear Form"
+            subtitle="Using helper functions"
+            title="Contact Form (Helpers)"
+            onSubmit={handleSubmit}
           />
         </div>
 
@@ -120,12 +120,12 @@ export default function SimpleFormDemo() {
                 .build(),
               schema: contactSchema,
             }}
-            onSubmit={handleSubmit}
-            title="Contact Form (Builder)"
-            subtitle="Using builder pattern"
+            resetButtonText="Clear Form"
             showResetButton={true}
             submitButtonText="Send Message"
-            resetButtonText="Clear Form"
+            subtitle="Using builder pattern"
+            title="Contact Form (Builder)"
+            onSubmit={handleSubmit}
           />
         </div>
 
@@ -151,12 +151,12 @@ export default function SimpleFormDemo() {
               ],
               schema: contactSchema,
             }}
-            onSubmit={handleSubmit}
-            title="Contact Form (Common Fields)"
-            subtitle="Using common field collections"
+            resetButtonText="Clear Form"
             showResetButton={true}
             submitButtonText="Send Message"
-            resetButtonText="Clear Form"
+            subtitle="Using common field collections"
+            title="Contact Form (Common Fields)"
+            onSubmit={handleSubmit}
           />
         </div>
 
@@ -187,12 +187,12 @@ export default function SimpleFormDemo() {
               ],
               schema: contactSchema,
             }}
-            onSubmit={handleSubmit}
-            title="Contact Form (Mixed)"
-            subtitle="Combining different approaches"
+            resetButtonText="Clear Form"
             showResetButton={true}
             submitButtonText="Send Message"
-            resetButtonText="Clear Form"
+            subtitle="Combining different approaches"
+            title="Contact Form (Mixed)"
+            onSubmit={handleSubmit}
           />
         </div>
       </div>
@@ -203,7 +203,8 @@ export default function SimpleFormDemo() {
         </h3>
         <ul className="space-y-2 text-sm">
           <li>
-            ✅ <strong>No more "as const"</strong> - Clean, readable syntax
+            ✅ <strong>No more &quot;as const&quot;</strong> - Clean, readable
+            syntax
           </li>
           <li>
             ✅ <strong>Type safety</strong> - Full TypeScript support

@@ -10,7 +10,11 @@ try {
 } catch {
   // zodResolver will be undefined if not installed
 }
-import type { FieldValues, UseFormReturn } from "react-hook-form";
+import type {
+  DefaultValues,
+  FieldValues,
+  UseFormReturn,
+} from "react-hook-form";
 import type { ZodFormFieldConfig } from "../types";
 
 /**
@@ -19,7 +23,7 @@ import type { ZodFormFieldConfig } from "../types";
  * @template T - The form data type
  */
 export interface UseInferredFormOptions<T extends FieldValues> {
-  defaultValues?: Partial<T>;
+  defaultValues?: DefaultValues<T>;
   mode?: "onChange" | "onBlur" | "onSubmit" | "onTouched" | "all";
   reValidateMode?: "onChange" | "onBlur" | "onSubmit";
   shouldFocusError?: boolean;
@@ -92,7 +96,7 @@ export function useInferredForm<T extends FieldValues>(
   } = options;
 
   return useForm<T>({
-    defaultValues: defaultValues as any,
+    defaultValues,
     delayError,
     mode,
     resolver: zodResolver ? zodResolver(schema) : undefined,

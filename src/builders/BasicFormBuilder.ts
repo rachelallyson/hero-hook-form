@@ -1,11 +1,17 @@
 import React from "react";
 import type {
+  ArrayPath,
+  Control,
   FieldErrors,
   FieldValues,
   Path,
   UseFormReturn,
 } from "react-hook-form";
-import type { ZodFormFieldConfig } from "../types";
+import type {
+  ConditionalFieldConfig,
+  ContentFieldConfig,
+  ZodFormFieldConfig,
+} from "../types";
 
 import type {
   Autocomplete,
@@ -259,6 +265,79 @@ export function createBasicFormBuilder<
  * @see {@link createBasicFormBuilder} for builder pattern alternative
  * @category Builders
  */
+// Type alias for Input props
+type InputPropsType = Omit<
+  React.ComponentProps<typeof Input>,
+  | "value"
+  | "onValueChange"
+  | "label"
+  | "isInvalid"
+  | "errorMessage"
+  | "isDisabled"
+>;
+
+// Overload signatures for input helper
+function inputHelper<T extends FieldValues>(
+  name: Path<T>,
+  label: string,
+): ZodFormFieldConfig<T>;
+function inputHelper<T extends FieldValues>(
+  name: Path<T>,
+  label: string,
+  type: "text" | "email" | "tel" | "password",
+): ZodFormFieldConfig<T>;
+function inputHelper<T extends FieldValues>(
+  name: Path<T>,
+  label: string,
+  inputProps: InputPropsType,
+): ZodFormFieldConfig<T>;
+function inputHelper<T extends FieldValues>(
+  name: Path<T>,
+  label: string,
+  type: "text" | "email" | "tel" | "password",
+  inputProps: InputPropsType,
+): ZodFormFieldConfig<T>;
+function inputHelper<T extends FieldValues>(
+  name: Path<T>,
+  label: string,
+  typeOrProps?: "text" | "email" | "tel" | "password" | InputPropsType,
+  inputProps?: InputPropsType,
+): ZodFormFieldConfig<T> {
+  // Handle case where third param is props object (not a type string)
+  if (
+    typeOrProps &&
+    typeof typeOrProps === "object" &&
+    !(
+      "type" in typeOrProps &&
+      typeof typeOrProps.type === "string" &&
+      ["text", "email", "tel", "password"].includes(typeOrProps.type)
+    )
+  ) {
+    return {
+      inputProps: {
+        type: "text",
+        ...typeOrProps,
+      },
+      label,
+      name,
+      type: "input",
+    };
+  }
+
+  // Handle case where third param is type string
+  const type = typeof typeOrProps === "string" ? typeOrProps : undefined;
+
+  return {
+    inputProps: {
+      type: type || "text",
+      ...inputProps,
+    },
+    label,
+    name,
+    type: "input",
+  };
+}
+
 export const FormFieldHelpers = {
   /**
    * Create an autocomplete field
@@ -341,6 +420,52 @@ export const FormFieldHelpers = {
   }),
 
   /**
+   * Create a checkbox group field (multiple checkboxes saving to an array)
+   *
+   * @example
+   * ```tsx
+   * // Simple checkbox group
+   * FormFieldHelpers.checkboxGroup("interests", "Interests", [
+   *   { label: "Reading", value: "reading" },
+   *   { label: "Sports", value: "sports" },
+   *   { label: "Music", value: "music" },
+   * ])
+   *
+   * // With horizontal layout and custom styling
+   * FormFieldHelpers.checkboxGroup("interests", "Interests", options, {
+   *   orientation: "horizontal",
+   *   checkboxProps: { color: "primary", size: "lg" }
+   * })
+   * ```
+   */
+  checkboxGroup: <T extends FieldValues>(
+    name: Path<T>,
+    label: string,
+    options: { label: string; value: string | number }[],
+    config?: {
+      checkboxProps?: Omit<
+        React.ComponentProps<typeof Checkbox>,
+        | "isSelected"
+        | "onValueChange"
+        | "isInvalid"
+        | "errorMessage"
+        | "isDisabled"
+        | "name"
+      >;
+      orientation?: "vertical" | "horizontal";
+      description?: string;
+    },
+  ): ZodFormFieldConfig<T> => ({
+    checkboxGroupOptions: options,
+    checkboxProps: config?.checkboxProps,
+    description: config?.description,
+    label,
+    name,
+    orientation: config?.orientation || "vertical",
+    type: "checkboxGroup",
+  }),
+
+  /**
    * Create a conditional field that shows/hides based on form data
    *
    * @example
@@ -368,16 +493,14 @@ export const FormFieldHelpers = {
     condition: (formData: Partial<T>) => boolean,
     field: ZodFormFieldConfig<T>,
   ): ZodFormFieldConfig<T> => {
-    // Similar to content helper, use type assertion for compatibility
-    // ConditionalFieldConfig is part of ZodFormFieldConfig union, so this is safe
-    // When TypeScript can't infer T from Partial<T>, you may need to explicitly specify:
-    // FormFieldHelpers.conditional<YourType>(...)
-    return {
+    const config: ConditionalFieldConfig<T> = {
       condition,
       field,
       name,
       type: "conditional",
-    } as ZodFormFieldConfig<T>;
+    };
+
+    return config;
   },
 
   /**
@@ -404,20 +527,59 @@ export const FormFieldHelpers = {
         isSubmitting: boolean;
       }) => React.ReactNode;
       className?: string;
-      name?: string;
+      name?: Path<T>;
     },
   ): ZodFormFieldConfig<T> => {
-    // Content fields don't require names, so we return a config that works with any form type
-    // Using ZodFormFieldConfig<T> as return type allows it to be used in arrays with specific form types
-    return {
+    const config: ContentFieldConfig<T> = {
       className: options?.className,
       description: description || undefined,
       name: options?.name,
       render: options?.render,
       title: title || undefined,
       type: "content",
-    } as ZodFormFieldConfig<T>;
+    };
+
+    return config;
   },
+
+  /**
+   * Create a custom field with full control over rendering
+   *
+   * @example
+   * ```tsx
+   * // Custom field with render function
+   * FormFieldHelpers.custom<FormData>(
+   *   "skills",
+   *   "Skills",
+   *   ({ form, control }) => {
+   *     // Custom rendering logic
+   *     return <div>...</div>;
+   *   }
+   * )
+   * ```
+   */
+  custom: <T extends FieldValues>(
+    name: Path<T> | ArrayPath<T>,
+    label: string,
+    render: (field: {
+      name: Path<T> | ArrayPath<T>;
+      control: Control<T>;
+      form: UseFormReturn<T>;
+      errors: FieldErrors<T>;
+      isSubmitting: boolean;
+    }) => React.ReactNode,
+    options?: {
+      description?: string;
+      className?: string;
+      isDisabled?: boolean;
+    },
+  ): ZodFormFieldConfig<T> => ({
+    label,
+    name,
+    render,
+    type: "custom",
+    ...options,
+  }),
 
   /**
    * Create a date field
@@ -545,7 +707,10 @@ export const FormFieldHelpers = {
    * // With type
    * FormFieldHelpers.input("email", "Email", "email")
    *
-   * // With full customization
+   * // With props only (no type)
+   * FormFieldHelpers.input("name", "Name", { placeholder: "Enter name" })
+   *
+   * // With type and props
    * FormFieldHelpers.input("email", "Email", "email", {
    *   placeholder: "Enter your email",
    *   classNames: { input: "custom-input" },
@@ -554,29 +719,26 @@ export const FormFieldHelpers = {
    * })
    * ```
    */
-  input: <T extends FieldValues>(
-    name: Path<T>,
-    label: string,
-    type?: "text" | "email" | "tel" | "password",
-    inputProps?: Omit<
-      React.ComponentProps<typeof Input>,
-      | "value"
-      | "onValueChange"
-      | "label"
-      | "isInvalid"
-      | "errorMessage"
-      | "isDisabled"
-    >,
-  ): ZodFormFieldConfig<T> => ({
-    inputProps: {
-      type: type || "text",
-      ...inputProps,
-    },
-    label,
-    name,
-    type: "input",
-  }),
+  input: inputHelper,
 
+  /**
+   * Create a radio group field
+   *
+   * @example
+   * ```tsx
+   * // Simple radio group
+   * FormFieldHelpers.radio("gender", "Gender", [
+   *   { label: "Male", value: "male" },
+   *   { label: "Female", value: "female" }
+   * ])
+   *
+   * // With full customization
+   * FormFieldHelpers.radio("gender", "Gender", options, {
+   *   orientation: "horizontal",
+   *   classNames: { base: "custom-radio" }
+   * })
+   * ```
+   */
   /**
    * Create a radio group field
    *
@@ -764,12 +926,34 @@ export const FormFieldHelpers = {
 
 /**
  * Common field collections
+ *
+ * These helpers provide reusable field sets for common form patterns.
+ * The `as Path<T>` assertions are necessary because TypeScript cannot prove
+ * that string literals like "street" or "email" are valid paths in an arbitrary
+ * form type `T`. These helpers are designed to work with any form type that
+ * happens to have these fields - the type safety is enforced when you use them
+ * with a specific form schema.
+ *
+ * @example
+ * ```tsx
+ * const schema = z.object({
+ *   street: z.string(),
+ *   city: z.string(),
+ *   // ... other fields
+ * });
+ *
+ * const fields = [
+ *   ...CommonFields.address<z.infer<typeof schema>>(),
+ * ];
+ * ```
  */
 export const CommonFields = {
   /**
    * Address fields
    */
   address: <T extends FieldValues>() => [
+    // Type assertions are necessary: TypeScript can't prove these strings are valid Path<T>
+    // for an arbitrary T, but they will be valid when used with a matching schema
     FormFieldHelpers.input<T>("street" as Path<T>, "Street Address"),
     FormFieldHelpers.input<T>("city" as Path<T>, "City"),
     FormFieldHelpers.input<T>("state" as Path<T>, "State/Province"),
@@ -789,6 +973,7 @@ export const CommonFields = {
    * Personal information fields
    */
   personal: <T extends FieldValues>() => [
+    // Type assertions are necessary - see CommonFields documentation above
     FormFieldHelpers.input<T>("firstName" as Path<T>, "First Name"),
     FormFieldHelpers.input<T>("lastName" as Path<T>, "Last Name"),
     FormFieldHelpers.input<T>("email" as Path<T>, "Email", "email"),
@@ -799,6 +984,7 @@ export const CommonFields = {
    * Terms and conditions fields
    */
   terms: <T extends FieldValues>() => [
+    // Type assertions are necessary - see CommonFields documentation above
     FormFieldHelpers.checkbox<T>(
       "terms" as Path<T>,
       "I agree to the terms and conditions",

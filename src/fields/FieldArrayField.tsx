@@ -6,7 +6,7 @@ import type { FieldValues, FieldArrayWithId } from "react-hook-form";
 import { Button } from "@heroui/react";
 // Using HeroUI icons instead of lucide-react
 
-import type { FieldArrayConfig } from "../types";
+import type { FieldArrayConfig, ZodFormFieldConfig } from "../types";
 import { FormField } from "../components/FormField";
 
 /**
@@ -162,38 +162,93 @@ export function FieldArrayField<TFieldValues extends FieldValues>({
   const { control } = form;
   const { append, fields, move, remove } = useFieldArray({
     control,
-    name: name as any, // FieldArray name
+    name,
   });
 
   const canAdd = fields.length < max;
   const canRemove = fields.length > min;
 
+  // Helper: Construct full path for a field within an array item
+  // e.g., "items.0.fieldName" from array name "items", index 0, and field name "fieldName"
+  const getFieldPath = (fieldName: string, itemIndex: number): string => {
+    return `${String(name)}.${itemIndex}.${fieldName}`;
+  };
+
+  // Helper: Process field config for a specific array item
+  // Converts relative paths to full paths including array index
+  const processFieldConfig = (
+    fieldConfig: ZodFormFieldConfig<TFieldValues>,
+    itemIndex: number,
+  ) => {
+    const fieldName = String(fieldConfig.name);
+    const fullPath = getFieldPath(fieldName, itemIndex);
+
+    // Check if field has dependsOn that needs to be nested
+    if (
+      "dependsOn" in fieldConfig &&
+      fieldConfig.dependsOn &&
+      typeof fieldConfig.dependsOn === "string"
+    ) {
+      const dependsOnPath = fieldConfig.dependsOn;
+      const arrayNamePrefix = `${String(name)}.`;
+
+      // If dependsOn is relative (doesn't include array path), nest it to this item
+      if (!dependsOnPath.startsWith(arrayNamePrefix)) {
+        const nestedDependsOn = getFieldPath(dependsOnPath, itemIndex);
+
+        return {
+          ...fieldConfig,
+          dependsOn: nestedDependsOn,
+          name: fullPath,
+          ...("dependsOnValue" in fieldConfig && {
+            dependsOnValue: fieldConfig.dependsOnValue,
+          }),
+        };
+      }
+    }
+
+    // No dependsOn or dependsOn already includes array path
+    return {
+      ...fieldConfig,
+      name: fullPath,
+    };
+  };
+
+  // Helper: Render a single field for an array item
+  const renderField = (
+    fieldConfig: ZodFormFieldConfig<TFieldValues>,
+    itemIndex: number,
+  ) => {
+    const processedConfig = processFieldConfig(fieldConfig, itemIndex);
+
+    return (
+      <FormField<TFieldValues>
+        key={`${fieldConfig.name}-${itemIndex}`}
+        // @ts-expect-error - TypeScript can't verify runtime-constructed paths are valid Path<TFieldValues>, but we construct them from valid paths
+        config={processedConfig}
+        form={form}
+        submissionState={{
+          error: undefined,
+          isSubmitted: false,
+          isSubmitting: false,
+          isSuccess: false,
+        }}
+      />
+    );
+  };
+
   const handleAdd = () => {
     if (canAdd) {
-      // Use defaultItem function if provided, otherwise infer from field configs
+      // defaultItem is required to ensure type safety
+      // Users must provide a function that returns the default item structure
       if (defaultItem) {
         append(defaultItem());
       } else {
-        // Create default values for new field array item
-        const defaultValues = fieldConfigs.reduce((acc, fieldConfig) => {
-          const fieldName = fieldConfig.name as string;
-
-          // Use appropriate default value based on field type
-          if (
-            fieldConfig.type === "checkbox" ||
-            fieldConfig.type === "switch"
-          ) {
-            acc[fieldName] = false;
-          } else if (fieldConfig.type === "slider") {
-            acc[fieldName] = 0;
-          } else {
-            acc[fieldName] = "";
-          }
-
-          return acc;
-        }, {} as any);
-
-        append(defaultValues);
+        // If defaultItem is not provided, we cannot safely create defaults
+        // This ensures type safety - users must explicitly provide default values
+        console.warn(
+          `FieldArrayField: defaultItem is required for field array "${String(name)}". Please provide a defaultItem function that returns the default item structure.`,
+        );
       }
     }
   };
@@ -223,50 +278,10 @@ export function FieldArrayField<TFieldValues extends FieldValues>({
       const canMoveDown = enableReordering && index < fields.length - 1;
       const itemCanRemove = canRemove;
 
-      // Render field configs for this item
-      const fieldElements = fieldConfigs.map((fieldConfig) => {
-        // Handle dependsOn for array-relative paths
-        const fieldName = fieldConfig.name as string;
-        const fullPath = `${name}.${index}.${fieldName}` as any;
-
-        // If dependsOn is relative (doesn't start with array name), make it relative to this item
-        let processedConfig: any = { ...fieldConfig, name: fullPath };
-
-        // Check if dependsOn exists (not all field types have it, e.g., ContentFieldConfig)
-        if (
-          "dependsOn" in fieldConfig &&
-          fieldConfig.dependsOn &&
-          typeof fieldConfig.dependsOn === "string"
-        ) {
-          const dependsOnPath = fieldConfig.dependsOn;
-
-          // If dependsOn doesn't include the array path, make it relative to this item
-          if (!dependsOnPath.startsWith(`${name}.`)) {
-            processedConfig = {
-              ...processedConfig,
-              dependsOn: `${name}.${index}.${dependsOnPath}` as any,
-              // Preserve dependsOnValue if it exists
-              ...("dependsOnValue" in fieldConfig && {
-                dependsOnValue: fieldConfig.dependsOnValue,
-              }),
-            };
-          }
-        }
-
-        return (
-          <FormField
-            key={`${fieldConfig.name}-${index}`}
-            config={processedConfig}
-            form={form}
-            submissionState={{
-              error: undefined,
-              isSubmitted: false,
-              isSubmitting: false,
-              isSuccess: false,
-            }}
-          />
-        );
-      });
+      // Render all fields for this array item
+      const fieldElements = fieldConfigs.map((fieldConfig) =>
+        renderField(fieldConfig, index),
+      );
 
       // Use custom renderItem if provided
       if (renderItem) {
