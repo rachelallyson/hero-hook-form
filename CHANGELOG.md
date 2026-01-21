@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.7.2] - 2026-01-14
+
+### Fixed
+
+- **Critical Bug Fix: Input Name Attributes**: Fixed missing `name` prop forwarding in `InputField` component
+  - `CoercedInput` now properly passes `name={field.name}` to HeroUI Input components
+  - Fixes accessibility issues where form inputs had no name attribute in DOM
+  - Critical for form automation tools, accessibility compliance, and proper form submission
+  - Affects all input types (text, email, password, tel, number, etc.) in ZodForm
+
 ## [2.7.0] - 2026-01-13
 
 ### Added

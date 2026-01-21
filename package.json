@@ -1,6 +1,6 @@
 {
   "name": "@rachelallyson/hero-hook-form",
-  "version": "2.7.0",
+  "version": "2.7.2",
   "description": "Typed form helpers that combine React Hook Form and HeroUI components.",
   "author": "Rachel Higley",
   "homepage": "https://rachelallyson.github.io/hero-hook-form/",
@@ -38,6 +38,16 @@
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "cypress": [
+        "./dist/cypress/index.d.ts"
+      ],
+      "react": [
+        "./dist/react/index.d.ts"
+      ]
+    }
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -62,7 +72,7 @@
     "node": ">=18.0.0"
   },
   "scripts": {
-    "build": "tsup src/index.ts --format esm --dts --clean && tsup src/index.ts --format esm --dts --env.NODE_ENV=production --tsconfig tsconfig.react.json --out-dir dist/react && tsup src/cypress/index.ts --format esm --dts --out-dir dist/cypress",
+    "build": "tsup src/index.ts --format esm --dts --clean && tsup src/index.ts --format esm --dts --env.NODE_ENV=production --tsconfig tsconfig.react.json --out-dir dist/react && tsup src/cypress/index.ts --format esm --out-dir dist/cypress && cp src/cypress/index.d.ts dist/cypress/index.d.ts",
     "dev:build": "tsup src/index.ts --format esm --dts --watch",
     "lint": "eslint src",
     "typecheck": "tsc --noEmit",
@@ -77,7 +87,7 @@
     "docs:api": "typedoc"
   },
   "devDependencies": {
-    "@cypress/vite-dev-server": "^7.0.1",
+    "@cypress/vite-dev-server": "^7.1.0",
     "@eslint/js": "^9.39.2",
     "@heroui/autocomplete": "^2",
     "@heroui/button": "^2.2.29",
@@ -94,15 +104,15 @@
     "@heroui/system": "^2.4.25",
     "@rachelallyson/eslint-config-node": "^1.0.1",
     "@rachelallyson/heroui-font-picker": "^1.0.0",
-    "@types/node": "^25.0.6",
+    "@types/node": "^25.0.8",
     "@types/react": "^19.2.8",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.2",
-    "cypress": "^15.8.2",
+    "cypress": "^15.9.0",
     "cypress-terminal-report": "^7.3.3",
     "eslint": "^9.39.2",
     "eslint-plugin-jsx-a11y": "^6.10.2",
-    "eslint-plugin-prettier": "^5.5.4",
+    "eslint-plugin-prettier": "^5.5.5",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "eslint-plugin-sort-destructure-keys": "^2.0.0",
@@ -111,11 +121,11 @@
     "jsdom": "^27.4.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "react-hook-form": "^7.71.0",
+    "react-hook-form": "^7.71.1",
     "tsup": "^8.5.1",
     "typedoc-plugin-markdown": "^4.9.0",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.52.0",
+    "typescript-eslint": "^8.53.0",
     "vite": "^7.3.1",
     "zod": "^4.3.5"
   },
