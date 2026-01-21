@@ -157,10 +157,10 @@ export default function FontPickerDemo() {
         <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
           Font previews are displayed instantly using the actual{" "}
           <a
-            href="https://github.com/ae9is/react-fontpicker/tree/main/packages/fontpicker/font-preview"
             className="text-blue-600 hover:text-blue-800 underline"
-            target="_blank"
+            href="https://github.com/ae9is/react-fontpicker/tree/main/packages/fontpicker/font-preview"
             rel="noopener noreferrer"
+            target="_blank"
           >
             react-fontpicker sprite system
           </a>{" "}
@@ -179,10 +179,10 @@ export default function FontPickerDemo() {
         <h3 className="text-lg font-semibold mb-2">Font Loading Options</h3>
         <label className="flex items-center gap-2">
           <input
-            type="checkbox"
             checked={loadAllVariants}
-            onChange={(e) => setLoadAllVariants(e.target.checked)}
             className="rounded"
+            type="checkbox"
+            onChange={(e) => setLoadAllVariants(e.target.checked)}
           />
           <span>
             Load all font variants (increases file size but provides more
@@ -197,16 +197,16 @@ export default function FontPickerDemo() {
       </div>
 
       <ZodForm
-        config={config}
-        onSubmit={handleSubmit}
-        title="Typography Settings"
-        subtitle="Customize your font choices and layout preferences"
-        showResetButton={true}
-        submitButtonText="Save Typography"
-        resetButtonText="Reset to Defaults"
-        layout="grid"
         columns={2}
+        config={config}
+        layout="grid"
+        resetButtonText="Reset to Defaults"
+        showResetButton={true}
         spacing="6"
+        submitButtonText="Save Typography"
+        subtitle="Customize your font choices and layout preferences"
+        title="Typography Settings"
+        onSubmit={handleSubmit}
       />
 
       <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
@@ -228,10 +228,11 @@ export default function FontPickerDemo() {
           HeroUI Integration
         </h3>
         <p className="text-green-800 text-sm mb-2">
-          The font picker automatically integrates with HeroUI's design system:
+          The font picker automatically integrates with HeroUI&apos;s design
+          system:
         </p>
         <ul className="text-green-800 text-sm list-disc list-inside space-y-1">
-          <li>Uses HeroUI's design tokens and CSS variables</li>
+          <li>Uses HeroUI&apos;s design tokens and CSS variables</li>
           <li>Automatically adapts to light/dark themes</li>
           <li>Matches HeroUI component styling patterns</li>
           <li>Supports responsive design and accessibility</li>

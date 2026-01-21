@@ -1,14 +1,12 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useMemo } from "react";
 import { z } from "zod";
 import {
   ZodForm,
   createAdvancedBuilder,
-  createField,
-  useDebouncedValidation,
+  createFieldArrayBuilder,
   usePerformanceMonitor,
-  useBatchedFieldUpdates,
   debounce,
   throttle,
 } from "@rachelallyson/hero-hook-form";
@@ -39,35 +37,45 @@ const performanceFormSchema = z.object({
 type PerformanceForm = z.infer<typeof performanceFormSchema>;
 
 const performanceFormFields = createAdvancedBuilder<PerformanceForm>()
-  .field("input", "firstName", "First Name")
-  .field("input", "lastName", "Last Name")
-  .field("input", "email", "Email", { type: "email" })
-  .field("input", "phone", "Phone", { type: "tel" })
-  .field("input", "address", "Address")
-  .field("input", "city", "City")
-  .field("input", "state", "State")
-  .field("input", "zip", "ZIP Code")
-  .field("input", "country", "Country")
-  .field("textarea", "bio", "Bio", { rows: 4 })
-  .fieldArray(
-    "skills",
-    "Skills",
-    [createField("input", "skill", "Skill Name")],
-    {
+  .field({ type: "input", name: "firstName", label: "First Name" })
+  .field({ type: "input", name: "lastName", label: "Last Name" })
+  .field({
+    type: "input",
+    name: "email",
+    label: "Email",
+    props: { type: "email" },
+  })
+  .field({
+    type: "input",
+    name: "phone",
+    label: "Phone",
+    props: { type: "tel" },
+  })
+  .field({ type: "input", name: "address", label: "Address" })
+  .field({ type: "input", name: "city", label: "City" })
+  .field({ type: "input", name: "state", label: "State" })
+  .field({ type: "input", name: "zip", label: "ZIP Code" })
+  .field({ type: "input", name: "country", label: "Country" })
+  .field({ type: "textarea", name: "bio", label: "Bio", props: { rows: 4 } })
+  .field({
+    type: "stringArray",
+    name: "skills",
+    label: "Skills",
+    props: {
+      placeholder: "Add a skill...",
+      maxItems: 10,
+      minItems: 0,
       addButtonText: "Add Skill",
-      max: 10,
-      min: 0,
-      removeButtonText: "Remove Skill",
     },
-  )
+  })
   .fieldArray(
     "experience",
     "Work Experience",
-    [
-      createField("input", "company", "Company"),
-      createField("input", "position", "Position"),
-      createField("input", "duration", "Duration"),
-    ],
+    createFieldArrayBuilder<PerformanceForm, "experience">("experience")
+      .field({ type: "input", name: "company", label: "Company" })
+      .field({ type: "input", name: "position", label: "Position" })
+      .field({ type: "input", name: "duration", label: "Duration" })
+      .build(),
     {
       addButtonText: "Add Experience",
       max: 5,
@@ -91,8 +99,8 @@ function PerformanceMonitor() {
       </h3>
       <p className="text-sm text-yellow-800">Render count: {renderCount}</p>
       <button
-        onClick={resetRenderCount}
         className="mt-2 px-3 py-1 bg-yellow-200 text-yellow-900 rounded text-sm hover:bg-yellow-300"
+        onClick={resetRenderCount}
       >
         Reset Count
       </button>
@@ -105,19 +113,15 @@ function DebouncedInput({
   label,
   onChange,
   placeholder,
-  value,
 }: {
-  value: string;
-  onChange: (value: string) => void;
+  onChange: (_newValue: string) => void;
   placeholder: string;
   label: string;
 }) {
-  const [localValue, setLocalValue] = useState(value);
+  const [localValue, setLocalValue] = useState("");
 
-  const debouncedOnChange = useCallback(
-    debounce((newValue: string) => {
-      onChange(newValue);
-    }, 300),
+  const debouncedOnChange = useMemo(
+    () => debounce((newValue: string) => onChange(newValue), 300),
     [onChange],
   );
 
@@ -134,11 +138,11 @@ function DebouncedInput({
         {label}
       </label>
       <input
+        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        placeholder={placeholder}
         type="text"
         value={localValue}
         onChange={handleChange}
-        placeholder={placeholder}
-        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
     </div>
   );
@@ -152,17 +156,15 @@ function ThrottledButton({
   onClick: () => void;
   children: React.ReactNode;
 }) {
-  const throttledOnClick = useCallback(
-    throttle(() => {
-      onClick();
-    }, 1000),
+  const throttledOnClick = useMemo(
+    () => throttle(() => onClick(), 1000),
     [onClick],
   );
 
   return (
     <button
-      onClick={throttledOnClick}
       className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+      onClick={throttledOnClick}
     >
       {children}
     </button>
@@ -170,8 +172,8 @@ function ThrottledButton({
 }
 
 export default function PerformanceDemo() {
-  const [renderCount, setRenderCount] = useState(0);
-  const [lastRenderTime, setLastRenderTime] = useState<number>(Date.now());
+  const [renderCount] = useState(0);
+  const [lastRenderTime, setLastRenderTime] = useState<number>(0);
   const [performanceMetrics, setPerformanceMetrics] = useState<{
     renderCount: number;
     averageRenderTime: number;
@@ -182,20 +184,24 @@ export default function PerformanceDemo() {
     renderCount: 0,
   });
 
-  // Track render performance
+  // Track render performance - only update on actual renders
   React.useEffect(() => {
     const now = Date.now();
-    const timeSinceLastRender = now - lastRenderTime;
+    const timeSinceLastRender = lastRenderTime > 0 ? now - lastRenderTime : 0;
 
-    setPerformanceMetrics((prev) => ({
-      averageRenderTime: (prev.averageRenderTime + timeSinceLastRender) / 2,
-      lastRenderTime: now,
-      renderCount: prev.renderCount + 1,
-    }));
+    if (timeSinceLastRender > 0) {
+      setPerformanceMetrics((prev) => ({
+        averageRenderTime:
+          prev.renderCount > 0
+            ? (prev.averageRenderTime + timeSinceLastRender) / 2
+            : timeSinceLastRender,
+        lastRenderTime: now,
+        renderCount: prev.renderCount + 1,
+      }));
+    }
 
     setLastRenderTime(now);
-    setRenderCount((prev) => prev + 1);
-  });
+  }, [lastRenderTime]);
 
   const handleSubmit = async (data: PerformanceForm) => {
     console.log("Performance form submitted:", data);
@@ -261,10 +267,9 @@ export default function PerformanceDemo() {
             Type in the input below. The onChange event is debounced by 300ms.
           </p>
           <DebouncedInput
-            value=""
-            onChange={handleDebouncedChange}
-            placeholder="Type here to see debouncing in action..."
             label="Debounced Input"
+            placeholder="Type here to see debouncing in action..."
+            onChange={handleDebouncedChange}
           />
           <div className="mt-4 p-3 bg-blue-50 rounded">
             <p className="text-sm text-blue-800">
@@ -309,16 +314,16 @@ export default function PerformanceDemo() {
         </p>
 
         <ZodForm
+          columns={2}
           config={{
             fields: performanceFormFields,
             schema: performanceFormSchema,
           }}
-          onSubmit={handleSubmit}
-          title="Performance Test Form"
-          subtitle="Large form with performance optimizations"
-          columns={2}
           layout="grid"
           showResetButton={true}
+          subtitle="Large form with performance optimizations"
+          title="Performance Test Form"
+          onSubmit={handleSubmit}
         />
       </div>
 
