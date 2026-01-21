@@ -1,8 +1,5 @@
 # Source files (not needed in distribution)
 src/
-react/
-# Keep the built react entrypoint
-!dist/react/
 
 # Test files
 *.cy.ts
@@ -17,7 +14,6 @@ example/
 # Build and development files
 vite.config.ts
 tsconfig.json
-tsconfig.react.json
 eslint.config.mjs
 
 # Development dependencies and configs

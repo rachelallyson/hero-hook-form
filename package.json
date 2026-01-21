@@ -42,9 +42,6 @@
     "*": {
       "cypress": [
         "./dist/cypress/index.d.ts"
-      ],
-      "react": [
-        "./dist/react/index.d.ts"
       ]
     }
   },
@@ -52,10 +49,6 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
-    },
-    "./react": {
-      "types": "./dist/react/index.d.ts",
-      "import": "./dist/react/index.js"
     },
     "./cypress": {
       "types": "./dist/cypress/index.d.ts",
@@ -72,7 +65,7 @@
     "node": ">=18.0.0"
   },
   "scripts": {
-    "build": "tsup src/index.ts --format esm --dts --clean && tsup src/index.ts --format esm --dts --env.NODE_ENV=production --tsconfig tsconfig.react.json --out-dir dist/react && tsup src/cypress/index.ts --format esm --out-dir dist/cypress && cp src/cypress/index.d.ts dist/cypress/index.d.ts",
+    "build": "tsup src/index.ts --format esm --dts --clean && tsup src/cypress/index.ts --format esm --out-dir dist/cypress && cp src/cypress/index.d.ts dist/cypress/index.d.ts",
     "dev:build": "tsup src/index.ts --format esm --dts --watch",
     "lint": "eslint src",
     "typecheck": "tsc --noEmit",

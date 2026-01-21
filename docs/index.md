@@ -101,7 +101,7 @@ import {
 } from "@rachelallyson/hero-hook-form";
 
 // React-specific exports
-import { InputField, CheckboxField } from "@rachelallyson/hero-hook-form/react";
+import { InputField, CheckboxField } from "@rachelallyson/hero-hook-form";
 
 // Cypress testing utilities
 import { cy } from "@rachelallyson/hero-hook-form/cypress";

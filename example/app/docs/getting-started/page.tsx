@@ -70,7 +70,7 @@ export default function GettingStartedPage() {
                 Import from the /react subpath:
               </p>
               <pre className="text-sm bg-muted p-4 rounded-lg overflow-x-auto">
-                {`import { InputField, SelectField, ConfigurableForm } from "@rachelallyson/hero-hook-form/react";`}
+                {`import { InputField, SelectField, ConfigurableForm } from "@rachelallyson/hero-hook-form";`}
               </pre>
             </CardBody>
           </Card>

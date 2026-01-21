@@ -12,6 +12,14 @@ All notable changes to this project will be documented in this file.
   - Critical for form automation tools, accessibility compliance, and proper form submission
   - Affects all input types (text, email, password, tel, number, etc.) in ZodForm
 
+### Internal
+
+- **Architecture Cleanup: Simplified HeroUI Integration**: Removed redundant dual-build system and `/react` subpath
+  - Eliminated duplicate `react/fields/` components and `tsconfig.react.json`
+  - Streamlined to single `#ui` alias approach that works with both individual `@heroui/*` packages and `@heroui/react`
+  - `@heroui/react` re-exports all components, making separate configurations unnecessary
+  - Cleaner codebase with same functionality and flexibility for users
+
 ## [2.7.0] - 2026-01-13
 
 ### Added

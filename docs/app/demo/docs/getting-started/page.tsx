@@ -67,10 +67,10 @@ export default function GettingStartedPage() {
                 {`npm install @rachelallyson/hero-hook-form react-hook-form @heroui/react`}
               </pre>
               <p className="text-sm text-muted-foreground">
-                Import from the /react subpath:
+                Import components (works with both installation methods):
               </p>
               <pre className="text-sm bg-muted p-4 rounded-lg overflow-x-auto">
-                {`import { InputField, SelectField, ConfigurableForm } from "@rachelallyson/hero-hook-form/react";`}
+                {`import { InputField, SelectField, ConfigurableForm } from "@rachelallyson/hero-hook-form";`}
               </pre>
             </CardBody>
           </Card>
