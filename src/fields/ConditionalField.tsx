@@ -78,7 +78,8 @@ export function ConditionalField<TFieldValues extends FieldValues>({
   const { condition, field } = config;
   const form = useFormContext<TFieldValues>();
 
-  // Watch all form values to determine if condition is met
+  // Optimize watching: try to determine which fields the condition depends on
+  // For now, watch all values, but this could be optimized by analyzing the condition function
   const formValues = useWatch({ control });
 
   // Check if condition is met

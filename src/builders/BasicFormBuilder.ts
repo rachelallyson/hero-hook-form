@@ -10,6 +10,7 @@ import type {
 import type {
   ConditionalFieldConfig,
   ContentFieldConfig,
+  FieldArrayConfig,
   ZodFormFieldConfig,
 } from "../types";
 
@@ -497,6 +498,78 @@ export const FormFieldHelpers = {
       condition,
       field,
       name,
+      type: "conditional",
+    };
+
+    return config;
+  },
+
+  /**
+   * Create a conditional field array that avoids memory leaks in Cypress tests.
+   *
+   * This helper creates a field array that is always registered but conditionally
+   * rendered, preventing the register/unregister cycles that cause memory
+   * accumulation in Cypress Electron renderer.
+   *
+   * @param name - The field array name
+   * @param condition - Function that determines if the field array should be visible
+   * @param label - Display label for the field array
+   * @param fields - Field configurations for array items
+   * @param options - Additional field array options
+   *
+   * @example
+   * ```tsx
+   * // Memory-safe conditional field array for multiple choice options
+   * FormFieldHelpers.conditionalFieldArray(
+   *   "choices",
+   *   (data) => data.questionType === 'MULTIPLE_CHOICE',
+   *   "Answer Choices",
+   *   [
+   *     FormFieldHelpers.input("text", "Choice Text"),
+   *     FormFieldHelpers.checkbox("isCorrect", "Correct Answer"),
+   *   ]
+   * )
+   * ```
+   */
+  conditionalFieldArray: <T extends FieldValues = FieldValues>(
+    name: ArrayPath<T>,
+    condition: (formData: Partial<T>) => boolean,
+    label: string,
+    fields: ZodFormFieldConfig<T>[],
+    options?: {
+      min?: number;
+      max?: number;
+      addButtonText?: string;
+      removeButtonText?: string;
+      enableReordering?: boolean;
+      defaultItem?: () => any;
+    },
+  ): ZodFormFieldConfig<T> => {
+    // Create the field array config with alwaysRegistered flag
+    const fieldArrayConfig: FieldArrayConfig<T> = {
+      addButtonText: options?.addButtonText ?? "Add Item",
+      alwaysRegistered: true,
+      defaultItem: options?.defaultItem,
+      enableReordering: options?.enableReordering ?? false,
+      fields,
+      label,
+
+      max: options?.max ?? 10,
+
+      // This prevents register/unregister cycles
+      min: options?.min ?? 0,
+
+      name,
+
+      removeButtonText: options?.removeButtonText ?? "Remove",
+      type: "fieldArray" as const,
+    };
+
+    // Wrap in conditional config for visibility control
+    const config: ConditionalFieldConfig<T> = {
+      condition,
+      field: fieldArrayConfig,
+      name: name as Path<T>, // ArrayPath extends Path, so this is safe
       type: "conditional",
     };
 

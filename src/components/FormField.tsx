@@ -477,6 +477,11 @@ function FormFieldComponent<TFieldValues extends FieldValues>({
         <FieldArrayField<TFieldValues>
           config={fieldArrayConfig}
           className={fieldArrayConfig.className}
+          alwaysRegistered={
+            "alwaysRegistered" in fieldConfig
+              ? fieldConfig.alwaysRegistered
+              : false
+          }
         />
       );
     }

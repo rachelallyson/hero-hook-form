@@ -17,6 +17,8 @@ import { FormField } from "../components/FormField";
 export interface FieldArrayFieldProps<TFieldValues extends FieldValues> {
   config: FieldArrayConfig<TFieldValues>;
   className?: string;
+  /** Whether this field array should always be registered (for conditional rendering) */
+  alwaysRegistered?: boolean;
 }
 
 /**
@@ -135,6 +137,7 @@ export interface FieldArrayFieldProps<TFieldValues extends FieldValues> {
  * @category Fields
  */
 export function FieldArrayField<TFieldValues extends FieldValues>({
+  alwaysRegistered = false,
   className,
   config,
 }: FieldArrayFieldProps<TFieldValues>) {
@@ -167,6 +170,11 @@ export function FieldArrayField<TFieldValues extends FieldValues>({
 
   const canAdd = fields.length < max;
   const canRemove = fields.length > min;
+
+  // For always-registered mode, render nothing if no fields (prevents UI flicker)
+  if (alwaysRegistered && fields.length === 0) {
+    return null;
+  }
 
   // Helper: Construct full path for a field within an array item
   // e.g., "items.0.fieldName" from array name "items", index 0, and field name "fieldName"

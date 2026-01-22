@@ -333,6 +333,8 @@ export interface FieldArrayConfig<TFieldValues extends FieldValues>
   };
   /** Function to create default item when adding new array item */
   defaultItem?: () => any;
+  /** Whether this field array should always be registered (for conditional rendering) */
+  alwaysRegistered?: boolean;
   /** Custom render function for array items */
   renderItem?: (props: {
     /** Item index (0-based) */

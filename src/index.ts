@@ -118,6 +118,7 @@ export * from "./builders/index.js";
 export * from "./hooks/useEnhancedFormState.js";
 export * from "./hooks/useDebouncedValidation.js";
 export * from "./hooks/useInferredForm.js";
+export * from "./hooks/useLazyFieldRegistration.js";
 
 // Dynamic form components
 export * from "./fields/ConditionalField.js";
@@ -134,6 +135,7 @@ export * from "./utils/performance.js";
 // Array utilities
 export * from "./utils/arraySync.js";
 export * from "./utils/createFieldArrayCustomConfig.js";
+export * from "./utils/fieldArrayMemory.js";
 
 // Enhanced validation patterns
 export * from "./builders/validation-helpers.js";
