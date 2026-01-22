@@ -95,7 +95,7 @@ export default function EnhancedDemoPage() {
                 type: "slider" as const,
                 name: "experience" as const,
                 label: "Years of Experience",
-                sliderProps: { min: 0, max: 50, step: 1 },
+                sliderProps: { minValue: 0, maxValue: 50, step: 1 },
               },
 
               FormFieldHelpers.content<EnhancedFormData>(
