@@ -12,10 +12,10 @@ import {
 
 describe('Field Array Memory Performance', () => {
   beforeEach(() => {
-    cy.visit('/dynamic-form-demo');
+    cy.visit('/question-form-demo');
   });
 
-  describe('Always-Registered Field Arrays', () => {
+  describe('Memory-Safe Conditional Field Arrays', () => {
     it('should handle conditional field arrays without memory leaks', () => {
       // Test the memory-safe conditional field array implementation
       // This tests the FormFieldHelpers.conditionalFieldArray functionality
@@ -23,8 +23,11 @@ describe('Field Array Memory Performance', () => {
       // Initially no field array should be visible
       cy.contains('label', 'Choice Text').should('not.exist');
 
+      // Fill in question text first
+      fillInputByLabel('Question Text', 'What is your favorite color?');
+
       // Change question type to MULTIPLE_CHOICE
-      selectDropdownByLabel('Question Type', 'MULTIPLE_CHOICE');
+      selectDropdownByLabel('Question Type', 'Multiple Choice');
 
       // Now the field array should appear
       cy.contains('label', 'Choice Text').should('be.visible');
@@ -47,7 +50,7 @@ describe('Field Array Memory Performance', () => {
       cy.contains('label', 'Choice Text').should('not.exist');
 
       // Change back to MULTIPLE_CHOICE
-      selectDropdownByLabel('Question Type', 'MULTIPLE_CHOICE');
+      selectDropdownByLabel('Question Type', 'Multiple Choice');
 
       // Choices should still be there (always-registered approach)
       for (let i = 1; i <= 5; i++) {
@@ -58,12 +61,12 @@ describe('Field Array Memory Performance', () => {
     it('should not accumulate memory with rapid condition changes', () => {
       // Test rapid toggling between conditions to check for memory leaks
       for (let i = 0; i < 10; i++) {
-        selectDropdownByLabel('Question Type', i % 2 === 0 ? 'MULTIPLE_CHOICE' : 'SINGLE_CHOICE');
+        selectDropdownByLabel('Question Type', i % 2 === 0 ? 'Multiple Choice' : 'Single Choice');
         cy.wait(50); // Small delay to allow DOM updates
       }
 
       // Final state should be stable
-      selectDropdownByLabel('Question Type', 'MULTIPLE_CHOICE');
+      selectDropdownByLabel('Question Type', 'Multiple Choice');
       cy.contains('label', 'Choice Text').should('be.visible');
 
       // Form should still be functional
@@ -77,7 +80,7 @@ describe('Field Array Memory Performance', () => {
   describe('Memory Cleanup', () => {
     it('should clean up field array memory after navigation', () => {
       // Add field array items
-      selectDropdownByLabel('Question Type', 'MULTIPLE_CHOICE');
+      selectDropdownByLabel('Question Type', 'Multiple Choice');
 
       for (let i = 0; i < 3; i++) {
         cy.contains('button', 'Add Item').click();
@@ -92,12 +95,12 @@ describe('Field Array Memory Performance', () => {
 
       // Form should be clean/reset
       cy.contains('label', 'Choice Text').should('not.exist');
-      selectDropdownByLabel('Question Type', 'MULTIPLE_CHOICE');
+      selectDropdownByLabel('Question Type', 'Multiple Choice');
       cy.contains('label', 'Choice Text').should('be.visible');
     });
 
     it('should handle field array operations without memory pressure', () => {
-      selectDropdownByLabel('Question Type', 'MULTIPLE_CHOICE');
+      selectDropdownByLabel('Question Type', 'Multiple Choice');
 
       // Add many items to test memory handling
       for (let i = 0; i < 20; i++) {
@@ -134,7 +137,7 @@ describe('Field Array Memory Performance', () => {
       });
 
       // Enable the condition
-      selectDropdownByLabel('Question Type', 'MULTIPLE_CHOICE');
+      selectDropdownByLabel('Question Type', 'Multiple Choice');
 
       // Fields should now be available
       cy.contains('button', 'Add Item').should('be.visible');
@@ -151,7 +154,7 @@ describe('Field Array Memory Performance', () => {
 
   describe('Performance Monitoring', () => {
     it('should monitor field array performance metrics', () => {
-      selectDropdownByLabel('Question Type', 'MULTIPLE_CHOICE');
+      selectDropdownByLabel('Question Type', 'Multiple Choice');
 
       // Start performance monitoring
       cy.window().then((win) => {
@@ -179,7 +182,7 @@ describe('Field Array Memory Performance', () => {
 
     it('should handle memory-intensive field array scenarios', () => {
       // Test with maximum allowed items
-      selectDropdownByLabel('Question Type', 'MULTIPLE_CHOICE');
+      selectDropdownByLabel('Question Type', 'Multiple Choice');
 
       // Add items up to the limit
       for (let i = 0; i < 10; i++) {

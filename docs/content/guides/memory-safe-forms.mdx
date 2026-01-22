@@ -1,0 +1,220 @@
+---
+title: Memory-Safe Conditional Field Arrays
+description: Prevent Cypress memory leaks with always-registered field arrays
+---
+
+# Memory-Safe Conditional Field Arrays
+
+This guide explains how to create conditional field arrays that won't cause memory leaks in Cypress tests.
+
+## The Problem
+
+Traditional conditional field arrays using `FormFieldHelpers.conditional()` can cause memory leaks in Cypress Electron renderer:
+
+```tsx
+// ❌ PROBLEMATIC: Causes memory leaks
+FormFieldHelpers.conditional(
+  'choices',
+  data => data.questionType === 'MULTIPLE_CHOICE', // Constant re-evaluation
+  {
+    type: 'fieldArray', // Register/unregister cycles
+    name: 'choices',
+    fields: [/* ... */],
+  }
+)
+```
+
+**Why it causes memory leaks:**
+- Field arrays get registered/unregistered on every condition change
+- React Hook Form creates/destroys complex field state objects
+- Cypress Electron renderer accumulates memory across test runs
+- V8 heap limits get exceeded with repeated test execution
+
+## The Solution
+
+Use `FormFieldHelpers.conditionalFieldArray()` for memory-safe conditional field arrays:
+
+```tsx
+// ✅ MEMORY-SAFE: Always registered, conditionally rendered
+FormFieldHelpers.conditionalFieldArray(
+  'choices', // Field array name
+  data => data.questionType === 'MULTIPLE_CHOICE', // Condition
+  'Answer Choices', // Display label
+  [ // Field definitions
+    FormFieldHelpers.input('choiceText', 'Choice Text'),
+    FormFieldHelpers.checkbox('isCorrect', 'Correct Answer'),
+  ],
+  { // Options
+    min: 2,
+    max: 6,
+    defaultItem: () => ({ choiceText: '', isCorrect: false }),
+  }
+)
+```
+
+## How It Works
+
+### Always-Registered Architecture
+- Field array is **always registered** in React Hook Form
+- UI is **conditionally rendered** based on form data
+- **No register/unregister cycles** that cause memory leaks
+- **Stable memory footprint** across Cypress test runs
+
+### Memory Management Features
+- Automatic garbage collection hints
+- Cleanup utilities for field arrays
+- Optimized for Cypress Electron renderer constraints
+- Compatible with long-running test suites
+
+## Complete Example
+
+```tsx
+import { z } from "zod";
+import { ZodForm, FormFieldHelpers } from "@rachelallyson/hero-hook-form";
+
+const questionSchema = z.object({
+  questionText: z.string().min(1),
+  questionType: z.enum(["SINGLE_CHOICE", "MULTIPLE_CHOICE", "TEXT"]),
+  choices: z.array(z.object({
+    choiceText: z.string().min(1),
+    isCorrect: z.boolean(),
+  })).optional(),
+});
+
+function QuestionForm() {
+  return (
+    <ZodForm
+      config={{
+        schema: questionSchema,
+        fields: [
+          FormFieldHelpers.input("questionText", "Question"),
+          FormFieldHelpers.select("questionType", "Type", [
+            { label: "Single Choice", value: "SINGLE_CHOICE" },
+            { label: "Multiple Choice", value: "MULTIPLE_CHOICE" },
+            { label: "Text Answer", value: "TEXT" },
+          ]),
+          // Memory-safe conditional field array
+          FormFieldHelpers.conditionalFieldArray(
+            "choices",
+            (data) => data.questionType === "MULTIPLE_CHOICE",
+            "Answer Choices",
+            [
+              FormFieldHelpers.input("choiceText", "Choice Text"),
+              FormFieldHelpers.checkbox("isCorrect", "Correct Answer"),
+            ],
+            {
+              min: 2,
+              max: 6,
+              addButtonText: "+ Add Choice",
+              defaultItem: () => ({ choiceText: "", isCorrect: false }),
+            }
+          ),
+        ],
+      }}
+      onSubmit={(data) => console.log(data)}
+    />
+  );
+}
+```
+
+## Migration Guide
+
+### From Problematic Code
+```tsx
+// Old problematic approach
+FormFieldHelpers.conditional(
+  'choices',
+  data => data.questionType === 'MULTIPLE_CHOICE',
+  {
+    type: 'fieldArray',
+    name: 'choices',
+    fields: [/* ... */],
+  }
+)
+```
+
+### To Memory-Safe Code
+```tsx
+// New memory-safe approach
+FormFieldHelpers.conditionalFieldArray(
+  'choices',
+  data => data.questionType === 'MULTIPLE_CHOICE',
+  'Choices',
+  [/* field definitions */],
+  { /* options */ }
+)
+```
+
+## Testing Considerations
+
+### Cypress Compatibility
+- ✅ **Compatible** with `experimentalMemoryManagement: true`
+- ✅ **Stable memory usage** across test runs
+- ✅ **No register/unregister cycles**
+- ✅ **Works with Electron renderer constraints**
+
+### Performance Benefits
+- **Faster test execution** (no field recreation overhead)
+- **Lower memory usage** (stable object references)
+- **Better garbage collection** (predictable cleanup)
+- **More reliable CI/CD** (consistent test behavior)
+
+## Advanced Usage
+
+### With Lazy Registration Hooks
+```tsx
+import { useLazyFieldArrayRegistration } from "@rachelallyson/hero-hook-form";
+
+function CustomFieldArray({ shouldShow }) {
+  const { isRegistered, currentValue } = useLazyFieldArrayRegistration(
+    'choices',
+    shouldShow,
+    [] // Default empty array
+  );
+
+  if (!isRegistered) return null;
+
+  return (
+    <FieldArrayField
+      config={{
+        name: 'choices',
+        fields: [/* ... */],
+        alwaysRegistered: true, // Memory-safe
+      }}
+    />
+  );
+}
+```
+
+### With Memory Cleanup Utilities
+```tsx
+import { fieldArrayMemory } from "@rachelallyson/hero-hook-form";
+
+// Batch operations with memory management
+fieldArrayMemory.addItems(appendFunction, items, (added) =>
+  console.log(`Added ${added} items`)
+);
+
+// Safe cleanup
+fieldArrayMemory.clearArray(setValue, 'choices');
+```
+
+## Troubleshooting
+
+### Memory Issues Persist
+1. **Check Cypress config**: Ensure `experimentalMemoryManagement: true`
+2. **Use conditionalFieldArray**: Avoid `FormFieldHelpers.conditional()` with field arrays
+3. **Monitor memory usage**: Use Cypress memory profiling tools
+4. **Update to latest version**: Memory improvements are ongoing
+
+### Performance Concerns
+1. **Limit field array size**: Keep arrays reasonably sized for tests
+2. **Use pagination**: For very large datasets, consider pagination
+3. **Optimize re-renders**: Use React.memo for custom field components
+4. **Profile memory**: Use browser dev tools to identify bottlenecks
+
+## Conclusion
+
+The `conditionalFieldArray` helper provides a **memory-safe alternative** to traditional conditional field arrays, specifically designed to work reliably with Cypress Electron renderer constraints. By keeping field arrays always registered but conditionally rendered, it eliminates the memory accumulation issues that plague traditional register/unregister approaches.
+
+**For Cypress compatibility**: Always use `FormFieldHelpers.conditionalFieldArray()` instead of wrapping field arrays in `FormFieldHelpers.conditional()`.
