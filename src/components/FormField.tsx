@@ -84,13 +84,31 @@ function FormFieldComponent<TFieldValues extends FieldValues>({
   }
 
   // Handle conditional rendering for other field types
-  // All field configs extend BaseFormFieldConfig, so these properties exist on all configs
+  // Special case: If this is a conditional field containing an alwaysRegistered field array,
+  // we want to render it even when the condition is false (the field array handles its own visibility)
+  let shouldRenderConditionalField = true;
+
   if (
     "condition" in fieldConfig &&
     fieldConfig.condition &&
     !fieldConfig.condition(watchedValues)
   ) {
-    return null;
+    // Check if this conditional field contains an alwaysRegistered field array
+    if (
+      "field" in fieldConfig &&
+      fieldConfig.field &&
+      typeof fieldConfig.field === "object" &&
+      "type" in fieldConfig.field &&
+      fieldConfig.field.type === "fieldArray" &&
+      "alwaysRegistered" in fieldConfig.field &&
+      fieldConfig.field.alwaysRegistered === true
+    ) {
+      // This is an alwaysRegistered field array - render it anyway
+      shouldRenderConditionalField = true;
+    } else {
+      // Regular conditional field - don't render when condition is false
+      return null;
+    }
   }
 
   // Handle dependency-based conditional rendering

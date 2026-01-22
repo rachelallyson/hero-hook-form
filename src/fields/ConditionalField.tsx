@@ -85,14 +85,31 @@ export function ConditionalField<TFieldValues extends FieldValues>({
   // Check if condition is met
   const shouldShow = condition(formValues);
 
-  // Don't render anything if condition is not met
-  if (!shouldShow) {
+  // Special case: If this conditional field contains an alwaysRegistered field array,
+  // render it even when condition is false (but it will handle its own visibility)
+  const isAlwaysRegisteredFieldArray =
+    field &&
+    typeof field === "object" &&
+    "type" in field &&
+    field.type === "fieldArray" &&
+    "alwaysRegistered" in field &&
+    field.alwaysRegistered === true;
+
+  // Don't render anything if condition is not met (unless it's an alwaysRegistered field array)
+  if (!shouldShow && !isAlwaysRegisteredFieldArray) {
     return null;
   }
 
-  // Render the child field when condition is met
+  // Render the child field when condition is met, or when it's an alwaysRegistered field array
   return (
-    <div className={className}>
+    <div
+      className={className}
+      style={
+        !shouldShow && isAlwaysRegisteredFieldArray
+          ? { display: "none" }
+          : undefined
+      }
+    >
       <FormField<TFieldValues>
         config={field}
         form={form}
