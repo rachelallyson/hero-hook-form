@@ -2,6 +2,38 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.8.0] - 2026-01-21
+
+### Added
+
+- **Field Array Memory Leak Fixes**: Comprehensive solution for Cypress Electron renderer memory issues
+  - `FormFieldHelpers.conditionalFieldArray()` - Memory-safe conditional field arrays that prevent register/unregister cycles
+  - `alwaysRegistered` prop for `FieldArrayField` - Keeps fields registered but conditionally renders UI
+  - `useLazyFieldRegistration` and `useLazyFieldArrayRegistration` hooks - Lazy registration for better initial memory usage
+  - `fieldArrayMemory` utilities - Memory cleanup helpers with garbage collection hints
+  - Cypress memory optimizations - `experimentalMemoryManagement` and reduced memory retention
+
+- **Performance Monitoring**: Enhanced field array performance tracking
+  - Memory usage monitoring for field array operations
+  - Performance metrics collection for long-running tests
+  - Garbage collection suggestions for memory-intensive operations
+
+### Fixed
+
+- **Critical Bug Fix: Input Name Attributes**: Fixed missing `name` prop forwarding in `InputField` component
+  - `CoercedInput` now properly passes `name={field.name}` to HeroUI Input components
+  - Fixes accessibility issues where form inputs had no name attribute in DOM
+  - Critical for form automation tools, accessibility compliance, and proper form submission
+  - Affects all input types (text, email, password, tel, number, etc.) in ZodForm
+
+### Internal
+
+- **Architecture Cleanup: Simplified HeroUI Integration**: Removed redundant dual-build system and `/react` subpath
+  - Eliminated duplicate `react/fields/` components and `tsconfig.react.json`
+  - Streamlined to single `#ui` alias approach that works with both individual `@heroui/*` packages and `@heroui/react`
+  - `@heroui/react` re-exports all components, making separate configurations unnecessary
+  - Cleaner codebase with same functionality and flexibility for users
+
 ## [2.7.2] - 2026-01-21
 
 ### Fixed
