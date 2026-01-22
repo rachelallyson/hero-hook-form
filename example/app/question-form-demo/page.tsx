@@ -109,7 +109,9 @@ export default function QuestionFormDemo() {
             <li>
               • Uses <code>FormFieldHelpers.conditionalFieldArray()</code>
             </li>
-            <li>• Field array is always registered but conditionally rendered</li>
+            <li>
+              • Field array is always registered but conditionally rendered
+            </li>
             <li>• No register/unregister cycles that cause memory leaks</li>
             <li>• Compatible with Cypress Electron renderer memory limits</li>
             <li>• Perfect for multiple choice questions and dynamic forms</li>
@@ -121,7 +123,7 @@ export default function QuestionFormDemo() {
             ❌ Old Problematic Approach (Memory Leaks)
           </h3>
           <pre className="text-xs text-red-800 bg-red-100 p-2 rounded overflow-x-auto">
-{`FormFieldHelpers.conditional(
+            {`FormFieldHelpers.conditional(
   'choices',
   data => data.questionType === 'MULTIPLE_CHOICE', // 👈 Constant re-evaluation
   {
@@ -132,7 +134,8 @@ export default function QuestionFormDemo() {
 )`}
           </pre>
           <p className="text-sm text-red-800 mt-2">
-            This causes memory leaks in Cypress due to constant field registration/unregistration cycles.
+            This causes memory leaks in Cypress due to constant field
+            registration/unregistration cycles.
           </p>
         </div>
 
@@ -141,7 +144,7 @@ export default function QuestionFormDemo() {
             ✅ New Memory-Safe Solution
           </h3>
           <pre className="text-xs text-green-800 bg-green-100 p-2 rounded overflow-x-auto">
-{`FormFieldHelpers.conditionalFieldArray(
+            {`FormFieldHelpers.conditionalFieldArray(
   'choices',
   data => data.questionType === 'MULTIPLE_CHOICE',
   'Answer Choices',
@@ -157,7 +160,8 @@ export default function QuestionFormDemo() {
 )`}
           </pre>
           <p className="text-sm text-green-800 mt-2">
-            Always-registered field arrays prevent memory accumulation in Cypress tests.
+            Always-registered field arrays prevent memory accumulation in
+            Cypress tests.
           </p>
         </div>
       </div>

@@ -26,7 +26,7 @@ describe('Field Array Memory Performance', () => {
       // Fill in question text first
       fillInputByLabel('Question Text', 'What is your favorite color?');
 
-      // Change question type to MULTIPLE_CHOICE
+      // Change question type to Multiple Choice
       selectDropdownByLabel('Question Type', 'Multiple Choice');
 
       // Now the field array should appear
@@ -44,7 +44,7 @@ describe('Field Array Memory Performance', () => {
       }
 
       // Change back to different type
-      selectDropdownByLabel('Question Type', 'SINGLE_CHOICE');
+      selectDropdownByLabel('Question Type', 'Single Choice');
 
       // Field array should disappear (but remain registered)
       cy.contains('label', 'Choice Text').should('not.exist');
