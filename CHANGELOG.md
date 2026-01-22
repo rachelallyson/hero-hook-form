@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.9.0] - 2026-01-22
+
+### Added
+
+- **Documentation: Memory-Safe Forms Guide**: Comprehensive guide for preventing Cypress memory leaks
+  - Complete migration guide from problematic to memory-safe conditional field arrays
+  - Working code examples and best practices
+  - Troubleshooting section for memory issues
+  - Performance optimization recommendations
+
+- **Examples: Question Form Demo**: Working demonstration of memory-safe conditional field arrays
+  - Interactive example showing MULTIPLE_CHOICE question types
+  - Before/after code comparisons
+  - Real-world implementation patterns
+  - Cypress e2e test coverage
+
+- **Enhanced Testing**: Additional test coverage and refinements
+  - Question form e2e tests demonstrating memory safety
+  - Updated Cypress test patterns for memory optimization
+  - Comprehensive validation of conditional field array behavior
+
+### Fixed
+
+- **Test File Naming**: Corrected Cypress test file extensions (`.cy.ts` vs `.spec.ts`)
+- **Conditional Rendering**: Improved formatting and error handling in conditional field components
+
 ## [2.8.0] - 2026-01-22
 
 ### Added
