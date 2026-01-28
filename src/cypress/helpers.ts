@@ -44,7 +44,7 @@ import {
  * cy.fillInputByName('email', 'user@example.com');
  * cy.fillInputByName('firstName', 'John');
  */
-export function fillInputByName(name: string, value: string, options: FieldInteractionOptions = {}) {
+export function fillInputByName(name: string, value: string, options: FieldInteractionOptions = {clear: true}) {
   return withRetry(() => {
     // Wait for form to be ready first
     waitForFormReady();
@@ -69,7 +69,7 @@ export function fillInputByName(name: string, value: string, options: FieldInter
  * Fill input field by type attribute (email, tel, text, password, etc.)
  * Falls back to name attribute if available for better reliability
  */
-export function fillInputByType(type: string, value: string, index: number = 0, options: FieldInteractionOptions = {}) {
+export function fillInputByType(type: string, value: string, index: number = 0, options: FieldInteractionOptions = {clear: true}) {
   // Handle textarea specially
   const selector = type === 'textarea' ? buildHeroUISelector('textarea') : buildHeroUISelector('input', type);
   const element = index > 0 ? cy.get(selector).eq(index) : cy.get(selector).first();
@@ -86,7 +86,7 @@ export function fillInputByType(type: string, value: string, index: number = 0, 
 /**
  * Fill input field by placeholder text
  */
-export function fillInputByPlaceholder(placeholder: string, value: string, options: FieldInteractionOptions = {}) {
+export function fillInputByPlaceholder(placeholder: string, value: string, options: FieldInteractionOptions = {clear: true}) {
   const selector = `input[placeholder*="${placeholder}"], textarea[placeholder*="${placeholder}"]`;
   
   return withRetry(() => {
@@ -101,18 +101,19 @@ export function fillInputByPlaceholder(placeholder: string, value: string, optio
 /**
  * Find input by label and fill it
  */
-export function fillInputByLabel(label: string, value: string, options: FieldInteractionOptions = {}) {
+export function fillInputByLabel(label: string, value: string, options: FieldInteractionOptions = {clear: true}) {
   return withRetry(() => {
-    return cy.contains('label', label)
+    const element = cy.contains('label', label)
       .closest('div')
       .find('input, textarea')
-      .first()
-      .then(($el) => {
-        if (options.clear !== false) {
-          cy.wrap($el).clear({ force: true });
-        }
-        return cy.wrap($el).type(value, { force: true });
-      });
+      .first();
+
+    // Default to clearing the input first (especially important for number inputs with default values)
+    const shouldClear = options.clear !== false;
+    if (shouldClear) {
+      element.clear({ force: true });
+    }
+    return element.type(value, { force: true });
   }, DEFAULT_CONFIG);
 }
 
@@ -122,7 +123,7 @@ export function fillInputByLabel(label: string, value: string, options: FieldInt
  * @example
  * cy.fillTextareaByName('message', 'This is my message');
  */
-export function fillTextareaByName(name: string, value: string, options: FieldInteractionOptions = {}) {
+export function fillTextareaByName(name: string, value: string, options: FieldInteractionOptions = {clear: true}) {
   return withRetry(() => {
     const element = cy.get(`textarea[name="${name}"]`);
     
@@ -137,7 +138,7 @@ export function fillTextareaByName(name: string, value: string, options: FieldIn
 /**
  * Fill textarea field by index
  */
-export function fillTextarea(value: string, index: number = 0, options: FieldInteractionOptions = {}) {
+export function fillTextarea(value: string, index: number = 0, options: FieldInteractionOptions = {clear: true}) {
   const selector = HERO_UI_SELECTORS.textarea;
   
   return withRetry(() => {
