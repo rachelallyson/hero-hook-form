@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.9.1] - 2026-01-28
+
+### Fixed
+
+- **Cypress Testing: fillInputByLabel clearing behavior**: Fixed issue where `fillInputByLabel` may not properly clear number inputs with default values
+  - Refactored to use a single chain ensuring clear operation completes before typing
+  - Ensures reliable clearing of all input types, especially number inputs with default values
+  - Clearing is now explicitly documented as the default behavior
+
 ## [2.9.0] - 2026-01-22
 
 ### Added
