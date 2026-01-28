@@ -37,6 +37,12 @@ export default function Home() {
       title: "New Fields Demo",
     },
     {
+      description:
+        "Date input styling and default value (HeroHookFormProvider + defaultValues)",
+      href: "/date-input-demo",
+      title: "Date Input Demo",
+    },
+    {
       description: "Demonstration of form configuration options",
       href: "/config-demo",
       title: "Config Demo",

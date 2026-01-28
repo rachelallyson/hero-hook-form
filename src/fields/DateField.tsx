@@ -8,6 +8,7 @@ import { Controller } from "react-hook-form";
 
 import { useHeroHookFormDefaults } from "../providers/ConfigProvider";
 import type { FieldBaseProps, WithControl } from "../types";
+import { toCalendarDateValue } from "../utils/dateCoercion";
 
 import { DateInput } from "#ui";
 
@@ -68,6 +69,8 @@ function CoercedDateInput<TFieldValues extends FieldValues>(props: {
     props;
   const defaults = useHeroHookFormDefaults();
 
+  const dateValue = toCalendarDateValue(field.value);
+
   return (
     <DateInput
       {...defaults.dateInput}
@@ -78,7 +81,7 @@ function CoercedDateInput<TFieldValues extends FieldValues>(props: {
       isInvalid={Boolean(errorMessage)}
       label={label}
       name={field.name}
-      value={field.value ?? null}
+      value={dateValue}
       onBlur={field.onBlur}
       onChange={field.onChange}
     />

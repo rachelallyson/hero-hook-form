@@ -662,11 +662,10 @@ export const FormFieldHelpers = {
    * // Simple date field
    * FormFieldHelpers.date("birthDate", "Birth Date")
    *
-   * // With full customization
+   * // With DateInput props (set default via config.defaultValues)
    * FormFieldHelpers.date("birthDate", "Birth Date", {
-   *   label: "Select your birth date",
    *   granularity: "day",
-   *   minValue: new CalendarDate(1900, 1, 1)
+   *   minValue: new CalendarDate(1900, 1, 1),
    * })
    * ```
    */
@@ -683,7 +682,7 @@ export const FormFieldHelpers = {
       | "isDisabled"
     >,
   ): ZodFormFieldConfig<T> => ({
-    dateProps,
+    dateProps: Object.keys(dateProps ?? {}).length > 0 ? dateProps : undefined,
     label,
     name,
     type: "date",

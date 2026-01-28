@@ -50,7 +50,7 @@ export function suggestGarbageCollection() {
     try {
       // Force garbage collection if available (only in dev/test environments)
       (window as any).gc();
-    } catch (error) {
+    } catch {
       // Ignore GC errors
     }
   }
@@ -63,7 +63,7 @@ export const memorySafeFieldArray = {
   /**
    * Add items to a field array with memory management.
    */
-  addItems: <TFieldValues extends FieldValues>(
+  addItems: (
     append: (value: any) => void,
     items: any[],
     onProgress?: (addedCount: number) => void,
@@ -95,6 +95,7 @@ export const memorySafeFieldArray = {
   /**
    * Clear entire field array with memory cleanup.
    */
+
   clearArray: <TFieldValues extends FieldValues>(
     setValue: (name: FieldPath<TFieldValues>, value: any) => void,
     arrayName: FieldPath<TFieldValues>,
@@ -106,10 +107,7 @@ export const memorySafeFieldArray = {
   /**
    * Remove items from a field array with memory cleanup.
    */
-  removeItems: <TFieldValues extends FieldValues>(
-    remove: (index: number) => void,
-    indices: number[],
-  ) => {
+  removeItems: (remove: (index: number) => void, indices: number[]) => {
     // Sort indices in descending order to avoid index shifting issues
     const sortedIndices = [...indices].sort((a, b) => b - a);
 

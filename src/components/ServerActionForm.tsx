@@ -27,6 +27,7 @@ import { useActionState } from "react";
 import type { z } from "zod";
 
 import { pathToString } from "../types";
+import { toCalendarDateValue } from "../utils/dateCoercion";
 import type {
   BooleanFieldConfig,
   CheckboxGroupFieldConfig,
@@ -944,6 +945,8 @@ function ServerActionField<T extends FieldValues>({
         | DateFieldConfig<FieldValues>;
 
       // DateInput doesn't forward name to spinbuttons, so we rely on hidden input
+      const dateValue = toCalendarDateValue(value);
+
       return (
         <>
           {/* Hidden native input for FormData - DateInput doesn't forward name prop */}
@@ -956,11 +959,7 @@ function ServerActionField<T extends FieldValues>({
             isDisabled={baseProps.isDisabled}
             isInvalid={Boolean(errorMessage)}
             errorMessage={errorMessage}
-            value={
-              value
-                ? (value as unknown as import("@internationalized/date").DateValue)
-                : null
-            }
+            value={dateValue}
             onChange={(date) => {
               // Convert CalendarDate to string for FormData
               const dateString = date

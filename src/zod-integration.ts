@@ -1,3 +1,4 @@
+import { CalendarDate } from "@internationalized/date";
 import type {
   DefaultValues,
   FieldErrors,
@@ -56,16 +57,142 @@ function createZodResolver<T extends FieldValues>(
 }
 
 /**
+ * Convert Date, ISO string, or CalendarDate to CalendarDate.
+ * Returns null if input is null/undefined.
+ */
+function toCalendarDate(
+  value: unknown,
+): import("@internationalized/date").CalendarDate | null {
+  if (value === null || value === undefined) {
+    return null;
+  }
+
+  // Already a CalendarDate
+  if (
+    typeof value === "object" &&
+    "year" in value &&
+    "month" in value &&
+    "day" in value &&
+    typeof (value as { year: unknown }).year === "number"
+  ) {
+    return value as CalendarDate;
+  }
+
+  // Date object
+  if (value instanceof Date) {
+    return new CalendarDate(
+      value.getFullYear(),
+      value.getMonth() + 1,
+      value.getDate(),
+    );
+  }
+
+  // ISO string (YYYY-MM-DD or full ISO)
+  if (typeof value === "string") {
+    const date = new Date(value);
+
+    if (!isNaN(date.getTime())) {
+      return new CalendarDate(
+        date.getFullYear(),
+        date.getMonth() + 1,
+        date.getDate(),
+      );
+    }
+  }
+
+  // Fallback: try to return as-is (might already be CalendarDate with different shape)
+  return value as CalendarDate | null;
+}
+
+/**
+ * Build default values from field configs (fields that have a name and defaultValue property).
+ * Used so date and other fields can set default via field config when config.defaultValues is partial.
+ * Automatically converts Date/string values to CalendarDate for date fields.
+ */
+function defaultValuesFromFields<T extends FieldValues>(
+  fields: ZodFormFieldConfig<T>[],
+): Partial<T> {
+  const out: Record<string, unknown> = {};
+  const dateFieldNames = new Set<string>();
+
+  // First pass: identify date fields
+  for (const field of fields) {
+    if ("name" in field && field.name !== undefined && field.type === "date") {
+      dateFieldNames.add(String(field.name));
+    }
+  }
+
+  // Second pass: collect defaults and convert date values
+  for (const field of fields) {
+    if (
+      "name" in field &&
+      field.name !== undefined &&
+      "defaultValue" in field &&
+      field.defaultValue !== undefined
+    ) {
+      const fieldName = String(field.name);
+      let value = field.defaultValue;
+
+      // Convert Date/string to CalendarDate for date fields
+      if (dateFieldNames.has(fieldName)) {
+        value = toCalendarDate(value);
+      }
+
+      out[fieldName] = value;
+    }
+  }
+
+  return out as Partial<T>;
+}
+
+/**
  * Hook for using Zod validation with React Hook Form
  */
 export function useZodForm<TFieldValues extends FieldValues>(
   config: ZodFormConfig<TFieldValues>,
 ) {
-  if (!config.resolver && config.schema) {
-    config.resolver = createZodResolver(config.schema);
+  const resolver =
+    config.resolver ??
+    (config.schema ? createZodResolver(config.schema) : undefined);
+
+  const fieldDefaults = defaultValuesFromFields(
+    config.fields as ZodFormFieldConfig<TFieldValues>[],
+  );
+  const hasFieldDefaults = Object.keys(fieldDefaults).length > 0;
+
+  // Convert Date/string values to CalendarDate for date fields in config.defaultValues
+  const dateFieldNames = new Set<string>();
+
+  for (const field of config.fields) {
+    if ("name" in field && field.name !== undefined && field.type === "date") {
+      dateFieldNames.add(String(field.name));
+    }
   }
 
-  return useForm<TFieldValues>(config);
+  const convertedConfigDefaults = config.defaultValues
+    ? Object.entries(config.defaultValues).reduce(
+        (acc, [key, value]) => {
+          acc[key] = dateFieldNames.has(key) ? toCalendarDate(value) : value;
+
+          return acc;
+        },
+        {} as Record<string, unknown>,
+      )
+    : undefined;
+
+  const mergedDefaultValues: DefaultValues<TFieldValues> | undefined =
+    hasFieldDefaults || convertedConfigDefaults
+      ? ({
+          ...fieldDefaults,
+          ...convertedConfigDefaults,
+        } as DefaultValues<TFieldValues>)
+      : convertedConfigDefaults;
+
+  return useForm<TFieldValues>({
+    ...config,
+    ...(resolver && { resolver }),
+    defaultValues: mergedDefaultValues,
+  });
 }
 
 /**

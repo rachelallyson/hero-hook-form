@@ -86,8 +86,6 @@ function FormFieldComponent<TFieldValues extends FieldValues>({
   // Handle conditional rendering for other field types
   // Special case: If this is a conditional field containing an alwaysRegistered field array,
   // we want to render it even when the condition is false (the field array handles its own visibility)
-  let shouldRenderConditionalField = true;
-
   if (
     "condition" in fieldConfig &&
     fieldConfig.condition &&
@@ -103,8 +101,7 @@ function FormFieldComponent<TFieldValues extends FieldValues>({
       "alwaysRegistered" in fieldConfig.field &&
       fieldConfig.field.alwaysRegistered === true
     ) {
-      // This is an alwaysRegistered field array - render it anyway
-      shouldRenderConditionalField = true;
+      // This is an alwaysRegistered field array - render it anyway (fall through)
     } else {
       // Regular conditional field - don't render when condition is false
       return null;
@@ -363,9 +360,6 @@ function FormFieldComponent<TFieldValues extends FieldValues>({
           control={control}
           dateProps={
             "dateProps" in fieldConfig ? fieldConfig.dateProps : undefined
-          }
-          defaultValue={
-            "defaultValue" in fieldConfig ? fieldConfig.defaultValue : undefined
           }
         />
       );

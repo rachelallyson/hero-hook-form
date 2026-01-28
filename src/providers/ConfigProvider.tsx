@@ -98,15 +98,11 @@ export type SelectDefaults = Partial<
   >
 >;
 
+type DateInputProps = React.ComponentProps<typeof DateInput>;
 export type DateInputDefaults = Partial<
   Omit<
-    React.ComponentProps<typeof DateInput>,
-    | "value"
-    | "onValueChange"
-    | "label"
-    | "isInvalid"
-    | "errorMessage"
-    | "isDisabled"
+    DateInputProps,
+    "value" | "onChange" | "label" | "isInvalid" | "errorMessage" | "isDisabled"
   >
 >;
 
@@ -180,6 +176,12 @@ type TextareaCommonConfig = Partial<
 >;
 type SelectCommonConfig = Partial<
   Pick<SelectProps, "color" | "size" | "variant" | "radius" | "labelPlacement">
+>;
+type DateInputCommonConfig = Partial<
+  Pick<
+    DateInputProps,
+    "color" | "size" | "variant" | "radius" | "labelPlacement"
+  >
 >;
 
 /**
@@ -290,6 +292,41 @@ function extractSelectCommon(common: CommonFieldDefaults): SelectCommonConfig {
   return result;
 }
 
+function extractDateInputCommon(
+  common: CommonFieldDefaults,
+): DateInputCommonConfig {
+  const result: DateInputCommonConfig = {};
+
+  if (common.color !== undefined) {
+    const color: DateInputProps["color"] = common.color;
+
+    result.color = color;
+  }
+  if (common.size !== undefined) {
+    const size: DateInputProps["size"] = common.size;
+
+    result.size = size;
+  }
+  if (common.variant !== undefined) {
+    const variant: DateInputProps["variant"] = common.variant;
+
+    result.variant = variant;
+  }
+  if (common.radius !== undefined) {
+    const radius: DateInputProps["radius"] = common.radius;
+
+    result.radius = radius;
+  }
+  if (common.labelPlacement !== undefined) {
+    const labelPlacement: DateInputProps["labelPlacement"] =
+      common.labelPlacement;
+
+    result.labelPlacement = labelPlacement;
+  }
+
+  return result;
+}
+
 export function useHeroHookFormDefaults(): Required<
   Pick<
     HeroHookFormDefaultsConfig,
@@ -312,15 +349,28 @@ export function useHeroHookFormDefaults(): Required<
   const commonInput = extractInputCommon(common);
   const commonTextarea = extractTextareaCommon(common);
   const commonSelect = extractSelectCommon(common);
+  const commonDateInput = extractDateInputCommon(common);
 
   // For other components, we don't apply common config because:
   // 1. Their prop types may not be compatible with SharedTextLike* types
   // 2. Users can still set component-specific defaults in cfg.checkbox, etc.
   // This is a breaking change but results in better type safety
 
+  // DateInput: match Input by default (bordered, md) so they look the same with or without provider.
+  // HeroUI DateInput often defaults to a different variant than Input; this aligns them.
+  const dateInputBase: DateInputDefaults = {
+    radius: "md",
+    size: "md",
+    variant: "bordered",
+  };
+
   return {
     checkbox: cfg.checkbox ?? {},
-    dateInput: cfg.dateInput ?? {},
+    dateInput: {
+      ...dateInputBase,
+      ...commonDateInput,
+      ...(cfg.dateInput ?? {}),
+    },
     input: { ...commonInput, ...(cfg.input ?? {}) },
     radioGroup: cfg.radioGroup ?? {},
     select: { ...commonSelect, ...(cfg.select ?? {}) },

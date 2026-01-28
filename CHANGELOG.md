@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.9.2] - 2026-01-28
+
+### Added
+
+- **Date field: Date and ISO string default values** – You can pass a normal JavaScript `Date` or an ISO date string (e.g. `"2025-03-20"`) in `defaultValues` for date fields; the library converts them to `CalendarDate` for HeroUI DateInput.
+- **Shared date coercion** – New `toCalendarDateValue()` in `utils/dateCoercion.ts`; used by `DateField` and `ServerActionForm` so date inputs always receive a valid `CalendarDate | null` and no longer throw "Invalid granularity day" for raw `Date` values.
+- **ConfigProvider: DateInput common defaults** – Date inputs now receive the same `common` defaults (variant, size, radius, labelPlacement) as Input, Textarea, and Select when using `HeroHookFormProvider` with `defaults.common`.
+- **useZodForm** – Merges field-level `defaultValue` from field configs into form `defaultValues`; date values in `config.defaultValues` are converted to `CalendarDate` for date fields.
+- **Docs: Date Input Demo** – Demo page showing Date vs ISO string defaults, shared styles via HeroHookFormProvider, and ZodForm with date defaults.
+
+### Fixed
+
+- **Date input default value** – Default values for date fields now work when set via `config.defaultValues`; Date/string values are converted to `CalendarDate`.
+- **Date input styling** – DateInput now receives `common` styling from ConfigProvider so it matches other inputs when using `HeroHookFormProvider`.
+- **"Invalid granularity day" error** – DateField and ServerActionForm coerce Date/string to CalendarDate before passing to HeroUI DateInput, fixing the console error when defaultValues used raw `Date` or the server wasn’t restarted after package changes.
+- **useZodForm config mutation** – Resolver is no longer assigned onto the caller’s config object; a new options object is built instead.
+- **Lint** – Removed unused `shouldRenderConditionalField` (FormField), fixed unused catch binding and type params (fieldArrayMemory).
+
 ## [2.9.1] - 2026-01-28
 
 ### Fixed
