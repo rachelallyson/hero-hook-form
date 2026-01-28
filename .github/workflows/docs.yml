@@ -42,6 +42,29 @@ jobs:
       - name: Generate API docs (TypeDoc)
         run: npm run docs:api
 
+      - name: Verify API docs were generated
+        run: |
+          if [ ! -f "docs/content/api/README.md" ]; then
+            echo "Error: API docs were not generated!"
+            exit 1
+          fi
+          echo "✓ API docs generated successfully"
+          ls -la docs/content/api/ | head -10
+          
+      - name: Ensure API directory structure for Nextra
+        run: |
+          # Nextra should discover files automatically, but verify structure
+          if [ ! -d "docs/content/api" ]; then
+            echo "Error: API directory does not exist!"
+            exit 1
+          fi
+          # Count generated markdown files
+          MD_COUNT=$(find docs/content/api -name "*.md" | wc -l)
+          echo "✓ Found $MD_COUNT markdown files in API directory"
+          if [ "$MD_COUNT" -eq 0 ]; then
+            echo "Warning: No markdown files found in API directory"
+          fi
+
       - name: Install docs dependencies
         working-directory: docs
         run: npm install
