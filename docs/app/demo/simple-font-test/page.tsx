@@ -22,7 +22,7 @@ export default function SimpleFontTest() {
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <FontPickerField
-          control={control}
+          control={control as any}
           name="font"
           label="Choose Font"
           description="Select your preferred font"

@@ -3,6 +3,7 @@
 import React from "react";
 import type { Control, FieldErrors, UseFormReturn } from "react-hook-form";
 import { z } from "zod";
+import type { ZodFormFieldConfig } from "@rachelallyson/hero-hook-form";
 import {
   ZodForm,
   FormFieldHelpers,
@@ -103,14 +104,13 @@ export default function EnhancedDemoPage() {
                 "Select your technical skills",
               ),
 
-              // Skills as custom field
+              // Skills as custom field (asserted to avoid duplicate react-hook-form type conflict in monorepo)
               {
                 type: "custom" as const,
                 name: "skills" as const,
                 label: "Skills",
                 render: ({
                   form,
-                  control,
                 }: {
                   form: UseFormReturn<EnhancedFormData>;
                   control: Control<EnhancedFormData>;
@@ -145,7 +145,7 @@ export default function EnhancedDemoPage() {
                     </div>
                   );
                 },
-              },
+              } as ZodFormFieldConfig<EnhancedFormData>,
 
               FormFieldHelpers.content<EnhancedFormData>(
                 "Profile",

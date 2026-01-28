@@ -5,7 +5,7 @@ import { z } from "zod";
 import {
   ZodForm,
   createAdvancedBuilder,
-  createField,
+  createFieldArrayBuilder,
   useDebouncedValidation,
   usePerformanceMonitor,
   debounce,
@@ -38,35 +38,30 @@ const performanceFormSchema = z.object({
 type PerformanceForm = z.infer<typeof performanceFormSchema>;
 
 const performanceFormFields = createAdvancedBuilder<PerformanceForm>()
-  .field("input", "firstName", "First Name")
-  .field("input", "lastName", "Last Name")
-  .field("input", "email", "Email", { type: "email" })
-  .field("input", "phone", "Phone", { type: "tel" })
-  .field("input", "address", "Address")
-  .field("input", "city", "City")
-  .field("input", "state", "State")
-  .field("input", "zip", "ZIP Code")
-  .field("input", "country", "Country")
-  .field("textarea", "bio", "Bio", { rows: 4 })
-  .fieldArray(
-    "skills",
-    "Skills",
-    [createField("input", "skill", "Skill Name")],
-    {
-      addButtonText: "Add Skill",
-      max: 10,
-      min: 0,
-      removeButtonText: "Remove Skill",
-    },
-  )
+  .field({ type: "input", name: "firstName", label: "First Name" })
+  .field({ type: "input", name: "lastName", label: "Last Name" })
+  .field({ type: "input", name: "email", label: "Email", props: { type: "email" } })
+  .field({ type: "input", name: "phone", label: "Phone", props: { type: "tel" } })
+  .field({ type: "input", name: "address", label: "Address" })
+  .field({ type: "input", name: "city", label: "City" })
+  .field({ type: "input", name: "state", label: "State" })
+  .field({ type: "input", name: "zip", label: "ZIP Code" })
+  .field({ type: "input", name: "country", label: "Country" })
+  .field({ type: "textarea", name: "bio", label: "Bio", props: { rows: 4 } })
+  .field({
+    type: "stringArray",
+    name: "skills",
+    label: "Skills",
+    props: { addButtonText: "Add Skill", placeholder: "Enter a skill" },
+  })
   .fieldArray(
     "experience",
     "Work Experience",
-    [
-      createField("input", "company", "Company"),
-      createField("input", "position", "Position"),
-      createField("input", "duration", "Duration"),
-    ],
+    createFieldArrayBuilder<PerformanceForm, "experience">("experience")
+      .field({ type: "input", name: "company", label: "Company" })
+      .field({ type: "input", name: "position", label: "Position" })
+      .field({ type: "input", name: "duration", label: "Duration" })
+      .build(),
     {
       addButtonText: "Add Experience",
       max: 5,

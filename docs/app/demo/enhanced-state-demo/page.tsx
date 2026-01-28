@@ -21,21 +21,39 @@ const contactFormSchema = z.object({
 type ContactForm = z.infer<typeof contactFormSchema>;
 
 const contactFormFields = createAdvancedBuilder<ContactForm>()
-  .field("input", "name", "Full Name", { placeholder: "Enter your full name" })
-  .field("input", "email", "Email Address", {
-    placeholder: "Enter your email",
-    type: "email",
+  .field({
+    type: "input",
+    name: "name",
+    label: "Full Name",
+    props: { placeholder: "Enter your full name" },
   })
-  .field("select", "priority", "Priority", [
-    { label: "Low", value: "low" },
-    { label: "Medium", value: "medium" },
-    { label: "High", value: "high" },
-  ])
-  .field("textarea", "message", "Message", {
-    placeholder: "Enter your message",
-    rows: 4,
+  .field({
+    type: "input",
+    name: "email",
+    label: "Email Address",
+    props: { placeholder: "Enter your email", type: "email" },
   })
-  .field("checkbox", "subscribe", "Subscribe to newsletter")
+  .field({
+    type: "select",
+    name: "priority",
+    label: "Priority",
+    options: [
+      { label: "Low", value: "low" },
+      { label: "Medium", value: "medium" },
+      { label: "High", value: "high" },
+    ],
+  })
+  .field({
+    type: "textarea",
+    name: "message",
+    label: "Message",
+    props: { placeholder: "Enter your message", rows: 4 },
+  })
+  .field({
+    type: "checkbox",
+    name: "subscribe",
+    label: "Subscribe to newsletter",
+  })
   .build();
 
 export default function EnhancedStateDemo() {

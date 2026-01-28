@@ -68,45 +68,82 @@ const userRegistrationSchema = z
 type UserRegistrationForm = z.infer<typeof userRegistrationSchema>;
 
 const userRegistrationFields = createAdvancedBuilder<UserRegistrationForm>()
-  .field("input", "firstName", "First Name", {
-    placeholder: "Enter your first name",
+  .field({
+    type: "input",
+    name: "firstName",
+    label: "First Name",
+    props: { placeholder: "Enter your first name" },
   })
-  .field("input", "lastName", "Last Name", {
-    placeholder: "Enter your last name",
+  .field({
+    type: "input",
+    name: "lastName",
+    label: "Last Name",
+    props: { placeholder: "Enter your last name" },
   })
-  .field("input", "email", "Email Address", { placeholder: "Enter your email" })
-  .field("input", "password", "Password", {
-    placeholder: "Enter a strong password",
-    type: "password",
+  .field({
+    type: "input",
+    name: "email",
+    label: "Email Address",
+    props: { placeholder: "Enter your email" },
   })
-  .field("input", "confirmPassword", "Confirm Password", {
-    placeholder: "Confirm your password",
-    type: "password",
+  .field({
+    type: "input",
+    name: "password",
+    label: "Password",
+    props: { placeholder: "Enter a strong password", type: "password" },
   })
-  .field("input", "phone", "Phone Number", {
-    placeholder: "(XXX) XXX-XXXX",
-    type: "tel",
+  .field({
+    type: "input",
+    name: "confirmPassword",
+    label: "Confirm Password",
+    props: { placeholder: "Confirm your password", type: "password" },
   })
-  .field("input", "birthDate", "Birth Date", {
-    placeholder: "MM/DD/YYYY",
+  .field({
+    type: "input",
+    name: "phone",
+    label: "Phone Number",
+    props: { placeholder: "(XXX) XXX-XXXX", type: "tel" },
   })
-  .field("input", "website", "Website", {
-    placeholder: "https://example.com",
-    type: "url",
+  .field({
+    type: "input",
+    name: "birthDate",
+    label: "Birth Date",
+    props: { placeholder: "MM/DD/YYYY" },
   })
-  .field("input", "creditCard", "Credit Card", {
-    placeholder: "1234 5678 9012 3456",
+  .field({
+    type: "input",
+    name: "website",
+    label: "Website",
+    props: { placeholder: "https://example.com", type: "url" },
   })
-  .field("input", "ssn", "Social Security Number", {
-    placeholder: "XXX-XX-XXXX",
+  .field({
+    type: "input",
+    name: "creditCard",
+    label: "Credit Card",
+    props: { placeholder: "1234 5678 9012 3456" },
   })
-  .field("input", "zipCode", "ZIP Code", {
-    placeholder: "12345 or 12345-6789",
+  .field({
+    type: "input",
+    name: "ssn",
+    label: "Social Security Number",
+    props: { placeholder: "XXX-XX-XXXX" },
   })
-  .field("checkbox", "terms", "I agree to the Terms of Service", {
-    required: true,
+  .field({
+    type: "input",
+    name: "zipCode",
+    label: "ZIP Code",
+    props: { placeholder: "12345 or 12345-6789" },
   })
-  .field("checkbox", "newsletter", "Subscribe to newsletter")
+  .field({
+    type: "checkbox",
+    name: "terms",
+    label: "I agree to the Terms of Service",
+  })
+  .field({
+    type: "checkbox",
+    name: "newsletter",
+    label: "Subscribe to newsletter",
+  })
   .build();
 
 // Async validation demo
@@ -118,10 +155,18 @@ const asyncValidationSchema = z.object({
 type AsyncValidationForm = z.infer<typeof asyncValidationSchema>;
 
 const asyncValidationFields = createAdvancedBuilder<AsyncValidationForm>()
-  .field("input", "username", "Username", {
-    placeholder: "Enter your username",
+  .field({
+    type: "input",
+    name: "username",
+    label: "Username",
+    props: { placeholder: "Enter your username" },
   })
-  .field("input", "email", "Email Address", { placeholder: "Enter your email" })
+  .field({
+    type: "input",
+    name: "email",
+    label: "Email Address",
+    props: { placeholder: "Enter your email" },
+  })
   .build();
 
 export default function ValidationDemo() {

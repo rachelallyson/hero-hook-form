@@ -55,64 +55,87 @@ export default function UnifiedFormDemo() {
           <ZodForm
             config={{
               fields: [
-                createField<UnifiedFormData>(
-                  "input",
-                  "firstName",
-                  "First Name",
-                ),
-                createField<UnifiedFormData>("input", "lastName", "Last Name"),
-                createField<UnifiedFormData>("input", "email", "Email", {
-                  type: "email",
+                createField<UnifiedFormData>({
+                  type: "input",
+                  name: "firstName",
+                  label: "First Name",
                 }),
-                createField<UnifiedFormData>("input", "phone", "Phone", {
-                  type: "tel",
+                createField<UnifiedFormData>({
+                  type: "input",
+                  name: "lastName",
+                  label: "Last Name",
                 }),
-                createField<UnifiedFormData>("textarea", "message", "Message", {
-                  placeholder: "Tell us about your project...",
+                createField<UnifiedFormData>({
+                  type: "input",
+                  name: "email",
+                  label: "Email",
+                  props: { type: "email" },
                 }),
-                createField<UnifiedFormData>("select", "country", "Country", [
-                  { label: "Select a country", value: "" },
-                  { label: "United States", value: "us" },
-                  { label: "Canada", value: "ca" },
-                  { label: "United Kingdom", value: "uk" },
-                ]),
-                createField<UnifiedFormData>(
-                  "checkbox",
-                  "newsletter",
-                  "Subscribe to newsletter",
-                ),
-                createField<UnifiedFormData>(
-                  "switch",
-                  "notifications",
-                  "Enable notifications",
-                ),
-                createField<UnifiedFormData>(
-                  "radio",
-                  "communication",
-                  "Communication Preference",
-                  [
+                createField<UnifiedFormData>({
+                  type: "input",
+                  name: "phone",
+                  label: "Phone",
+                  props: { type: "tel" },
+                }),
+                createField<UnifiedFormData>({
+                  type: "textarea",
+                  name: "message",
+                  label: "Message",
+                  props: { placeholder: "Tell us about your project..." },
+                }),
+                createField<UnifiedFormData>({
+                  type: "select",
+                  name: "country",
+                  label: "Country",
+                  options: [
+                    { label: "Select a country", value: "" },
+                    { label: "United States", value: "us" },
+                    { label: "Canada", value: "ca" },
+                    { label: "United Kingdom", value: "uk" },
+                  ],
+                }),
+                createField<UnifiedFormData>({
+                  type: "checkbox",
+                  name: "newsletter",
+                  label: "Subscribe to newsletter",
+                }),
+                createField<UnifiedFormData>({
+                  type: "switch",
+                  name: "notifications",
+                  label: "Enable notifications",
+                }),
+                createField<UnifiedFormData>({
+                  type: "radio",
+                  name: "communication",
+                  label: "Communication Preference",
+                  options: [
                     { label: "Email", value: "email" },
                     { label: "Phone", value: "phone" },
                     { label: "SMS", value: "sms" },
                   ],
-                ),
-                createField<UnifiedFormData>("slider", "volume", "Volume", {
-                  max: 100,
-                  min: 0,
-                  step: 1,
                 }),
-                createField<UnifiedFormData>("date", "birthDate", "Birth Date"),
-                createField<UnifiedFormData>(
-                  "file",
-                  "avatar",
-                  "Profile Picture",
-                  { accept: "image/*" },
-                ),
-                createField<UnifiedFormData>(
-                  "checkbox",
-                  "terms",
-                  "I agree to the terms and conditions",
-                ),
+                createField<UnifiedFormData>({
+                  type: "slider",
+                  name: "volume",
+                  label: "Volume",
+                  props: { max: 100, min: 0, step: 1 },
+                }),
+                createField<UnifiedFormData>({
+                  type: "date",
+                  name: "birthDate",
+                  label: "Birth Date",
+                }),
+                createField<UnifiedFormData>({
+                  type: "file",
+                  name: "avatar",
+                  label: "Profile Picture",
+                  props: { accept: "image/*" },
+                }),
+                createField<UnifiedFormData>({
+                  type: "checkbox",
+                  name: "terms",
+                  label: "I agree to the terms and conditions",
+                }),
               ],
               schema: unifiedSchema,
             }}
@@ -133,40 +156,57 @@ export default function UnifiedFormDemo() {
           <ZodForm
             config={{
               fields: createAdvancedBuilder<UnifiedFormData>()
-                .field("input", "firstName", "First Name")
-                .field("input", "lastName", "Last Name")
-                .field("input", "email", "Email", { type: "email" })
-                .field("input", "phone", "Phone", { type: "tel" })
-                .field("textarea", "message", "Message", {
-                  placeholder: "Tell us about your project...",
+                .field({ type: "input", name: "firstName", label: "First Name" })
+                .field({ type: "input", name: "lastName", label: "Last Name" })
+                .field({ type: "input", name: "email", label: "Email", props: { type: "email" } })
+                .field({ type: "input", name: "phone", label: "Phone", props: { type: "tel" } })
+                .field({
+                  type: "textarea",
+                  name: "message",
+                  label: "Message",
+                  props: { placeholder: "Tell us about your project..." },
                 })
-                .field("select", "country", "Country", [
-                  { label: "Select a country", value: "" },
-                  { label: "United States", value: "us" },
-                  { label: "Canada", value: "ca" },
-                  { label: "United Kingdom", value: "uk" },
-                ])
-                .field("checkbox", "newsletter", "Subscribe to newsletter")
-                .field("switch", "notifications", "Enable notifications")
-                .field("radio", "communication", "Communication Preference", [
-                  { label: "Email", value: "email" },
-                  { label: "Phone", value: "phone" },
-                  { label: "SMS", value: "sms" },
-                ])
-                .field("slider", "volume", "Volume", {
-                  max: 100,
-                  min: 0,
-                  step: 1,
+                .field({
+                  type: "select",
+                  name: "country",
+                  label: "Country",
+                  options: [
+                    { label: "Select a country", value: "" },
+                    { label: "United States", value: "us" },
+                    { label: "Canada", value: "ca" },
+                    { label: "United Kingdom", value: "uk" },
+                  ],
                 })
-                .field("date", "birthDate", "Birth Date")
-                .field("file", "avatar", "Profile Picture", {
-                  accept: "image/*",
+                .field({ type: "checkbox", name: "newsletter", label: "Subscribe to newsletter" })
+                .field({ type: "switch", name: "notifications", label: "Enable notifications" })
+                .field({
+                  type: "radio",
+                  name: "communication",
+                  label: "Communication Preference",
+                  options: [
+                    { label: "Email", value: "email" },
+                    { label: "Phone", value: "phone" },
+                    { label: "SMS", value: "sms" },
+                  ],
                 })
-                .field(
-                  "checkbox",
-                  "terms",
-                  "I agree to the terms and conditions",
-                )
+                .field({
+                  type: "slider",
+                  name: "volume",
+                  label: "Volume",
+                  props: { max: 100, min: 0, step: 1 },
+                })
+                .field({ type: "date", name: "birthDate", label: "Birth Date" })
+                .field({
+                  type: "file",
+                  name: "avatar",
+                  label: "Profile Picture",
+                  props: { accept: "image/*" },
+                })
+                .field({
+                  type: "checkbox",
+                  name: "terms",
+                  label: "I agree to the terms and conditions",
+                })
                 .build(),
               schema: unifiedSchema,
             }}
@@ -185,40 +225,57 @@ export default function UnifiedFormDemo() {
           <ZodForm
             config={{
               fields: createAdvancedBuilder<UnifiedFormData>()
-                .field("input", "firstName", "First Name")
-                .field("input", "lastName", "Last Name")
-                .field("input", "email", "Email", { type: "email" })
-                .field("input", "phone", "Phone", { type: "tel" })
-                .field("textarea", "message", "Message", {
-                  placeholder: "Tell us about your project...",
+                .field({ type: "input", name: "firstName", label: "First Name" })
+                .field({ type: "input", name: "lastName", label: "Last Name" })
+                .field({ type: "input", name: "email", label: "Email", props: { type: "email" } })
+                .field({ type: "input", name: "phone", label: "Phone", props: { type: "tel" } })
+                .field({
+                  type: "textarea",
+                  name: "message",
+                  label: "Message",
+                  props: { placeholder: "Tell us about your project..." },
                 })
-                .field("select", "country", "Country", [
-                  { label: "Select a country", value: "" },
-                  { label: "United States", value: "us" },
-                  { label: "Canada", value: "ca" },
-                  { label: "United Kingdom", value: "uk" },
-                ])
-                .field("checkbox", "newsletter", "Subscribe to newsletter")
-                .field("switch", "notifications", "Enable notifications")
-                .field("radio", "communication", "Communication Preference", [
-                  { label: "Email", value: "email" },
-                  { label: "Phone", value: "phone" },
-                  { label: "SMS", value: "sms" },
-                ])
-                .field("slider", "volume", "Volume", {
-                  max: 100,
-                  min: 0,
-                  step: 1,
+                .field({
+                  type: "select",
+                  name: "country",
+                  label: "Country",
+                  options: [
+                    { label: "Select a country", value: "" },
+                    { label: "United States", value: "us" },
+                    { label: "Canada", value: "ca" },
+                    { label: "United Kingdom", value: "uk" },
+                  ],
                 })
-                .field("date", "birthDate", "Birth Date")
-                .field("file", "avatar", "Profile Picture", {
-                  accept: "image/*",
+                .field({ type: "checkbox", name: "newsletter", label: "Subscribe to newsletter" })
+                .field({ type: "switch", name: "notifications", label: "Enable notifications" })
+                .field({
+                  type: "radio",
+                  name: "communication",
+                  label: "Communication Preference",
+                  options: [
+                    { label: "Email", value: "email" },
+                    { label: "Phone", value: "phone" },
+                    { label: "SMS", value: "sms" },
+                  ],
                 })
-                .field(
-                  "checkbox",
-                  "terms",
-                  "I agree to the terms and conditions",
-                )
+                .field({
+                  type: "slider",
+                  name: "volume",
+                  label: "Volume",
+                  props: { max: 100, min: 0, step: 1 },
+                })
+                .field({ type: "date", name: "birthDate", label: "Birth Date" })
+                .field({
+                  type: "file",
+                  name: "avatar",
+                  label: "Profile Picture",
+                  props: { accept: "image/*" },
+                })
+                .field({
+                  type: "checkbox",
+                  name: "terms",
+                  label: "I agree to the terms and conditions",
+                })
                 .build(),
               schema: unifiedSchema,
             }}
@@ -238,50 +295,77 @@ export default function UnifiedFormDemo() {
             config={{
               fields: [
                 // Mix direct createField calls
-                createField<UnifiedFormData>(
-                  "input",
-                  "firstName",
-                  "First Name",
-                ),
-                createField<UnifiedFormData>("input", "lastName", "Last Name"),
-                createField<UnifiedFormData>("input", "email", "Email", {
-                  type: "email",
+                createField<UnifiedFormData>({
+                  type: "input",
+                  name: "firstName",
+                  label: "First Name",
                 }),
-                createField<UnifiedFormData>("input", "phone", "Phone", {
-                  type: "tel",
+                createField<UnifiedFormData>({
+                  type: "input",
+                  name: "lastName",
+                  label: "Last Name",
                 }),
-                createField<UnifiedFormData>("textarea", "message", "Message", {
-                  placeholder: "Tell us about your project...",
+                createField<UnifiedFormData>({
+                  type: "input",
+                  name: "email",
+                  label: "Email",
+                  props: { type: "email" },
                 }),
-                createField<UnifiedFormData>("select", "country", "Country", [
-                  { label: "Select a country", value: "" },
-                  { label: "United States", value: "us" },
-                  { label: "Canada", value: "ca" },
-                  { label: "United Kingdom", value: "uk" },
-                ]),
+                createField<UnifiedFormData>({
+                  type: "input",
+                  name: "phone",
+                  label: "Phone",
+                  props: { type: "tel" },
+                }),
+                createField<UnifiedFormData>({
+                  type: "textarea",
+                  name: "message",
+                  label: "Message",
+                  props: { placeholder: "Tell us about your project..." },
+                }),
+                createField<UnifiedFormData>({
+                  type: "select",
+                  name: "country",
+                  label: "Country",
+                  options: [
+                    { label: "Select a country", value: "" },
+                    { label: "United States", value: "us" },
+                    { label: "Canada", value: "ca" },
+                    { label: "United Kingdom", value: "uk" },
+                  ],
+                }),
                 // Use builder for the rest
                 ...createAdvancedBuilder<UnifiedFormData>()
-                  .field("checkbox", "newsletter", "Subscribe to newsletter")
-                  .field("switch", "notifications", "Enable notifications")
-                  .field("radio", "communication", "Communication Preference", [
-                    { label: "Email", value: "email" },
-                    { label: "Phone", value: "phone" },
-                    { label: "SMS", value: "sms" },
-                  ])
-                  .field("slider", "volume", "Volume", {
-                    max: 100,
-                    min: 0,
-                    step: 1,
+                  .field({ type: "checkbox", name: "newsletter", label: "Subscribe to newsletter" })
+                  .field({ type: "switch", name: "notifications", label: "Enable notifications" })
+                  .field({
+                    type: "radio",
+                    name: "communication",
+                    label: "Communication Preference",
+                    options: [
+                      { label: "Email", value: "email" },
+                      { label: "Phone", value: "phone" },
+                      { label: "SMS", value: "sms" },
+                    ],
                   })
-                  .field("date", "birthDate", "Birth Date")
-                  .field("file", "avatar", "Profile Picture", {
-                    accept: "image/*",
+                  .field({
+                    type: "slider",
+                    name: "volume",
+                    label: "Volume",
+                    props: { max: 100, min: 0, step: 1 },
                   })
-                  .field(
-                    "checkbox",
-                    "terms",
-                    "I agree to the terms and conditions",
-                  )
+                  .field({ type: "date", name: "birthDate", label: "Birth Date" })
+                  .field({
+                    type: "file",
+                    name: "avatar",
+                    label: "Profile Picture",
+                    props: { accept: "image/*" },
+                  })
+                  .field({
+                    type: "checkbox",
+                    name: "terms",
+                    label: "I agree to the terms and conditions",
+                  })
                   .build(),
               ],
               schema: unifiedSchema,
