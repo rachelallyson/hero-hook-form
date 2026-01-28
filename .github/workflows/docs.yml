@@ -49,21 +49,16 @@ jobs:
             exit 1
           fi
           echo "✓ API docs generated successfully"
-          ls -la docs/content/api/ | head -10
-          
-      - name: Ensure API directory structure for Nextra
-        run: |
-          # Nextra should discover files automatically, but verify structure
-          if [ ! -d "docs/content/api" ]; then
-            echo "Error: API directory does not exist!"
-            exit 1
-          fi
           # Count generated markdown files
-          MD_COUNT=$(find docs/content/api -name "*.md" | wc -l)
+          MD_COUNT=$(find docs/content/api -name "*.md" 2>/dev/null | wc -l)
           echo "✓ Found $MD_COUNT markdown files in API directory"
           if [ "$MD_COUNT" -eq 0 ]; then
-            echo "Warning: No markdown files found in API directory"
+            echo "Error: No markdown files found in API directory!"
+            exit 1
           fi
+          # List directory structure for debugging
+          echo "API directory structure:"
+          ls -la docs/content/api/ | head -10
 
       - name: Install docs dependencies
         working-directory: docs
