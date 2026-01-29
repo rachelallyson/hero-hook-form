@@ -2,13 +2,8 @@ import { useMDXComponents as getThemeComponents } from 'nextra-theme-docs'
 
 const themeComponents = getThemeComponents()
 
-/**
- * Custom MDX components for better documentation presentation
- */
-export function useMDXComponents(components) {
-  return {
-    ...themeComponents,
-    ...components,
+/** Custom components for MDX (Tip, Warning, etc.) */
+const customComponents = {
     // Add custom components for better code example presentation
     // These can be used in MDX files with <Tip>, <Warning>, <Info>, etc.
     Tip: ({ children, title = "💡 Tip" }) => (
@@ -35,5 +30,22 @@ export function useMDXComponents(components) {
         <div className="text-purple-800 dark:text-purple-300">{children}</div>
       </div>
     ),
+  }
+
+/**
+ * Return merged MDX components (for use in server components, e.g. content gateway page).
+ */
+export function getMDXComponents() {
+  return { ...themeComponents, ...customComponents }
+}
+
+/**
+ * Custom MDX components for better documentation presentation
+ */
+export function useMDXComponents(components) {
+  return {
+    ...themeComponents,
+    ...customComponents,
+    ...components,
   }
 }
