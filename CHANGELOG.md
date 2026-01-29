@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.14.0] - 2026-01-29
+
+### Added
+
+- **Dynamic custom fields in field arrays** – When each array item can be a different control type (e.g. member custom field values: one row is a date, another a dropdown, another short text), you can use **getItemFieldConfig** with **createCustomFieldConfigForItem** instead of wiring multiple conditionals yourself.
+  - **getItemFieldConfig** – Pass this to `createFieldArrayCustomConfig`; for each item you return a single field config (or `null`). The library renders one field per item for you.
+  - **createCustomFieldConfigForItem(name, def)** – Given a field path and a definition with `fieldType` (e.g. `'DATE'`, `'SHORT_TEXT'`, `'LONG_TEXT'`, `'NUMBER'`, `'DROPDOWN'`), `name` (label), and optional `options` for dropdowns (newline-separated string or `{ label, value }[]`), returns the right config so you don’t write a switch or five conditionals per item.
+  - Use it in ZodForm by adding a `createFieldArrayCustomConfig` with `getItemFieldConfig: ({ field, index }) => createCustomFieldConfigForItem(\`items.\${index}.value\`, { fieldType: def.fieldType, name: def.name, options: def.options })` after looking up the definition for that item (e.g. by `customFieldId`). See the **Custom Field Array Demo** in the example app for a full example.
+
 ## [2.13.0] - 2026-01-29
 
 ### Added

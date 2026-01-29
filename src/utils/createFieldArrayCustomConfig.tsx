@@ -8,11 +8,126 @@ import type {
   FieldArrayWithId,
   FieldErrors,
   FieldValues,
+  Path,
   UseFormReturn,
 } from "react-hook-form";
 import { Button } from "@heroui/react";
 
-import type { CustomFieldConfig } from "../types";
+import { FormFieldHelpers } from "../builders/BasicFormBuilder";
+import { FormField } from "../components/FormField";
+import type {
+  CustomFieldConfig,
+  FormSubmissionState,
+  ZodFormFieldConfig,
+} from "../types";
+
+/**
+ * Supported input types for dynamic custom fields (e.g. member custom field values).
+ * Use with createCustomFieldConfigForItem so each array item can render the right control.
+ */
+export type CustomFieldInputType =
+  | "DATE"
+  | "DROPDOWN"
+  | "LONG_TEXT"
+  | "NUMBER"
+  | "SHORT_TEXT";
+
+/**
+ * Minimal field definition for creating a single field config by type.
+ * Matches common patterns where each array item has a type and label (e.g. customFieldId → field def).
+ */
+export interface CustomFieldDef {
+  fieldType: CustomFieldInputType;
+  name: string;
+  /** For DROPDOWN: newline-separated string or array of { label, value } */
+  options?: string | { label: string; value: string | number }[];
+}
+
+function parseDropdownOptions(
+  options: string | { label: string; value: string | number }[] | undefined,
+): { label: string; value: string | number }[] {
+  if (options == null) return [];
+  if (Array.isArray(options)) return options;
+
+  return options
+    .split("\n")
+    .map((o) => o.trim())
+    .filter((o) => o.length > 0)
+    .map((o) => ({ label: o, value: o }));
+}
+
+/**
+ * Create the right ZodFormFieldConfig for a single custom field by type.
+ * Use inside createFieldArrayCustomConfig getItemFieldConfig (or renderItem) so each
+ * array item renders one control (date, short text, long text, number, or dropdown)
+ * instead of multiple conditionals.
+ *
+ * @param name - Form path for the value (e.g. `customFieldValues.${index}.value`)
+ * @param def - Field definition with fieldType, name (label), and optional options for DROPDOWN
+ * @returns ZodFormFieldConfig for use with FormField
+ *
+ * @example
+ * ```tsx
+ * createFieldArrayCustomConfig({
+ *   name: 'customFieldValues',
+ *   getItemFieldConfig: ({ field, form, index }) => {
+ *     const fieldDef = fields.find(f => f.id === field.customFieldId);
+ *     if (!fieldDef) return null;
+ *     return createCustomFieldConfigForItem(
+ *       `customFieldValues.${index}.value`,
+ *       { fieldType: fieldDef.fieldType, name: fieldDef.name, options: fieldDef.options }
+ *     );
+ *   },
+ *   defaultItem: () => ({ customFieldId: '', value: '' }),
+ * });
+ * ```
+ */
+export function createCustomFieldConfigForItem<T extends FieldValues>(
+  name: Path<T>,
+  def: CustomFieldDef,
+): ZodFormFieldConfig<T> {
+  const { fieldType, name: label, options } = def;
+
+  switch (fieldType) {
+    case "DATE":
+      return FormFieldHelpers.date(name, label, { granularity: "day" });
+    case "SHORT_TEXT":
+      return FormFieldHelpers.input(name, label);
+    case "LONG_TEXT":
+      return FormFieldHelpers.textarea(name, label);
+    case "NUMBER":
+      return FormFieldHelpers.input(name, label, { type: "number" });
+    case "DROPDOWN":
+      return FormFieldHelpers.select(
+        name,
+        label,
+        parseDropdownOptions(options),
+      );
+    default: {
+      void fieldType;
+
+      return FormFieldHelpers.input(name, label);
+    }
+  }
+}
+
+/** Props passed to renderItem or getItemFieldConfig for each array item */
+export interface FieldArrayItemRenderProps<
+  TFieldValues extends FieldValues,
+  TArrayPath extends ArrayPath<TFieldValues>,
+> {
+  index: number;
+  field: FieldArrayWithId<TFieldValues, TArrayPath>;
+  fields: FieldArrayWithId<TFieldValues, TArrayPath>[];
+  form: UseFormReturn<TFieldValues>;
+  control: Control<TFieldValues>;
+  errors: FieldErrors<TFieldValues>;
+  canMoveUp: boolean;
+  canMoveDown: boolean;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
+  onRemove: () => void;
+}
 
 /**
  * Options for creating a custom field array config
@@ -26,20 +141,19 @@ export interface CreateFieldArrayCustomConfigOptions<
   name: ArrayPath<TFieldValues>;
   /** Optional label for the field array */
   label?: string;
-  /** Render function for each array item */
-  renderItem: (props: {
-    index: number;
-    field: FieldArrayWithId<TFieldValues, ArrayPath<TFieldValues>>;
-    fields: FieldArrayWithId<TFieldValues, ArrayPath<TFieldValues>>[];
-    form: UseFormReturn<TFieldValues>;
-    control: Control<TFieldValues>;
-    errors: FieldErrors<TFieldValues>;
-    canMoveUp: boolean;
-    canMoveDown: boolean;
-    onMoveUp: () => void;
-    onMoveDown: () => void;
-    onRemove: () => void;
-  }) => React.ReactNode;
+  /**
+   * Return a single field config for this item; the array helper will render one FormField.
+   * Use with createCustomFieldConfigForItem when each item's control type depends on item data
+   * (e.g. custom fields: look up field def by customFieldId, then createCustomFieldConfigForItem).
+   * When provided, renderItem is optional.
+   */
+  getItemFieldConfig?: (
+    props: FieldArrayItemRenderProps<TFieldValues, ArrayPath<TFieldValues>>,
+  ) => ZodFormFieldConfig<TFieldValues> | null;
+  /** Render function for each array item (optional if getItemFieldConfig is provided) */
+  renderItem?: (
+    props: FieldArrayItemRenderProps<TFieldValues, ArrayPath<TFieldValues>>,
+  ) => React.ReactNode;
   /** Optional render function for add button */
   renderAddButton?: (props: {
     onAdd: () => void;
@@ -105,6 +219,7 @@ export function createFieldArrayCustomConfig<TFieldValues extends FieldValues>(
     className,
     defaultItem,
     enableReordering = false,
+    getItemFieldConfig,
     label,
     max = 10,
     min = 0,
@@ -112,6 +227,12 @@ export function createFieldArrayCustomConfig<TFieldValues extends FieldValues>(
     renderAddButton,
     renderItem,
   } = options;
+
+  if (!getItemFieldConfig && !renderItem) {
+    throw new Error(
+      "createFieldArrayCustomConfig: provide either getItemFieldConfig or renderItem",
+    );
+  }
 
   return {
     className,
@@ -156,29 +277,50 @@ export function createFieldArrayCustomConfig<TFieldValues extends FieldValues>(
         }
       };
 
+      const submissionState: FormSubmissionState = {
+        error: undefined,
+        isSubmitted: form.formState.isSubmitted,
+        isSubmitting: form.formState.isSubmitting,
+        isSuccess: false,
+      };
+
+      const itemProps = (index: number) =>
+        ({
+          canMoveDown: enableReordering && index < fields.length - 1,
+          canMoveUp: enableReordering && index > 0,
+          control,
+          errors,
+          field: fields[index],
+          fields,
+          form,
+          index,
+          onMoveDown: () => handleMoveDown(index),
+          onMoveUp: () => handleMoveUp(index),
+          onRemove: () => handleRemove(index),
+        }) as FieldArrayItemRenderProps<TFieldValues, ArrayPath<TFieldValues>>;
+
       return (
         <div className={className}>
           <div className="space-y-4">
             {fields.map((field, index) => {
-              const canMoveUp = enableReordering && index > 0;
-              const canMoveDown = enableReordering && index < fields.length - 1;
+              if (getItemFieldConfig) {
+                const config = getItemFieldConfig(itemProps(index));
+
+                if (!config) return <React.Fragment key={field.id} />;
+
+                return (
+                  <FormField<TFieldValues>
+                    key={field.id}
+                    config={config}
+                    form={form}
+                    submissionState={submissionState}
+                  />
+                );
+              }
 
               return (
                 <React.Fragment key={field.id}>
-                  {renderItem({
-                    canMoveDown,
-                    canMoveUp,
-                    control,
-                    errors,
-                    // fields from useFieldArray are already typed correctly
-                    field,
-                    fields,
-                    form,
-                    index,
-                    onMoveDown: () => handleMoveDown(index),
-                    onMoveUp: () => handleMoveUp(index),
-                    onRemove: () => handleRemove(index),
-                  })}
+                  {renderItem!(itemProps(index))}
                 </React.Fragment>
               );
             })}

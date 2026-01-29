@@ -52,6 +52,12 @@ export default function Home() {
       href: "/server-action-demo",
       title: "Server Action Demo",
     },
+    {
+      description:
+        "Field array with getItemFieldConfig + createCustomFieldConfigForItem (dynamic custom fields)",
+      href: "/custom-field-array-demo",
+      title: "Custom Field Array Demo",
+    },
   ];
 
   return (
