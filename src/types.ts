@@ -1,4 +1,4 @@
-import type { ComponentProps } from "react";
+import type { ComponentProps, ReactNode } from "react";
 import type {
   ArrayPath,
   Control,
@@ -168,6 +168,8 @@ export interface StringFieldConfig<TFieldValues extends FieldValues>
   options?: { label: string; value: string | number }[];
   /** Dynamic options for autocomplete: called each render to get current items (e.g. from API/state). */
   getOptions?: () => { label: string; value: string | number }[];
+  /** Custom render for each autocomplete option (e.g. name + email + phone). When provided, used instead of default label-only. */
+  renderItem?: (item: { label: string; value: string | number }) => ReactNode;
 }
 
 // Boolean-based field configs

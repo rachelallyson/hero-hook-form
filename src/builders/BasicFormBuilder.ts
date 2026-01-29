@@ -110,6 +110,7 @@ export class BasicFormBuilder<T extends FieldValues> {
 
   /**
    * Add an autocomplete field (static options array or dynamic getOptions getter).
+   * Optional options.renderItem for custom option layout (e.g. name + email + phone).
    */
   autocomplete(
     name: Path<T>,
@@ -118,6 +119,12 @@ export class BasicFormBuilder<T extends FieldValues> {
       | { label: string; value: string | number }[]
       | (() => { label: string; value: string | number }[]),
     placeholder?: string,
+    options?: {
+      renderItem?: (item: {
+        label: string;
+        value: string | number;
+      }) => React.ReactNode;
+    },
   ): this {
     const isGetter = typeof items === "function";
 
@@ -126,6 +133,7 @@ export class BasicFormBuilder<T extends FieldValues> {
       label,
       name,
       ...(isGetter ? { getOptions: items } : { options: items }),
+      ...(options?.renderItem && { renderItem: options.renderItem }),
       type: "autocomplete",
     });
 
@@ -349,6 +357,11 @@ export const FormFieldHelpers = {
    * FormFieldHelpers.autocomplete("personId", "Person", () => people.map(p => ({ label: p.name, value: p.id })), "Search people", {
    *   onInputChange: (q) => fetchPeople(q).then(setPeople),
    * })
+   *
+   * // Custom option layout (e.g. name + email + phone per option)
+   * FormFieldHelpers.autocomplete("personId", "Person", getOptions, "Search", undefined, {
+   *   renderItem: (item) => <div><strong>{item.label}</strong><br /><small>{getSubtitle(item.value)}</small></div>,
+   * })
    * ```
    */
   autocomplete: <T extends FieldValues>(
@@ -359,6 +372,13 @@ export const FormFieldHelpers = {
       | (() => { label: string; value: string | number }[]),
     placeholder?: string,
     autocompleteProps?: AutocompletePassthroughProps,
+    options?: {
+      /** Custom render for each option (e.g. name + email + phone). When provided, used instead of default label-only. */
+      renderItem?: (item: {
+        label: string;
+        value: string | number;
+      }) => React.ReactNode;
+    },
   ): ZodFormFieldConfig<T> => {
     const isGetter = typeof items === "function";
 
@@ -368,6 +388,7 @@ export const FormFieldHelpers = {
         ...autocompleteProps,
       },
       ...(isGetter ? { getOptions: items } : { options: items }),
+      ...(options?.renderItem && { renderItem: options.renderItem }),
       label,
       name,
       type: "autocomplete",

@@ -546,6 +546,94 @@ describe("FormFieldHelpers - Prop Support", () => {
       cy.contains("United States").should("exist");
       cy.contains("Canada").should("exist");
     });
+
+    it("should support renderItem in options (config)", () => {
+      const renderItem = (item: { label: string; value: string | number }) =>
+        `${item.label} (${item.value})`;
+      const config = FormFieldHelpers.autocomplete(
+        "country",
+        "Country",
+        items,
+        "Search",
+        undefined,
+        { renderItem },
+      );
+
+      expect(config).to.have.property("renderItem", renderItem);
+    });
+
+    it("should render autocomplete with custom renderItem (name + subtitle)", () => {
+      const itemsWithSubtitle = [
+        { label: "United States", value: "us" },
+        { label: "Canada", value: "ca" },
+      ];
+      const renderItem = (item: { label: string; value: string | number }) =>
+        `${item.label} (Code: ${item.value})` as unknown as React.ReactNode;
+
+      mount(
+        <TestWrapper>
+          <ZodForm
+            config={{
+              schema,
+              fields: [
+                FormFieldHelpers.autocomplete(
+                  "country",
+                  "Country",
+                  itemsWithSubtitle,
+                  "Search",
+                  undefined,
+                  { renderItem },
+                ),
+              ],
+              onSubmit: () => {},
+            }}
+          />
+        </TestWrapper>,
+      );
+
+      cy.get("input").first().click();
+      cy.contains("United States").should("exist");
+      cy.contains("Canada").should("exist");
+      cy.contains("Code: us").should("exist");
+      cy.contains("Code: ca").should("exist");
+    });
+
+    it("should render autocomplete with getOptions + renderItem (dynamic items, custom layout)", () => {
+      const dynamicItems = [
+        { label: "United States", value: "us" },
+        { label: "Canada", value: "ca" },
+      ];
+      const getOptions = () => dynamicItems;
+      const renderItem = (item: { label: string; value: string | number }) =>
+        `${item.label} — Code: ${item.value}` as unknown as React.ReactNode;
+
+      mount(
+        <TestWrapper>
+          <ZodForm
+            config={{
+              schema,
+              fields: [
+                FormFieldHelpers.autocomplete(
+                  "country",
+                  "Country",
+                  getOptions,
+                  "Search",
+                  undefined,
+                  { renderItem },
+                ),
+              ],
+              onSubmit: () => {},
+            }}
+          />
+        </TestWrapper>,
+      );
+
+      cy.get("input").first().click();
+      cy.contains("United States").should("exist");
+      cy.contains("Canada").should("exist");
+      cy.contains("Code: us").should("exist");
+      cy.contains("Code: ca").should("exist");
+    });
   });
 
   describe("date() with dateProps", () => {

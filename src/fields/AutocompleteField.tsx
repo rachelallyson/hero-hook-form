@@ -212,7 +212,16 @@ export function AutocompleteField<
               items={items as AutocompleteOption<TValue>[] | undefined}
             >
               {children
-                ? children
+                ? (item: AutocompleteOption<TValue>) => (
+                    <AutocompleteItem
+                      key={String(item.value)}
+                      textValue={String(item.value)}
+                      description={item.description}
+                      isDisabled={item.disabled}
+                    >
+                      {children(item)}
+                    </AutocompleteItem>
+                  )
                 : (item: AutocompleteOption<TValue>) => (
                     <AutocompleteItem
                       key={String(item.value)}

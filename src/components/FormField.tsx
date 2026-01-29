@@ -217,6 +217,14 @@ function FormFieldComponent<TFieldValues extends FieldValues>({
             ? fieldConfig.options
             : [];
 
+      const autocompleteRenderItem =
+        "renderItem" in fieldConfig &&
+        typeof fieldConfig.renderItem === "function"
+          ? (item: { label: string; value: string | number }) => (
+              <>{fieldConfig.renderItem!(item)}</>
+            )
+          : undefined;
+
       return (
         <AutocompleteField<TFieldValues>
           {...baseProps}
@@ -234,6 +242,7 @@ function FormFieldComponent<TFieldValues extends FieldValues>({
               ? fieldConfig.autocompleteProps
               : undefined
           }
+          children={autocompleteRenderItem}
         />
       );
     }

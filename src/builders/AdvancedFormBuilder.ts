@@ -55,6 +55,10 @@ export type FieldCreationParams<T extends FieldValues> =
       options?: { label: string; value: string | number }[];
       getOptions?: () => { label: string; value: string | number }[];
       props?: Record<string, unknown>;
+      renderItem?: (item: {
+        label: string;
+        value: string | number;
+      }) => React.ReactNode;
     }
   | {
       type: "checkbox";
@@ -517,6 +521,7 @@ function createFieldFromParams<T extends FieldValues>(
         ...(typeof params.getOptions === "function"
           ? { getOptions: params.getOptions }
           : { options: params.options }),
+        ...(params.renderItem && { renderItem: params.renderItem }),
         type: "autocomplete",
       };
     case "content":

@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.12.0] - 2026-01-28
+
+### Added
+
+- **Custom option layout for autocomplete (renderItem)** – `FormFieldHelpers.autocomplete()` and the builder chain accept an optional 6th param `options?: { renderItem?: (item) => ReactNode }` so each option can show custom content (e.g. name + email + phone). Config supports `renderItem`; `FormField`, `ServerActionForm`, and `AdvancedFormBuilder` pass it through; `AutocompleteField` wraps custom children in `AutocompleteItem` so HeroUI receives valid listbox items. Use with static options or with `getOptions` for dynamic items + custom layout.
+- **StringFieldConfig.renderItem** – Optional `renderItem?: (item: { label: string; value: string | number }) => ReactNode` for autocomplete fields.
+- **Component tests** – Autocomplete: `renderItem` config and render (static and getOptions + renderItem).
+
+### Fixed
+
+- **AutocompleteField custom children** – Custom `children` (renderItem) are now wrapped in `AutocompleteItem` before passing to HeroUI Autocomplete so the listbox receives valid items and the form renders correctly.
+
 ## [2.11.0] - 2026-01-28
 
 ### Added

@@ -911,7 +911,9 @@ function ServerActionField<T extends FieldValues>({
         >
           {items.map((item: { label: string; value: string | number }) => (
             <AutocompleteItem key={String(item.value)}>
-              {item.label}
+              {typeof stringConfig.renderItem === "function"
+                ? stringConfig.renderItem(item)
+                : item.label}
             </AutocompleteItem>
           ))}
         </Autocomplete>
