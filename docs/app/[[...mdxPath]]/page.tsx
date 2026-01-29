@@ -1,5 +1,5 @@
 import { generateStaticParamsFor, importPage } from "nextra/pages"
-import { getMDXComponents } from "../../../mdx-components"
+import { getMDXComponents } from "../../mdx-components"
 
 export const generateStaticParams = generateStaticParamsFor("mdxPath")
 

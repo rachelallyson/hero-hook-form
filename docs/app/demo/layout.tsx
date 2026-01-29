@@ -26,29 +26,24 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout({
+export default function DemoLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html suppressHydrationWarning lang="en">
-      <head />
-      <body
+    <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
+      <div
         className={clsx(
           "min-h-screen text-foreground bg-background font-sans antialiased",
           fontSans.variable,
         )}
       >
-        <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
-          <div className="relative flex flex-col h-screen">
-            <Navbar />
-            <main className="container mx-auto max-w-7xl pt-16 px-6 flex-grow">
-              {children}
-            </main>
-          </div>
-        </Providers>
-      </body>
-    </html>
+        <Navbar />
+        <main className="container mx-auto max-w-7xl pt-16 px-6 flex-grow">
+          {children}
+        </main>
+      </div>
+    </Providers>
   );
 }
