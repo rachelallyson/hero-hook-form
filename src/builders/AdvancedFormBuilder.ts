@@ -52,7 +52,8 @@ export type FieldCreationParams<T extends FieldValues> =
       type: "autocomplete";
       name: Path<T>;
       label: string;
-      options: { label: string; value: string | number }[];
+      options?: { label: string; value: string | number }[];
+      getOptions?: () => { label: string; value: string | number }[];
       props?: Record<string, unknown>;
     }
   | {
@@ -513,7 +514,9 @@ function createFieldFromParams<T extends FieldValues>(
         autocompleteProps: params.props,
         label: params.label,
         name: params.name,
-        options: params.options,
+        ...(typeof params.getOptions === "function"
+          ? { getOptions: params.getOptions }
+          : { options: params.options }),
         type: "autocomplete",
       };
     case "content":

@@ -209,6 +209,14 @@ function FormFieldComponent<TFieldValues extends FieldValues>({
     }
 
     case "autocomplete": {
+      const autocompleteOptions =
+        "getOptions" in fieldConfig &&
+        typeof fieldConfig.getOptions === "function"
+          ? fieldConfig.getOptions()
+          : "options" in fieldConfig && fieldConfig.options
+            ? fieldConfig.options
+            : [];
+
       return (
         <AutocompleteField<TFieldValues>
           {...baseProps}
@@ -217,10 +225,7 @@ function FormFieldComponent<TFieldValues extends FieldValues>({
           defaultValue={
             "defaultValue" in fieldConfig ? fieldConfig.defaultValue : undefined
           }
-          items={("options" in fieldConfig && fieldConfig.options
-            ? fieldConfig.options
-            : []
-          ).map((opt) => ({
+          items={autocompleteOptions.map((opt) => ({
             label: opt.label,
             value: String(opt.value),
           }))}

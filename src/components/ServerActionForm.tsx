@@ -882,11 +882,14 @@ function ServerActionField<T extends FieldValues>({
       const stringConfig = fieldConfig as
         | StringFieldConfig<T>
         | StringFieldConfig<FieldValues>;
-      const items =
-        stringConfig.options?.map((opt) => ({
-          label: opt.label,
-          value: String(opt.value),
-        })) || [];
+      const rawItems =
+        typeof stringConfig.getOptions === "function"
+          ? stringConfig.getOptions()
+          : (stringConfig.options ?? []);
+      const items = rawItems.map((opt) => ({
+        label: opt.label,
+        value: String(opt.value),
+      }));
 
       return (
         <Autocomplete

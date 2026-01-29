@@ -109,19 +109,23 @@ export class BasicFormBuilder<T extends FieldValues> {
   }
 
   /**
-   * Add an autocomplete field
+   * Add an autocomplete field (static options array or dynamic getOptions getter).
    */
   autocomplete(
     name: Path<T>,
     label: string,
-    items: { label: string; value: string | number }[],
+    items:
+      | { label: string; value: string | number }[]
+      | (() => { label: string; value: string | number }[]),
     placeholder?: string,
   ): this {
+    const isGetter = typeof items === "function";
+
     this.fields.push({
       autocompleteProps: placeholder ? { placeholder } : undefined,
       label,
       name,
-      options: items,
+      ...(isGetter ? { getOptions: items } : { options: items }),
       type: "autocomplete",
     });
 
@@ -329,39 +333,46 @@ function inputHelper<T extends FieldValues>(
 
 export const FormFieldHelpers = {
   /**
-   * Create an autocomplete field
+   * Create an autocomplete field with static or dynamic options.
+   *
+   * Pass an array for a fixed list, or a getter function for dynamic/API-driven options
+   * (e.g. search-as-you-type). The getter is called each render so it sees current state;
+   * use with autocompleteProps.onInputChange to fetch options when the user types.
    *
    * @example
    * ```tsx
-   * // Simple autocomplete
-   * FormFieldHelpers.autocomplete("country", "Country", options)
+   * // Static
+   * FormFieldHelpers.autocomplete("country", "Country", options, "Search countries", { allowsCustomValue: true })
    *
-   * // With placeholder
-   * FormFieldHelpers.autocomplete("country", "Country", options, "Search countries")
-   *
-   * // With full customization
-   * FormFieldHelpers.autocomplete("country", "Country", options, "Search countries", {
-   *   classNames: { base: "custom-autocomplete" },
-   *   allowsCustomValue: true
+   * // Dynamic (e.g. PCO Person)
+   * const [people, setPeople] = useState([]);
+   * FormFieldHelpers.autocomplete("personId", "Person", () => people.map(p => ({ label: p.name, value: p.id })), "Search people", {
+   *   onInputChange: (q) => fetchPeople(q).then(setPeople),
    * })
    * ```
    */
   autocomplete: <T extends FieldValues>(
     name: Path<T>,
     label: string,
-    items: { label: string; value: string | number }[],
+    items:
+      | { label: string; value: string | number }[]
+      | (() => { label: string; value: string | number }[]),
     placeholder?: string,
     autocompleteProps?: AutocompletePassthroughProps,
-  ): ZodFormFieldConfig<T> => ({
-    autocompleteProps: {
-      ...(placeholder && { placeholder }),
-      ...autocompleteProps,
-    },
-    label,
-    name,
-    options: items,
-    type: "autocomplete",
-  }),
+  ): ZodFormFieldConfig<T> => {
+    const isGetter = typeof items === "function";
+
+    return {
+      autocompleteProps: {
+        ...(placeholder && { placeholder }),
+        ...autocompleteProps,
+      },
+      ...(isGetter ? { getOptions: items } : { options: items }),
+      label,
+      name,
+      type: "autocomplete",
+    };
+  },
 
   /**
    * Create a checkbox field

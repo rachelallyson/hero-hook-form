@@ -164,7 +164,10 @@ export interface StringFieldConfig<TFieldValues extends FieldValues>
   textareaProps?: TextareaPassthroughProps;
   selectProps?: SelectPassthroughProps;
   autocompleteProps?: AutocompletePassthroughProps;
+  /** Static options for autocomplete/select. Omit when using getOptions for dynamic items. */
   options?: { label: string; value: string | number }[];
+  /** Dynamic options for autocomplete: called each render to get current items (e.g. from API/state). */
+  getOptions?: () => { label: string; value: string | number }[];
 }
 
 // Boolean-based field configs

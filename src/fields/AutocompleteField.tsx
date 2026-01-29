@@ -82,7 +82,9 @@ export type AutocompleteFieldProps<
  *
  * This component provides a type-safe autocomplete field with validation support,
  * error handling, and accessibility features. It supports both static option lists
- * and async loading via the items prop or children render function.
+ * and async loading via the items prop or children render function. For dynamic
+ * options (e.g. API search), use FormFieldHelpers.autocomplete with a getter:
+ * () => people.map(p => ({ label: p.name, value: p.id })) and onInputChange to fetch.
  *
  * @template TFieldValues - The form data type
  * @template TValue - The value type for the autocomplete field (string or number)

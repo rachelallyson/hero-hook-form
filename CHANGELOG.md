@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.11.0] - 2026-01-28
+
+### Added
+
+- **Dynamic options for autocomplete** – `FormFieldHelpers.autocomplete()` and the builder chain now accept either a static options array or a getter function `() => options`. Use a getter for API-driven autocomplete (e.g. PCO Person, search-as-you-type): the getter is called each render so items stay in sync with state. Config supports `getOptions`; `FormField`, `ServerActionForm`, and `AdvancedFormBuilder` resolve items from `getOptions()` when present, else `options`. No need for `FormFieldHelpers.custom` when you only need dynamic items.
+
+### Changed
+
+- **FormFieldHelpers.autocomplete** – Third parameter can be `options[]` or `() => options[]`; JSDoc documents dynamic usage with `onInputChange`.
+- **StringFieldConfig** – Added optional `getOptions?: () => { label: string; value: string | number }[]` for autocomplete fields.
+- **AutocompleteField JSDoc** – Notes dynamic options via getter + `onInputChange`.
+
 ## [2.10.0] - 2026-01-28
 
 ### Added

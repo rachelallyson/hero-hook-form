@@ -506,6 +506,46 @@ describe("FormFieldHelpers - Prop Support", () => {
 
       cy.contains("label", "Country").should("exist");
     });
+
+    it("should support dynamic options via getOptions getter", () => {
+      const getOptions = () => items;
+      const config = FormFieldHelpers.autocomplete(
+        "country",
+        "Country",
+        getOptions,
+        "Search countries",
+      );
+
+      expect(config.getOptions).to.equal(getOptions);
+      expect(config.options).to.be.undefined;
+    });
+
+    it("should render autocomplete with getOptions (dynamic items)", () => {
+      const dynamicItems = [
+        { label: "United States", value: "us" },
+        { label: "Canada", value: "ca" },
+      ];
+      const getOptions = () => dynamicItems;
+
+      mount(
+        <TestWrapper>
+          <ZodForm
+            config={{
+              schema,
+              fields: [
+                FormFieldHelpers.autocomplete("country", "Country", getOptions, "Search"),
+              ],
+              onSubmit: () => {},
+            }}
+          />
+        </TestWrapper>,
+      );
+
+      cy.contains("label", "Country").should("exist");
+      cy.get("input").first().click();
+      cy.contains("United States").should("exist");
+      cy.contains("Canada").should("exist");
+    });
   });
 
   describe("date() with dateProps", () => {
