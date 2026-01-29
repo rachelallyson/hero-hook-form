@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useMemo } from "react";
 
 import type {
+  Autocomplete,
   Button,
   Checkbox,
   DateInput,
@@ -98,6 +99,22 @@ export type SelectDefaults = Partial<
   >
 >;
 
+type AutocompleteProps = React.ComponentProps<typeof Autocomplete>;
+export type AutocompleteDefaults = Partial<
+  Omit<
+    AutocompleteProps,
+    | "selectedKey"
+    | "inputValue"
+    | "label"
+    | "isInvalid"
+    | "errorMessage"
+    | "isDisabled"
+    | "items"
+    | "defaultItems"
+    | "children"
+  >
+>;
+
 type DateInputProps = React.ComponentProps<typeof DateInput>;
 export type DateInputDefaults = Partial<
   Omit<
@@ -131,6 +148,7 @@ export type ButtonDefaults = Partial<
 
 export interface HeroHookFormDefaultsConfig {
   common?: CommonFieldDefaults;
+  autocomplete?: AutocompleteDefaults;
   input?: InputDefaults;
   textarea?: TextareaDefaults;
   checkbox?: CheckboxDefaults;
@@ -176,6 +194,12 @@ type TextareaCommonConfig = Partial<
 >;
 type SelectCommonConfig = Partial<
   Pick<SelectProps, "color" | "size" | "variant" | "radius" | "labelPlacement">
+>;
+type AutocompleteCommonConfig = Partial<
+  Pick<
+    AutocompleteProps,
+    "color" | "size" | "variant" | "radius" | "labelPlacement"
+  >
 >;
 type DateInputCommonConfig = Partial<
   Pick<
@@ -292,6 +316,41 @@ function extractSelectCommon(common: CommonFieldDefaults): SelectCommonConfig {
   return result;
 }
 
+function extractAutocompleteCommon(
+  common: CommonFieldDefaults,
+): AutocompleteCommonConfig {
+  const result: AutocompleteCommonConfig = {};
+
+  if (common.color !== undefined) {
+    const color: AutocompleteProps["color"] = common.color;
+
+    result.color = color;
+  }
+  if (common.size !== undefined) {
+    const size: AutocompleteProps["size"] = common.size;
+
+    result.size = size;
+  }
+  if (common.variant !== undefined) {
+    const variant: AutocompleteProps["variant"] = common.variant;
+
+    result.variant = variant;
+  }
+  if (common.radius !== undefined) {
+    const radius: AutocompleteProps["radius"] = common.radius;
+
+    result.radius = radius;
+  }
+  if (common.labelPlacement !== undefined) {
+    const labelPlacement: AutocompleteProps["labelPlacement"] =
+      common.labelPlacement;
+
+    result.labelPlacement = labelPlacement;
+  }
+
+  return result;
+}
+
 function extractDateInputCommon(
   common: CommonFieldDefaults,
 ): DateInputCommonConfig {
@@ -335,6 +394,7 @@ export function useHeroHookFormDefaults(): Required<
     | "checkbox"
     | "radioGroup"
     | "select"
+    | "autocomplete"
     | "dateInput"
     | "slider"
     | "switch"
@@ -344,11 +404,12 @@ export function useHeroHookFormDefaults(): Required<
   const cfg = useContext(DefaultsContext) ?? {};
   const common = cfg.common ?? {};
 
-  // For Input, Textarea, Select: SharedTextLike* types are intersections of their prop types
+  // For Input, Textarea, Select, Autocomplete: SharedTextLike* types are intersections of their prop types
   // This means they're provably compatible - we use explicit type annotations to help TypeScript
   const commonInput = extractInputCommon(common);
   const commonTextarea = extractTextareaCommon(common);
   const commonSelect = extractSelectCommon(common);
+  const commonAutocomplete = extractAutocompleteCommon(common);
   const commonDateInput = extractDateInputCommon(common);
 
   // For other components, we don't apply common config because:
@@ -365,6 +426,10 @@ export function useHeroHookFormDefaults(): Required<
   };
 
   return {
+    autocomplete: {
+      ...commonAutocomplete,
+      ...(cfg.autocomplete ?? {}),
+    },
     checkbox: cfg.checkbox ?? {},
     dateInput: {
       ...dateInputBase,

@@ -4,6 +4,7 @@ import React, { useState } from "react";
 
 import type { ControllerRenderProps, FieldValues, Path } from "react-hook-form";
 import { Controller } from "react-hook-form";
+import { useHeroHookFormDefaults } from "../providers/ConfigProvider";
 import type {
   FieldBaseProps,
   StringArrayFieldConfig,
@@ -50,11 +51,13 @@ function StringArrayInput<TFieldValues extends FieldValues>(props: {
     maxItems,
     minItems,
     placeholder = "Add item...",
+    readOnly = false,
     showAddButton = true,
     transformItem = (item: string) => item.trim(),
     validateItem = () => true,
   } = stringArrayProps || {};
 
+  const defaults = useHeroHookFormDefaults();
   const canAddMore = !maxItems || items.length < maxItems;
 
   const handleAddItem = () => {
@@ -85,15 +88,6 @@ function StringArrayInput<TFieldValues extends FieldValues>(props: {
     field.onChange(newItems);
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      if (!showAddButton) {
-        handleAddItem();
-      }
-    }
-  };
-
   return (
     <div className="space-y-2">
       {label && (
@@ -116,25 +110,32 @@ function StringArrayInput<TFieldValues extends FieldValues>(props: {
         <p className="text-sm text-muted-foreground">{description}</p>
       )}
 
-      {/* Input and Add Button */}
-      {canAddMore && (
+      {/* Input and Add Button (hidden when readOnly) */}
+      {!readOnly && canAddMore && (
         <div className="flex gap-2">
           <Input
+            {...defaults.input}
             className="flex-1"
-            disabled={disabled}
-            placeholder={placeholder}
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyPress={handleKeyPress}
             isInvalid={!!errorMessage}
             errorMessage={errorMessage}
+            isDisabled={disabled}
+            placeholder={placeholder}
+            value={inputValue}
+            onValueChange={setInputValue}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                if (!showAddButton) handleAddItem();
+              }
+            }}
           />
           {showAddButton && (
             <Button
+              {...defaults.submitButton}
               type="button"
               variant="flat"
-              onClick={handleAddItem}
-              disabled={disabled || !inputValue.trim()}
+              onPress={handleAddItem}
+              isDisabled={disabled || !inputValue.trim()}
               size="sm"
             >
               {addButtonText}
@@ -152,16 +153,19 @@ function StringArrayInput<TFieldValues extends FieldValues>(props: {
               className="flex items-center gap-2 p-2 bg-content2 rounded-md"
             >
               <span className="flex-1 text-sm">{item}</span>
-              <Button
-                type="button"
-                variant="light"
-                size="sm"
-                onClick={() => handleRemoveItem(index)}
-                disabled={disabled}
-                className="min-w-[60px]"
-              >
-                Remove
-              </Button>
+              {!readOnly && (
+                <Button
+                  {...defaults.submitButton}
+                  type="button"
+                  variant="light"
+                  size="sm"
+                  onPress={() => handleRemoveItem(index)}
+                  isDisabled={disabled}
+                  className="min-w-[60px]"
+                >
+                  Remove
+                </Button>
+              )}
             </div>
           ))}
         </div>

@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.13.0] - 2026-01-29
+
+### Added
+
+- **ConfigProvider: autocomplete defaults** – `HeroHookFormDefaultsConfig` and `useHeroHookFormDefaults()` now support `defaults.autocomplete`. AutocompleteField spreads these defaults so global Autocomplete styling (color, size, variant, radius, labelPlacement) applies like Input, Textarea, and Select.
+- **FieldArrayField: readOnly** – New `readOnly?: boolean` on `FieldArrayConfig`. When true, hides the add button, remove buttons, and reorder buttons so the field array is display-only.
+- **StringArrayField: readOnly** – New `readOnly?: boolean` on `StringArrayFieldConfig`. When true, hides the input, add button, and remove buttons so the list is display-only.
+- **AutocompleteFieldHandlers: store custom value from selection** – `createAutocompleteFieldHandlers` now allows `onSelectionChange` to return a value (string or number); that value is stored in the form field instead of the selected key (e.g. "store key, show label" by returning the display string).
+
+### Changed
+
+- **AutocompleteField** – `AutocompleteItem` `textValue` now uses `item.label ?? String(item.value)` so options with labels display correctly.
+- **StringArrayField** – Uses `useHeroHookFormDefaults()` for Input and Button; switched to HeroUI-style props (`onValueChange`, `onPress`, `isDisabled`). Enter key handling uses `onKeyDown` instead of deprecated `onKeyPress`.
+
 ## [2.12.0] - 2026-01-28
 
 ### Added

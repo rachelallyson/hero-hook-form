@@ -263,6 +263,8 @@ export interface StringArrayFieldConfig<TFieldValues extends FieldValues>
     addButtonText?: string;
     /** Whether to show add button or use enter key */
     showAddButton?: boolean;
+    /** When true, only display items: no input, no add button, no remove buttons */
+    readOnly?: boolean;
   };
 }
 
@@ -324,6 +326,8 @@ export interface FieldArrayConfig<TFieldValues extends FieldValues>
   };
   /** Function to create default item when adding new array item */
   defaultItem?: () => any;
+  /** When true, hide add button, remove buttons, and reorder buttons (display-only) */
+  readOnly?: boolean;
   /** Whether this field array should always be registered (for conditional rendering) */
   alwaysRegistered?: boolean;
   /** Custom render function for array items */

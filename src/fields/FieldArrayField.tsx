@@ -149,6 +149,7 @@ export function FieldArrayField<TFieldValues extends FieldValues>({
     max = 10,
     min = 0,
     name,
+    readOnly = false,
     removeButtonText = "Remove",
     renderAddButton,
     renderItem,
@@ -325,42 +326,44 @@ export function FieldArrayField<TFieldValues extends FieldValues>({
             <h4 className="text-sm font-medium text-gray-700">
               {config.label} #{index + 1}
             </h4>
-            <div className="flex gap-2">
-              {enableReordering && (
-                <>
+            {!readOnly && (
+              <div className="flex gap-2">
+                {enableReordering && (
+                  <>
+                    <Button
+                      size="sm"
+                      variant="light"
+                      isDisabled={!canMoveUp}
+                      onPress={() => handleMoveUp(index)}
+                      aria-label={`Move ${config.label} ${index + 1} up`}
+                    >
+                      {reorderButtonText.up}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="light"
+                      isDisabled={!canMoveDown}
+                      onPress={() => handleMoveDown(index)}
+                      aria-label={`Move ${config.label} ${index + 1} down`}
+                    >
+                      {reorderButtonText.down}
+                    </Button>
+                  </>
+                )}
+                {itemCanRemove && (
                   <Button
                     size="sm"
                     variant="light"
-                    isDisabled={!canMoveUp}
-                    onPress={() => handleMoveUp(index)}
-                    aria-label={`Move ${config.label} ${index + 1} up`}
+                    color="danger"
+                    startContent="🗑️"
+                    onPress={() => handleRemove(index)}
+                    aria-label={`${removeButtonText} ${config.label} ${index + 1}`}
                   >
-                    {reorderButtonText.up}
+                    {removeButtonText}
                   </Button>
-                  <Button
-                    size="sm"
-                    variant="light"
-                    isDisabled={!canMoveDown}
-                    onPress={() => handleMoveDown(index)}
-                    aria-label={`Move ${config.label} ${index + 1} down`}
-                  >
-                    {reorderButtonText.down}
-                  </Button>
-                </>
-              )}
-              {itemCanRemove && (
-                <Button
-                  size="sm"
-                  variant="light"
-                  color="danger"
-                  startContent="🗑️"
-                  onPress={() => handleRemove(index)}
-                  aria-label={`${removeButtonText} ${config.label} ${index + 1}`}
-                >
-                  {removeButtonText}
-                </Button>
-              )}
-            </div>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -371,8 +374,11 @@ export function FieldArrayField<TFieldValues extends FieldValues>({
     });
   };
 
-  // Render add button
+  // Render add button (hidden when readOnly)
   const renderAddButtonElement = () => {
+    if (readOnly) {
+      return null;
+    }
     if (renderAddButton) {
       return renderAddButton({
         canAdd,

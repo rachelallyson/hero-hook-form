@@ -328,15 +328,17 @@ export function createFileFieldHandlers<
  * Helper to create wrapped handlers for AutocompleteField with onSelectionChange and onInputChange.
  * Optionally pass fieldLevel; merged label and isDisabled are applied into the returned object.
  * When allowsCustomValue is true, onInputChange also updates form state as the user types.
+ * If onSelectionChange returns a value (string or number), that value is stored in the form
+ * field instead of the selected key — e.g. for "store key, show label" (return the display string).
  */
 export function createAutocompleteFieldHandlers<
   TValue = string | number,
   TProps extends {
     onInputChange?: (value: string) => void;
-    onSelectionChange?: (key: string | number | null) => void;
+    onSelectionChange?: (key: string | number | null) => void | string | number;
   } = {
     onInputChange?: (value: string) => void;
-    onSelectionChange?: (key: string | number | null) => void;
+    onSelectionChange?: (key: string | number | null) => void | string | number;
   },
 >(
   props: TProps | undefined,
@@ -348,17 +350,25 @@ export function createAutocompleteFieldHandlers<
 
   const handleSelectionChange = (key: string | number | null) => {
     const next = (key as TValue | undefined) ?? ("" as TValue);
-    if (props?.onSelectionChange) {
-      props.onSelectionChange(key);
+    const valueToStore =
+      typeof props?.onSelectionChange === "function"
+        ? props.onSelectionChange(key)
+        : undefined;
+
+    if (valueToStore !== undefined) {
+      field.onChange(valueToStore);
+    } else {
+      field.onChange(next);
     }
-    field.onChange(next);
   };
 
   const handleInputChange = (value: string | number | null) => {
     const strValue = value != null ? String(value) : "";
+
     if (props?.onInputChange) {
       props.onInputChange(strValue);
     }
+
     if (allowsCustomValue) {
       field.onChange(strValue as TValue);
     }
@@ -368,7 +378,10 @@ export function createAutocompleteFieldHandlers<
     "onInputChange",
     "onSelectionChange",
   ]);
-  const typedRest = restProps as Omit<TProps, "onInputChange" | "onSelectionChange"> & {
+  const typedRest = restProps as Omit<
+    TProps,
+    "onInputChange" | "onSelectionChange"
+  > & {
     label?: React.ReactNode;
     isDisabled?: boolean;
   };

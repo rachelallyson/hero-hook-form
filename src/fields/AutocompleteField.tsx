@@ -5,6 +5,7 @@ import React from "react";
 import type { FieldValues, Path } from "react-hook-form";
 import { Controller } from "react-hook-form";
 
+import { useHeroHookFormDefaults } from "../providers/ConfigProvider";
 import type {
   AutocompletePassthroughProps,
   FieldBaseProps,
@@ -160,6 +161,7 @@ export function AutocompleteField<
     placeholder,
     rules,
   } = props;
+  const defaults = useHeroHookFormDefaults();
 
   return (
     <Controller<TFieldValues, Path<TFieldValues>>
@@ -186,6 +188,7 @@ export function AutocompleteField<
         return (
           <div className={className}>
             <Autocomplete<AutocompleteOption<TValue>>
+              {...defaults.autocomplete}
               {...rest}
               {...(defaultItems && {
                 defaultItems: defaultItems as Iterable<
@@ -215,7 +218,7 @@ export function AutocompleteField<
                 ? (item: AutocompleteOption<TValue>) => (
                     <AutocompleteItem
                       key={String(item.value)}
-                      textValue={String(item.value)}
+                      textValue={item.label ?? String(item.value)}
                       description={item.description}
                       isDisabled={item.disabled}
                     >
@@ -225,7 +228,7 @@ export function AutocompleteField<
                 : (item: AutocompleteOption<TValue>) => (
                     <AutocompleteItem
                       key={String(item.value)}
-                      textValue={String(item.value)}
+                      textValue={item.label ?? String(item.value)}
                       description={item.description}
                       isDisabled={item.disabled}
                     >

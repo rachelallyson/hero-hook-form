@@ -85,9 +85,8 @@ describe("AutocompleteField", () => {
 
     cy.wait(100);
     cy.get('input[type="text"]').should("be.visible").focus().type("Can");
-    cy.wait(500);
-    // Autocomplete should filter options - check that Canada is visible
-    cy.get("[role=option]").should("exist");
+    // Wait for dropdown to open and options to be present
+    cy.get("[role=option]", { timeout: 10000 }).should("exist");
     // Check that at least one option contains "Can" or "Canada"
     cy.get("[role=option]").should(($options) => {
       const texts = Array.from($options).map((el) => el.textContent);
@@ -107,7 +106,8 @@ describe("AutocompleteField", () => {
 
     cy.wait(100);
     cy.get('input[type="text"]').should("be.visible").focus().type("Unit");
-    cy.wait(500);
+    // Wait for dropdown to open and options to be present before clicking
+    cy.get("[role=option]", { timeout: 10000 }).should("have.length.at.least", 1);
     cy.get("[role=option]").first().click();
     cy.wait(200);
     // After selection, the input should show the selected value or be cleared
