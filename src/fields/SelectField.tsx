@@ -6,7 +6,12 @@ import type { FieldValues, Path } from "react-hook-form";
 import { Controller } from "react-hook-form";
 
 import { useHeroHookFormDefaults } from "../providers/ConfigProvider";
-import type { FieldBaseProps, WithControl } from "../types";
+import type {
+  FieldBaseProps,
+  SelectPassthroughProps,
+  WithControl,
+} from "../types";
+import { createSelectFieldHandlers } from "../utils/fieldHandlers";
 
 import { Select, SelectItem } from "#ui";
 
@@ -66,15 +71,7 @@ export type SelectFieldProps<
     /** Placeholder text when no option is selected */
     placeholder?: string;
     /** Additional props to pass to the underlying Select component */
-    selectProps?: Omit<
-      React.ComponentProps<typeof Select>,
-      | "selectedKeys"
-      | "onSelectionChange"
-      | "label"
-      | "isInvalid"
-      | "errorMessage"
-      | "isDisabled"
-    >;
+    selectProps?: SelectPassthroughProps;
   };
 
 /**
@@ -158,28 +155,32 @@ export function SelectField<
       render={({ field, fieldState }) => {
         const selectedKey = field.value as TValue | undefined;
 
+        const restProps = createSelectFieldHandlers<TValue>(
+          selectProps as {
+            onSelectionChange?: (keys: Iterable<TValue>) => void;
+          },
+          field,
+          { isDisabled, label },
+        );
+
         return (
           <div className={className}>
             <Select
               {...defaults.select}
-              {...selectProps}
+              {...restProps}
               description={description}
               errorMessage={fieldState.error?.message}
-              isDisabled={isDisabled}
               isInvalid={Boolean(fieldState.error)}
-              label={label}
               name={name}
+              onSelectionChange={
+                restProps.onSelectionChange as React.ComponentProps<
+                  typeof Select
+                >["onSelectionChange"]
+              }
               placeholder={placeholder}
               selectedKeys={
                 selectedKey != null ? new Set([String(selectedKey)]) : new Set()
               }
-              onSelectionChange={(keys: Iterable<string | number>) => {
-                const keyArray = Array.from(keys);
-                const next =
-                  (keyArray[0] as TValue | undefined) ?? ("" as TValue);
-
-                field.onChange(next);
-              }}
             >
               {options.map((opt) => (
                 <SelectItem

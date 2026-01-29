@@ -6,7 +6,12 @@ import type { FieldValues, Path } from "react-hook-form";
 import { Controller } from "react-hook-form";
 
 import { useHeroHookFormDefaults } from "../providers/ConfigProvider";
-import type { FieldBaseProps, WithControl } from "../types";
+import type {
+  CheckboxGroupPassthroughProps,
+  FieldBaseProps,
+  WithControl,
+} from "../types";
+import { createFieldHandlers } from "../utils/fieldHandlers";
 
 import { Checkbox } from "#ui";
 
@@ -63,15 +68,7 @@ export type CheckboxGroupFieldProps<
     /** Array of checkbox options */
     options: readonly CheckboxOption<TValue>[];
     /** Additional props to pass to individual Checkbox components */
-    checkboxProps?: Omit<
-      React.ComponentProps<typeof Checkbox>,
-      | "isSelected"
-      | "onValueChange"
-      | "isInvalid"
-      | "errorMessage"
-      | "isDisabled"
-      | "name"
-    >;
+    checkboxProps?: CheckboxGroupPassthroughProps;
     /** Layout orientation for the checkboxes */
     orientation?: "vertical" | "horizontal";
   };
@@ -160,6 +157,14 @@ export function CheckboxGroupField<
       render={({ field, fieldState }) => {
         const currentValues = (field.value as TValue[]) || [];
 
+        // Create handlers for individual checkboxes
+        // Checkbox accepts FocusEvent<Element>, not just HTMLInputElement
+        const restCheckboxProps = createFieldHandlers<
+          boolean,
+          Element,
+          CheckboxGroupPassthroughProps
+        >(checkboxProps, field, { isDisabled });
+
         const handleCheckboxChange = (
           optionValue: TValue,
           checked: boolean,
@@ -198,12 +203,11 @@ export function CheckboxGroupField<
                   <Checkbox
                     key={String(option.value)}
                     {...defaults.checkbox}
-                    {...checkboxProps}
-                    isDisabled={isDisabled || option.disabled}
+                    {...restCheckboxProps}
+                    isDisabled={restCheckboxProps.isDisabled || option.disabled}
                     isInvalid={Boolean(fieldState.error)}
                     isSelected={isSelected}
                     name={name}
-                    onBlur={field.onBlur}
                     onValueChange={(checked) =>
                       handleCheckboxChange(option.value, checked)
                     }

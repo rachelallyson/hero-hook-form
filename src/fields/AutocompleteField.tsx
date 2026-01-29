@@ -5,7 +5,12 @@ import React from "react";
 import type { FieldValues, Path } from "react-hook-form";
 import { Controller } from "react-hook-form";
 
-import type { FieldBaseProps, WithControl } from "../types";
+import type {
+  AutocompletePassthroughProps,
+  FieldBaseProps,
+  WithControl,
+} from "../types";
+import { createAutocompleteFieldHandlers } from "../utils/fieldHandlers";
 
 import { Autocomplete, AutocompleteItem } from "#ui";
 
@@ -65,20 +70,9 @@ export type AutocompleteFieldProps<
     /** Placeholder text when no option is selected */
     placeholder?: string;
     /** Additional props to pass to the underlying Autocomplete component */
-    autocompleteProps?: Omit<
-      React.ComponentProps<typeof Autocomplete>,
-      | "selectedKey"
-      | "onSelectionChange"
-      | "inputValue"
-      | "onInputChange"
-      | "label"
-      | "isInvalid"
-      | "errorMessage"
-      | "isDisabled"
-      | "children"
-      | "items"
-      | "defaultItems"
-    >;
+    autocompleteProps?: AutocompletePassthroughProps & {
+      defaultItems?: Iterable<AutocompleteOption<TValue>>;
+    };
     /** Custom render function for items (for async loading) */
     children?: (item: AutocompleteOption<TValue>) => React.JSX.Element;
   };
@@ -173,20 +167,32 @@ export function AutocompleteField<
         const selectedKey = field.value as TValue | undefined;
         const hasSelectedValue = selectedKey != null && selectedKey !== "";
         const allowsCustomValue = autocompleteProps?.allowsCustomValue ?? false;
-
-        // When allowsCustomValue is true, we want to show the input value
-        // When false, show selected key if available
         const shouldShowInputValue = allowsCustomValue || !hasSelectedValue;
+
+        const { defaultItems, ...restAutocompleteProps } =
+          autocompleteProps ?? {};
+        const rest = createAutocompleteFieldHandlers<
+          TValue,
+          AutocompletePassthroughProps
+        >(
+          restAutocompleteProps,
+          field,
+          { isDisabled, label },
+          { allowsCustomValue },
+        );
 
         return (
           <div className={className}>
             <Autocomplete<AutocompleteOption<TValue>>
-              {...autocompleteProps}
+              {...rest}
+              {...(defaultItems && {
+                defaultItems: defaultItems as Iterable<
+                  AutocompleteOption<TValue>
+                >,
+              })}
               description={description}
               errorMessage={fieldState.error?.message}
-              isDisabled={isDisabled}
               isInvalid={Boolean(fieldState.error)}
-              label={label}
               name={name}
               placeholder={placeholder}
               selectedKey={
@@ -201,17 +207,6 @@ export function AutocompleteField<
                   ? ((field.value as string | undefined) ?? "")
                   : undefined
               }
-              onSelectionChange={(key: string | number | null) => {
-                const next = (key as TValue | undefined) ?? ("" as TValue);
-
-                field.onChange(next);
-              }}
-              onInputChange={(value: string) => {
-                // When allowsCustomValue is enabled, update form value as user types
-                if (allowsCustomValue) {
-                  field.onChange(value as TValue);
-                }
-              }}
               items={items as AutocompleteOption<TValue>[] | undefined}
             >
               {children

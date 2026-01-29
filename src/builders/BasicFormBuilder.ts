@@ -8,23 +8,22 @@ import type {
   UseFormReturn,
 } from "react-hook-form";
 import type {
+  AutocompletePassthroughProps,
+  CheckboxGroupPassthroughProps,
+  CheckboxPassthroughProps,
   ConditionalFieldConfig,
   ContentFieldConfig,
+  DateInputPassthroughProps,
   FieldArrayConfig,
+  FileInputPassthroughProps,
+  InputPassthroughProps,
+  RadioGroupPassthroughProps,
+  SelectPassthroughProps,
+  SliderPassthroughProps,
+  SwitchPassthroughProps,
+  TextareaPassthroughProps,
   ZodFormFieldConfig,
 } from "../types";
-
-import type {
-  Autocomplete,
-  Checkbox,
-  DateInput,
-  Input,
-  RadioGroup,
-  Select,
-  Slider,
-  Switch,
-  Textarea,
-} from "#ui";
 
 /**
  * Basic form field builder for creating form field configurations.
@@ -266,17 +265,6 @@ export function createBasicFormBuilder<
  * @see {@link createBasicFormBuilder} for builder pattern alternative
  * @category Builders
  */
-// Type alias for Input props
-type InputPropsType = Omit<
-  React.ComponentProps<typeof Input>,
-  | "value"
-  | "onValueChange"
-  | "label"
-  | "isInvalid"
-  | "errorMessage"
-  | "isDisabled"
->;
-
 // Overload signatures for input helper
 function inputHelper<T extends FieldValues>(
   name: Path<T>,
@@ -290,19 +278,19 @@ function inputHelper<T extends FieldValues>(
 function inputHelper<T extends FieldValues>(
   name: Path<T>,
   label: string,
-  inputProps: InputPropsType,
+  inputProps: InputPassthroughProps,
 ): ZodFormFieldConfig<T>;
 function inputHelper<T extends FieldValues>(
   name: Path<T>,
   label: string,
   type: "text" | "email" | "tel" | "password",
-  inputProps: InputPropsType,
+  inputProps: InputPassthroughProps,
 ): ZodFormFieldConfig<T>;
 function inputHelper<T extends FieldValues>(
   name: Path<T>,
   label: string,
-  typeOrProps?: "text" | "email" | "tel" | "password" | InputPropsType,
-  inputProps?: InputPropsType,
+  typeOrProps?: "text" | "email" | "tel" | "password" | InputPassthroughProps,
+  inputProps?: InputPassthroughProps,
 ): ZodFormFieldConfig<T> {
   // Handle case where third param is props object (not a type string)
   if (
@@ -363,19 +351,7 @@ export const FormFieldHelpers = {
     label: string,
     items: { label: string; value: string | number }[],
     placeholder?: string,
-    autocompleteProps?: Omit<
-      React.ComponentProps<typeof Autocomplete>,
-      | "selectedKey"
-      | "onSelectionChange"
-      | "inputValue"
-      | "onInputChange"
-      | "label"
-      | "isInvalid"
-      | "errorMessage"
-      | "isDisabled"
-      | "children"
-      | "items"
-    >,
+    autocompleteProps?: AutocompletePassthroughProps,
   ): ZodFormFieldConfig<T> => ({
     autocompleteProps: {
       ...(placeholder && { placeholder }),
@@ -405,14 +381,7 @@ export const FormFieldHelpers = {
   checkbox: <T extends FieldValues>(
     name: Path<T>,
     label: string,
-    checkboxProps?: Omit<
-      React.ComponentProps<typeof Checkbox>,
-      | "isSelected"
-      | "onValueChange"
-      | "isInvalid"
-      | "errorMessage"
-      | "isDisabled"
-    >,
+    checkboxProps?: CheckboxPassthroughProps,
   ): ZodFormFieldConfig<T> => ({
     checkboxProps,
     label,
@@ -444,15 +413,7 @@ export const FormFieldHelpers = {
     label: string,
     options: { label: string; value: string | number }[],
     config?: {
-      checkboxProps?: Omit<
-        React.ComponentProps<typeof Checkbox>,
-        | "isSelected"
-        | "onValueChange"
-        | "isInvalid"
-        | "errorMessage"
-        | "isDisabled"
-        | "name"
-      >;
+      checkboxProps?: CheckboxGroupPassthroughProps;
       orientation?: "vertical" | "horizontal";
       description?: string;
     },
@@ -672,15 +633,7 @@ export const FormFieldHelpers = {
   date: <T extends FieldValues>(
     name: Path<T>,
     label: string,
-    dateProps?: Omit<
-      React.ComponentProps<typeof DateInput>,
-      | "value"
-      | "onChange"
-      | "label"
-      | "isInvalid"
-      | "errorMessage"
-      | "isDisabled"
-    >,
+    dateProps?: DateInputPassthroughProps,
   ): ZodFormFieldConfig<T> => ({
     dateProps: Object.keys(dateProps ?? {}).length > 0 ? dateProps : undefined,
     label,
@@ -715,16 +668,7 @@ export const FormFieldHelpers = {
     label: string,
     options?: {
       accept?: string;
-      fileProps?: Omit<
-        React.ComponentProps<typeof Input>,
-        | "value"
-        | "onValueChange"
-        | "label"
-        | "isInvalid"
-        | "errorMessage"
-        | "isDisabled"
-        | "type"
-      >;
+      fileProps?: FileInputPassthroughProps;
       multiple?: boolean;
     },
   ): ZodFormFieldConfig<T> => ({
@@ -833,10 +777,7 @@ export const FormFieldHelpers = {
     name: Path<T>,
     label: string,
     options: { label: string; value: string | number }[],
-    radioProps?: Omit<
-      React.ComponentProps<typeof RadioGroup>,
-      "value" | "onValueChange" | "label"
-    >,
+    radioProps?: RadioGroupPassthroughProps,
   ): ZodFormFieldConfig<T> => ({
     label,
     name,
@@ -865,15 +806,7 @@ export const FormFieldHelpers = {
     name: Path<T>,
     label: string,
     options: { label: string; value: string | number }[],
-    selectProps?: Omit<
-      React.ComponentProps<typeof Select>,
-      | "selectedKeys"
-      | "onSelectionChange"
-      | "label"
-      | "isInvalid"
-      | "errorMessage"
-      | "isDisabled"
-    >,
+    selectProps?: SelectPassthroughProps,
   ): ZodFormFieldConfig<T> => ({
     label,
     name,
@@ -903,10 +836,7 @@ export const FormFieldHelpers = {
   slider: <T extends FieldValues>(
     name: Path<T>,
     label: string,
-    sliderProps?: Omit<
-      React.ComponentProps<typeof Slider>,
-      "value" | "onChange" | "label" | "isDisabled"
-    >,
+    sliderProps?: SliderPassthroughProps,
   ): ZodFormFieldConfig<T> => ({
     label,
     name,
@@ -937,14 +867,7 @@ export const FormFieldHelpers = {
     name: Path<T>,
     label: string,
     description?: string,
-    switchProps?: Omit<
-      React.ComponentProps<typeof Switch>,
-      | "isSelected"
-      | "onValueChange"
-      | "isInvalid"
-      | "errorMessage"
-      | "isDisabled"
-    >,
+    switchProps?: SwitchPassthroughProps,
   ): ZodFormFieldConfig<T> => ({
     description,
     label,
@@ -976,15 +899,7 @@ export const FormFieldHelpers = {
     name: Path<T>,
     label: string,
     placeholder?: string,
-    textareaProps?: Omit<
-      React.ComponentProps<typeof Textarea>,
-      | "value"
-      | "onValueChange"
-      | "label"
-      | "isInvalid"
-      | "errorMessage"
-      | "isDisabled"
-    >,
+    textareaProps?: TextareaPassthroughProps,
   ): ZodFormFieldConfig<T> => ({
     label,
     name,

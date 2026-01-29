@@ -22,6 +22,60 @@ import type {
   Textarea,
 } from "#ui";
 
+// Passthrough prop types: single source of truth for *Props omit lists
+export type InputPassthroughProps = Omit<
+  ComponentProps<typeof Input>,
+  "value" | "isInvalid" | "errorMessage" | "name"
+>;
+export type TextareaPassthroughProps = Omit<
+  ComponentProps<typeof Textarea>,
+  "value" | "isInvalid" | "errorMessage" | "name"
+>;
+export type SelectPassthroughProps = Omit<
+  ComponentProps<typeof Select>,
+  "selectedKeys" | "isInvalid" | "errorMessage" | "name"
+>;
+export type AutocompletePassthroughProps = Omit<
+  ComponentProps<typeof Autocomplete>,
+  | "selectedKey"
+  | "inputValue"
+  | "isInvalid"
+  | "errorMessage"
+  | "name"
+  | "children"
+  | "items"
+  | "defaultItems"
+>;
+export type CheckboxPassthroughProps = Omit<
+  ComponentProps<typeof Checkbox>,
+  "isSelected" | "isInvalid" | "errorMessage" | "name"
+> & { value?: string };
+/** Passthrough props for each Checkbox in a CheckboxGroup (no value – group controls selection). */
+export type CheckboxGroupPassthroughProps = Omit<
+  CheckboxPassthroughProps,
+  "value"
+>;
+export type SwitchPassthroughProps = Omit<
+  ComponentProps<typeof Switch>,
+  "isSelected" | "isInvalid" | "name"
+>;
+export type RadioGroupPassthroughProps = Omit<
+  ComponentProps<typeof RadioGroup>,
+  "value" | "isInvalid" | "name"
+>;
+export type SliderPassthroughProps = Omit<
+  ComponentProps<typeof Slider>,
+  "value" | "isInvalid" | "errorMessage" | "name"
+>;
+export type DateInputPassthroughProps = Omit<
+  ComponentProps<typeof DateInput>,
+  "value" | "isInvalid" | "errorMessage" | "name"
+>;
+export type FileInputPassthroughProps = Omit<
+  ComponentProps<typeof Input>,
+  "value" | "isInvalid" | "errorMessage" | "name" | "type"
+>;
+
 /**
  * All supported field types that can be used in form builders
  * This type is used throughout the codebase to ensure consistency
@@ -106,46 +160,10 @@ export interface StringFieldConfig<TFieldValues extends FieldValues>
   extends BaseFormFieldConfig<TFieldValues> {
   type: "input" | "textarea" | "select" | "autocomplete";
   defaultValue?: string;
-  inputProps?: Omit<
-    ComponentProps<typeof Input>,
-    | "value"
-    | "onValueChange"
-    | "label"
-    | "isInvalid"
-    | "errorMessage"
-    | "isDisabled"
-  >;
-  textareaProps?: Omit<
-    ComponentProps<typeof Textarea>,
-    | "value"
-    | "onValueChange"
-    | "label"
-    | "isInvalid"
-    | "errorMessage"
-    | "isDisabled"
-  >;
-  selectProps?: Omit<
-    ComponentProps<typeof Select>,
-    | "selectedKeys"
-    | "onSelectionChange"
-    | "label"
-    | "isInvalid"
-    | "errorMessage"
-    | "isDisabled"
-  >;
-  autocompleteProps?: Omit<
-    ComponentProps<typeof Autocomplete>,
-    | "selectedKey"
-    | "onSelectionChange"
-    | "inputValue"
-    | "onInputChange"
-    | "label"
-    | "isInvalid"
-    | "errorMessage"
-    | "isDisabled"
-    | "children"
-    | "items"
-  >;
+  inputProps?: InputPassthroughProps;
+  textareaProps?: TextareaPassthroughProps;
+  selectProps?: SelectPassthroughProps;
+  autocompleteProps?: AutocompletePassthroughProps;
   options?: { label: string; value: string | number }[];
 }
 
@@ -154,14 +172,8 @@ export interface BooleanFieldConfig<TFieldValues extends FieldValues>
   extends BaseFormFieldConfig<TFieldValues> {
   type: "checkbox" | "switch";
   defaultValue?: boolean;
-  checkboxProps?: Omit<
-    ComponentProps<typeof Checkbox>,
-    "isSelected" | "onValueChange" | "isInvalid" | "errorMessage" | "isDisabled"
-  >;
-  switchProps?: Omit<
-    ComponentProps<typeof Switch>,
-    "isSelected" | "onValueChange" | "isInvalid" | "errorMessage" | "isDisabled"
-  >;
+  checkboxProps?: CheckboxPassthroughProps;
+  switchProps?: SwitchPassthroughProps;
 }
 
 // Radio field config
@@ -169,10 +181,7 @@ export interface RadioFieldConfig<TFieldValues extends FieldValues>
   extends BaseFormFieldConfig<TFieldValues> {
   type: "radio";
   defaultValue?: string;
-  radioProps?: Omit<
-    ComponentProps<typeof RadioGroup>,
-    "value" | "onValueChange" | "label"
-  >;
+  radioProps?: RadioGroupPassthroughProps;
   radioOptions?: { label: string; value: string | number }[];
 }
 
@@ -182,15 +191,7 @@ export interface CheckboxGroupFieldConfig<TFieldValues extends FieldValues>
   type: "checkboxGroup";
   defaultValue?: (string | number)[];
   checkboxGroupOptions?: { label: string; value: string | number }[];
-  checkboxProps?: Omit<
-    React.ComponentProps<typeof import("#ui").Checkbox>,
-    | "isSelected"
-    | "onValueChange"
-    | "isInvalid"
-    | "errorMessage"
-    | "isDisabled"
-    | "name"
-  >;
+  checkboxProps?: CheckboxGroupPassthroughProps;
   orientation?: "vertical" | "horizontal";
 }
 
@@ -199,10 +200,7 @@ export interface SliderFieldConfig<TFieldValues extends FieldValues>
   extends BaseFormFieldConfig<TFieldValues> {
   type: "slider";
   defaultValue?: number;
-  sliderProps?: Omit<
-    ComponentProps<typeof Slider>,
-    "value" | "onChange" | "label" | "isDisabled"
-  >;
+  sliderProps?: SliderPassthroughProps;
 }
 
 // Date field config
@@ -210,10 +208,7 @@ export interface DateFieldConfig<TFieldValues extends FieldValues>
   extends BaseFormFieldConfig<TFieldValues> {
   type: "date";
   defaultValue?: import("@internationalized/date").CalendarDate | null;
-  dateProps?: Omit<
-    ComponentProps<typeof DateInput>,
-    "value" | "onChange" | "label" | "isInvalid" | "errorMessage" | "isDisabled"
-  >;
+  dateProps?: DateInputPassthroughProps;
 }
 
 // File field config
@@ -221,16 +216,7 @@ export interface FileFieldConfig<TFieldValues extends FieldValues>
   extends BaseFormFieldConfig<TFieldValues> {
   type: "file";
   defaultValue?: FileList | null;
-  fileProps?: Omit<
-    ComponentProps<typeof Input>,
-    | "value"
-    | "onValueChange"
-    | "label"
-    | "isInvalid"
-    | "errorMessage"
-    | "isDisabled"
-    | "type"
-  >;
+  fileProps?: FileInputPassthroughProps;
   multiple?: boolean;
   accept?: string;
 }

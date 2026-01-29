@@ -7,8 +7,13 @@ import type { ControllerRenderProps, FieldValues, Path } from "react-hook-form";
 import { Controller } from "react-hook-form";
 
 import { useHeroHookFormDefaults } from "../providers/ConfigProvider";
-import type { FieldBaseProps, WithControl } from "../types";
+import type {
+  DateInputPassthroughProps,
+  FieldBaseProps,
+  WithControl,
+} from "../types";
 import { toCalendarDateValue } from "../utils/dateCoercion";
+import { createDateFieldHandlers } from "../utils/fieldHandlers";
 
 import { DateInput } from "#ui";
 
@@ -41,15 +46,7 @@ export type DateFieldProps<TFieldValues extends FieldValues> = FieldBaseProps<
 > &
   WithControl<TFieldValues> & {
     /** Additional props to pass to the underlying DateInput component */
-    dateProps?: Omit<
-      React.ComponentProps<typeof DateInput>,
-      | "value"
-      | "onChange"
-      | "label"
-      | "isInvalid"
-      | "errorMessage"
-      | "isDisabled"
-    >;
+    dateProps?: DateInputPassthroughProps;
     /** Transform function to modify the date value before it's set */
     transform?: (value: CalendarDate | null) => CalendarDate | null;
   };
@@ -60,10 +57,7 @@ function CoercedDateInput<TFieldValues extends FieldValues>(props: {
   description?: string;
   disabled?: boolean;
   errorMessage?: string;
-  dateProps?: Omit<
-    React.ComponentProps<typeof DateInput>,
-    "value" | "onChange" | "label" | "isInvalid" | "errorMessage" | "isDisabled"
-  >;
+  dateProps?: DateInputPassthroughProps;
 }) {
   const { dateProps, description, disabled, errorMessage, field, label } =
     props;
@@ -71,19 +65,21 @@ function CoercedDateInput<TFieldValues extends FieldValues>(props: {
 
   const dateValue = toCalendarDateValue(field.value);
 
+  const restProps = createDateFieldHandlers<Element, DateInputPassthroughProps>(
+    dateProps,
+    field,
+    { isDisabled: disabled, label },
+  );
+
   return (
     <DateInput
       {...defaults.dateInput}
-      {...dateProps}
+      {...restProps}
       description={description}
       errorMessage={errorMessage}
-      isDisabled={disabled}
       isInvalid={Boolean(errorMessage)}
-      label={label}
       name={field.name}
       value={dateValue}
-      onBlur={field.onBlur}
-      onChange={field.onChange}
     />
   );
 }

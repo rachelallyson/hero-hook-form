@@ -6,6 +6,7 @@ import type { FieldValues, Path } from "react-hook-form";
 import { Controller } from "react-hook-form";
 
 import type { FieldBaseProps, WithControl } from "../types";
+import { createFontPickerFieldHandlers } from "../utils/fieldHandlers";
 
 // Optional font picker import - will be null if package is not installed
 let FontPickerComponent: any = null;
@@ -21,6 +22,9 @@ interface FontPickerProps {
   loadAllVariants?: boolean;
   onFontsLoaded?: (loaded: boolean) => void;
   fontsLoadedTimeout?: number;
+  label?: string;
+  isDisabled?: boolean;
+  onSelectionChange?: (value: string) => void;
 }
 
 export type FontPickerFieldProps<
@@ -28,7 +32,10 @@ export type FontPickerFieldProps<
   TValue extends string = string,
 > = FieldBaseProps<TFieldValues, TValue> &
   WithControl<TFieldValues> & {
-    fontPickerProps?: FontPickerProps;
+    fontPickerProps?: Omit<
+      FontPickerProps,
+      "value" | "onSelectionChange" | "errorMessage"
+    >;
   };
 
 export function FontPickerField<
@@ -192,18 +199,23 @@ export function FontPickerField<
     <Controller<TFieldValues, Path<TFieldValues>>
       control={control}
       name={name}
-      render={({ field, fieldState }) => (
-        <fontPickerState.component
-          label={label}
-          description={description}
-          value={field.value ?? ""}
-          onSelectionChange={(value: string) => field.onChange(value)}
-          errorMessage={fieldState.error?.message}
-          isDisabled={isDisabled}
-          className={className}
-          {...fontPickerProps}
-        />
-      )}
+      render={({ field, fieldState }) => {
+        const restProps = createFontPickerFieldHandlers<FontPickerProps>(
+          fontPickerProps,
+          field,
+          { isDisabled, label },
+        );
+
+        return (
+          <fontPickerState.component
+            {...restProps}
+            className={className}
+            description={description}
+            errorMessage={fieldState.error?.message}
+            value={field.value ?? ""}
+          />
+        );
+      }}
       rules={rules}
     />
   );

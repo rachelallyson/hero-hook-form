@@ -6,7 +6,12 @@ import type { ControllerRenderProps, FieldValues, Path } from "react-hook-form";
 import { Controller } from "react-hook-form";
 
 import { useHeroHookFormDefaults } from "../providers/ConfigProvider";
-import type { FieldBaseProps, WithControl } from "../types";
+import type {
+  FieldBaseProps,
+  InputPassthroughProps,
+  WithControl,
+} from "../types";
+import { createFieldHandlers } from "../utils/fieldHandlers";
 
 import { Input } from "#ui";
 
@@ -20,15 +25,7 @@ export type InputFieldProps<TFieldValues extends FieldValues> = FieldBaseProps<
   string
 > &
   WithControl<TFieldValues> & {
-    inputProps?: Omit<
-      React.ComponentProps<typeof Input>,
-      | "value"
-      | "onValueChange"
-      | "label"
-      | "isInvalid"
-      | "errorMessage"
-      | "isDisabled"
-    >;
+    inputProps?: InputPassthroughProps;
     transform?: (value: string) => string;
   };
 
@@ -38,33 +35,26 @@ function CoercedInput<TFieldValues extends FieldValues>(props: {
   description?: string;
   disabled?: boolean;
   errorMessage?: string;
-  inputProps?: Omit<
-    React.ComponentProps<typeof Input>,
-    | "value"
-    | "onValueChange"
-    | "label"
-    | "isInvalid"
-    | "errorMessage"
-    | "isDisabled"
-  >;
+  inputProps?: InputPassthroughProps;
 }) {
   const { description, disabled, errorMessage, field, inputProps, label } =
     props;
   const defaults = useHeroHookFormDefaults();
 
+  const restProps = createFieldHandlers(inputProps, field, {
+    isDisabled: disabled,
+    label,
+  });
+
   return (
     <Input
       {...defaults.input}
-      {...inputProps}
+      {...restProps}
       description={description}
       errorMessage={errorMessage}
-      isDisabled={disabled}
       isInvalid={Boolean(errorMessage)}
-      label={label}
       name={field.name}
       value={field.value ?? ""}
-      onBlur={field.onBlur}
-      onValueChange={field.onChange}
     />
   );
 }

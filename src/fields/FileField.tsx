@@ -6,7 +6,12 @@ import type { ControllerRenderProps, FieldValues, Path } from "react-hook-form";
 import { Controller } from "react-hook-form";
 
 import { useHeroHookFormDefaults } from "../providers/ConfigProvider";
-import type { FieldBaseProps, WithControl } from "../types";
+import type {
+  FieldBaseProps,
+  FileInputPassthroughProps,
+  WithControl,
+} from "../types";
+import { createFileFieldHandlers } from "../utils/fieldHandlers";
 
 import { Input } from "#ui";
 
@@ -39,16 +44,7 @@ export type FileFieldProps<TFieldValues extends FieldValues> = FieldBaseProps<
 > &
   WithControl<TFieldValues> & {
     /** Additional props to pass to the underlying Input component */
-    fileProps?: Omit<
-      React.ComponentProps<typeof Input>,
-      | "value"
-      | "onValueChange"
-      | "label"
-      | "isInvalid"
-      | "errorMessage"
-      | "isDisabled"
-      | "type"
-    >;
+    fileProps?: FileInputPassthroughProps;
     /** Transform function to modify the file list before it's set */
     transform?: (value: FileList | null) => FileList | null;
     /** Whether multiple files can be selected */
@@ -63,18 +59,10 @@ function CoercedFileInput<TFieldValues extends FieldValues>(props: {
   description?: string;
   disabled?: boolean;
   errorMessage?: string;
-  fileProps?: Omit<
-    React.ComponentProps<typeof Input>,
-    | "value"
-    | "onValueChange"
-    | "label"
-    | "isInvalid"
-    | "errorMessage"
-    | "isDisabled"
-    | "type"
-  >;
+  fileProps?: FileInputPassthroughProps;
   multiple?: boolean;
   accept?: string;
+  transform?: (value: FileList | null) => FileList | null;
 }) {
   const {
     accept,
@@ -85,33 +73,29 @@ function CoercedFileInput<TFieldValues extends FieldValues>(props: {
     fileProps,
     label,
     multiple,
+    transform,
   } = props;
   const defaults = useHeroHookFormDefaults();
+
+  const restProps = createFileFieldHandlers<FileInputPassthroughProps>(
+    fileProps,
+    field,
+    transform,
+    { isDisabled: disabled, label },
+  );
 
   return (
     <Input
       {...defaults.input}
-      {...fileProps}
+      {...restProps}
       accept={accept}
       description={description}
       errorMessage={errorMessage}
-      isDisabled={disabled}
       isInvalid={Boolean(errorMessage)}
-      label={label}
       multiple={multiple}
       name={field.name}
       type="file"
       value={field.value ? "" : ""} // File inputs don't use value prop
-      onBlur={field.onBlur}
-      onChange={(e) => {
-        // Type guard: ensure target is HTMLInputElement
-        if (!(e.target instanceof HTMLInputElement)) {
-          return;
-        }
-        const target = e.target;
-
-        field.onChange(target.files);
-      }}
     />
   );
 }
@@ -202,11 +186,8 @@ export function FileField<TFieldValues extends FieldValues>(
             description={description}
             disabled={isDisabled}
             errorMessage={fieldState.error?.message}
-            field={{
-              ...field,
-              onChange: (value: FileList | null) =>
-                field.onChange(transform ? transform(value) : value),
-            }}
+            field={field}
+            transform={transform}
             fileProps={fileProps}
             label={label}
             multiple={multiple}

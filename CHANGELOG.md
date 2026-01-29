@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.10.0] - 2026-01-28
+
+### Added
+
+- **Shared passthrough prop types** – Centralized `*PassthroughProps` types in `types.ts` (e.g. `InputPassthroughProps`, `AutocompletePassthroughProps`, `CheckboxGroupPassthroughProps`) so field and builder configs use a single definition instead of inline `Omit<ComponentProps<...>>`.
+- **`src/utils/fieldHandlers.ts`** – New helpers for field components:
+  - `createBlurHandler`, `createValueChangeHandler`, `createSelectionChangeHandler` – Wrap user and form handlers so both run.
+  - `extractHandlers` – Pull handler keys out of props and return cleaned `restProps`.
+  - `mergeLabelAndDisabled` / `mergeLabelAndDisabledFromRest` – Merge `label` and `isDisabled` from passthrough props with field-level values so `*Props` can override per instance.
+  - Per-field helpers: `createFieldHandlers`, `createDateFieldHandlers`, `createSliderFieldHandlers`, `createSelectFieldHandlers`, `createFileFieldHandlers`, `createAutocompleteFieldHandlers`, `createFontPickerFieldHandlers` – Each returns merged rest props plus wrapped handlers for that field type.
+- **CheckboxGroupPassthroughProps** – Dedicated type for checkbox group passthrough (`Omit<CheckboxPassthroughProps, "value">`) so the “no value per checkbox” shape is defined once and reused in types, fields, and builders.
+- **AutocompleteField: `defaultItems` support** – `autocompleteProps` can include `defaultItems?: Iterable<AutocompleteOption<TValue>>`; field passes it through with correct typing (passthrough type omits `defaultItems` to avoid `Iterable<object>` conflict).
+
+### Changed
+
+- **Field components** – All field components (Input, Textarea, Select, Autocomplete, Checkbox, CheckboxGroup, Switch, RadioGroup, Slider, Date, File, FontPicker) now use the shared passthrough types and handler helpers: they call the appropriate `create*FieldHandlers` (or `createFieldHandlers`), merge label/disabled from rest, and spread the result onto the HeroUI component instead of manually wiring `onBlur` / `onValueChange` / `onSelectionChange` and label/disabled.
+- **BasicFormBuilder (FormFieldHelpers)** – Replaced all inline `Omit<ComponentProps<typeof X>, …>` and local `InputPropsType` with imports of the shared passthrough types from `types.ts`; removed `#ui` component imports used only for those types.
+- **AdvancedFormBuilder** – Removed `isDisabled` from the object passed into `radioProps` so it is not duplicated there (handled via field level / passthrough).
+- **Example Cypress config** – Enabled `experimentalMemoryManagement: true` and `numTestsKeptInMemory: 5` for the example app.
+
+### Fixed
+
+- **ContentField not rendering title/description-only configs** – `FormField` previously rendered `ContentField` only when `render` or `content` was present; it now also renders when `title` or `description` is present, so configs with only a title and/or description display correctly.
+- **Field array tests: “Add Item” did nothing** – `FieldArrayField` only appends when `defaultItem` is provided. ZodForm and FieldArrayField Cypress specs now include `defaultItem: () => ({ name: "", email: "" })` in the field array config so add/remove, max limit, and fill/validate tests pass.
+- **Autocomplete `defaultItems` type error** – Resolved `Iterable<object>` vs `Iterable<AutocompleteOption<TValue>>` mismatch by omitting `defaultItems` from `AutocompletePassthroughProps` and typing it on the field as `autocompleteProps?: AutocompletePassthroughProps & { defaultItems?: Iterable<AutocompleteOption<TValue>> }`.
+
 ## [2.9.2] - 2026-01-28
 
 ### Added

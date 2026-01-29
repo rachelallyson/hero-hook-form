@@ -167,6 +167,7 @@ describe("ZodForm with Conditional Fields", () => {
               max: 5,
               addButtonText: "Add Item",
               removeButtonText: "Remove",
+              defaultItem: () => ({ name: "", email: "" }),
             },
           ],
           defaultValues: {

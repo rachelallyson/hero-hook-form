@@ -6,7 +6,12 @@ import type { FieldValues, Path } from "react-hook-form";
 import { Controller } from "react-hook-form";
 
 import { useHeroHookFormDefaults } from "../providers/ConfigProvider";
-import type { FieldBaseProps, WithControl } from "../types";
+import type {
+  FieldBaseProps,
+  TextareaPassthroughProps,
+  WithControl,
+} from "../types";
+import { createFieldHandlers } from "../utils/fieldHandlers";
 
 import { Textarea } from "#ui";
 
@@ -37,15 +42,7 @@ export type TextareaFieldProps<TFieldValues extends FieldValues> =
   FieldBaseProps<TFieldValues, string> &
     WithControl<TFieldValues> & {
       /** Additional props to pass to the underlying Textarea component */
-      textareaProps?: Omit<
-        React.ComponentProps<typeof Textarea>,
-        | "value"
-        | "onValueChange"
-        | "label"
-        | "isInvalid"
-        | "errorMessage"
-        | "isDisabled"
-      >;
+      textareaProps?: TextareaPassthroughProps;
     };
 
 /**
@@ -119,23 +116,26 @@ export function TextareaField<TFieldValues extends FieldValues>(
     <Controller<TFieldValues, Path<TFieldValues>>
       control={control}
       name={name}
-      render={({ field, fieldState }) => (
-        <div className={className}>
-          <Textarea
-            {...defaults.textarea}
-            {...textareaProps}
-            description={description}
-            errorMessage={fieldState.error?.message}
-            isDisabled={isDisabled}
-            isInvalid={Boolean(fieldState.error)}
-            label={label}
-            name={field.name}
-            value={field.value ?? ""}
-            onBlur={field.onBlur}
-            onValueChange={field.onChange}
-          />
-        </div>
-      )}
+      render={({ field, fieldState }) => {
+        const restProps = createFieldHandlers(textareaProps, field, {
+          isDisabled,
+          label,
+        });
+
+        return (
+          <div className={className}>
+            <Textarea
+              {...defaults.textarea}
+              {...restProps}
+              description={description}
+              errorMessage={fieldState.error?.message}
+              isInvalid={Boolean(fieldState.error)}
+              name={field.name}
+              value={field.value ?? ""}
+            />
+          </div>
+        );
+      }}
       rules={rules}
     />
   );

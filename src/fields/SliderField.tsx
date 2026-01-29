@@ -6,7 +6,12 @@ import type { ControllerRenderProps, FieldValues, Path } from "react-hook-form";
 import { Controller } from "react-hook-form";
 
 import { useHeroHookFormDefaults } from "../providers/ConfigProvider";
-import type { FieldBaseProps, WithControl } from "../types";
+import type {
+  FieldBaseProps,
+  SliderPassthroughProps,
+  WithControl,
+} from "../types";
+import { createSliderFieldHandlers } from "../utils/fieldHandlers";
 
 import { Slider } from "#ui";
 
@@ -38,15 +43,7 @@ export type SliderFieldProps<TFieldValues extends FieldValues> = FieldBaseProps<
 > &
   WithControl<TFieldValues> & {
     /** Additional props to pass to the underlying Slider component */
-    sliderProps?: Omit<
-      React.ComponentProps<typeof Slider>,
-      | "value"
-      | "onValueChange"
-      | "label"
-      | "isInvalid"
-      | "errorMessage"
-      | "isDisabled"
-    >;
+    sliderProps?: SliderPassthroughProps;
     /** Transform function to modify the slider value before it's set */
     transform?: (value: number) => number;
   };
@@ -57,33 +54,26 @@ function CoercedSlider<TFieldValues extends FieldValues>(props: {
   description?: string;
   disabled?: boolean;
   errorMessage?: string;
-  sliderProps?: Omit<
-    React.ComponentProps<typeof Slider>,
-    | "value"
-    | "onValueChange"
-    | "label"
-    | "isInvalid"
-    | "errorMessage"
-    | "isDisabled"
-  >;
+  sliderProps?: SliderPassthroughProps;
 }) {
   const { description, disabled, errorMessage, field, label, sliderProps } =
     props;
   const defaults = useHeroHookFormDefaults();
 
+  const restProps = createSliderFieldHandlers(sliderProps, field, {
+    isDisabled: disabled,
+    label,
+  });
+
   return (
     <Slider
       {...defaults.slider}
-      {...sliderProps}
+      {...restProps}
       description={description}
       errorMessage={errorMessage}
-      isDisabled={disabled}
       isInvalid={Boolean(errorMessage)}
-      label={label}
       name={field.name}
       value={field.value ?? 0}
-      onBlur={field.onBlur}
-      onValueChange={field.onChange}
     />
   );
 }

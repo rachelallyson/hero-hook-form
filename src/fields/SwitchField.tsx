@@ -6,7 +6,12 @@ import type { FieldValues, Path } from "react-hook-form";
 import { Controller } from "react-hook-form";
 
 import { useHeroHookFormDefaults } from "../providers/ConfigProvider";
-import type { FieldBaseProps, WithControl } from "../types";
+import type {
+  FieldBaseProps,
+  SwitchPassthroughProps,
+  WithControl,
+} from "../types";
+import { createFieldHandlers } from "../utils/fieldHandlers";
 
 import { Switch } from "#ui";
 
@@ -38,10 +43,7 @@ export type SwitchFieldProps<TFieldValues extends FieldValues> = FieldBaseProps<
 > &
   WithControl<TFieldValues> & {
     /** Additional props to pass to the underlying Switch component */
-    switchProps?: Omit<
-      React.ComponentProps<typeof Switch>,
-      "isSelected" | "onValueChange" | "isInvalid" | "isDisabled"
-    >;
+    switchProps?: SwitchPassthroughProps;
   };
 
 /**
@@ -114,29 +116,34 @@ export function SwitchField<TFieldValues extends FieldValues>(
     <Controller<TFieldValues, Path<TFieldValues>>
       control={control}
       name={name}
-      render={({ field, fieldState }) => (
-        <div className={className}>
-          <Switch
-            {...defaults.switch}
-            {...switchProps}
-            isDisabled={isDisabled}
-            isSelected={Boolean(field.value)}
-            name={name}
-            onBlur={field.onBlur}
-            onValueChange={(val: boolean) => field.onChange(val)}
-          >
-            {label}
-          </Switch>
-          {description ? (
-            <p className="text-small text-default-400">{description}</p>
-          ) : null}
-          {fieldState.error?.message ? (
-            <p className="text-tiny text-danger mt-1">
-              {fieldState.error.message}
-            </p>
-          ) : null}
-        </div>
-      )}
+      render={({ field, fieldState }) => {
+        const restProps = createFieldHandlers<boolean, Element>(
+          switchProps,
+          field,
+          { isDisabled },
+        );
+
+        return (
+          <div className={className}>
+            <Switch
+              {...defaults.switch}
+              {...restProps}
+              isSelected={Boolean(field.value)}
+              name={name}
+            >
+              {restProps.label ?? label}
+            </Switch>
+            {description ? (
+              <p className="text-small text-default-400">{description}</p>
+            ) : null}
+            {fieldState.error?.message ? (
+              <p className="text-tiny text-danger mt-1">
+                {fieldState.error.message}
+              </p>
+            ) : null}
+          </div>
+        );
+      }}
       rules={rules}
     />
   );

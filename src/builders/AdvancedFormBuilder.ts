@@ -306,7 +306,6 @@ function createRadioField<T extends FieldValues>(
     ...(props && {
       radioProps: {
         className: props.className,
-        isDisabled: props.isDisabled,
         orientation: props.orientation,
       },
     }),

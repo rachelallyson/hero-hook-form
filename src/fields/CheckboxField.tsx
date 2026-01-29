@@ -6,7 +6,12 @@ import type { FieldValues, Path } from "react-hook-form";
 import { Controller } from "react-hook-form";
 
 import { useHeroHookFormDefaults } from "../providers/ConfigProvider";
-import type { FieldBaseProps, WithControl } from "../types";
+import type {
+  CheckboxPassthroughProps,
+  FieldBaseProps,
+  WithControl,
+} from "../types";
+import { createFieldHandlers } from "../utils/fieldHandlers";
 
 import { Checkbox } from "#ui";
 
@@ -36,14 +41,7 @@ export type CheckboxFieldProps<TFieldValues extends FieldValues> =
   FieldBaseProps<TFieldValues, boolean> &
     WithControl<TFieldValues> & {
       /** Additional props to pass to the underlying Checkbox component */
-      checkboxProps?: Omit<
-        React.ComponentProps<typeof Checkbox>,
-        | "isSelected"
-        | "onValueChange"
-        | "isInvalid"
-        | "errorMessage"
-        | "isDisabled"
-      >;
+      checkboxProps?: CheckboxPassthroughProps;
     };
 
 /**
@@ -151,18 +149,21 @@ export function CheckboxField<TFieldValues extends FieldValues>(
           return () => clearTimeout(timeoutId);
         }, [name, checkboxValue, field.value]);
 
+        const restProps = createFieldHandlers<
+          boolean,
+          Element,
+          CheckboxPassthroughProps
+        >(checkboxProps, field, { isDisabled });
+
         return (
           <div ref={containerRef} className={className}>
             <Checkbox
               {...defaults.checkbox}
-              {...checkboxProps}
-              isDisabled={isDisabled}
+              {...restProps}
               isInvalid={Boolean(fieldState.error)}
               isSelected={Boolean(field.value)}
               name={name}
-              value={checkboxValue}
-              onBlur={field.onBlur}
-              onValueChange={(val: boolean) => field.onChange(val)}
+              value={checkboxValue as never}
             >
               {label}
             </Checkbox>

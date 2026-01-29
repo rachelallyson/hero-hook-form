@@ -44,6 +44,7 @@ const TestForm = ({ defaultValues = {} }: { defaultValues?: Partial<TestFormData
     max: 5,
     addButtonText: "Add Item",
     removeButtonText: "Remove",
+    defaultItem: () => ({ name: "", email: "" }),
   };
 
   return (

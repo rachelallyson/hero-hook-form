@@ -6,7 +6,12 @@ import type { FieldValues, Path } from "react-hook-form";
 import { Controller } from "react-hook-form";
 
 import { useHeroHookFormDefaults } from "../providers/ConfigProvider";
-import type { FieldBaseProps, WithControl } from "../types";
+import type {
+  FieldBaseProps,
+  RadioGroupPassthroughProps,
+  WithControl,
+} from "../types";
+import { createFieldHandlers } from "../utils/fieldHandlers";
 
 import { Radio, RadioGroup } from "#ui";
 
@@ -63,10 +68,7 @@ export type RadioGroupFieldProps<
     /** Array of radio options */
     options: readonly RadioOption<TValue>[];
     /** Additional props to pass to the underlying RadioGroup component */
-    radioGroupProps?: Omit<
-      React.ComponentProps<typeof RadioGroup>,
-      "value" | "onValueChange" | "label"
-    >;
+    radioGroupProps?: RadioGroupPassthroughProps;
   };
 
 /**
@@ -149,37 +151,41 @@ export function RadioGroupField<
     <Controller<TFieldValues, Path<TFieldValues>>
       control={control}
       name={name}
-      render={({ field, fieldState }) => (
-        <div className={className}>
-          <RadioGroup
-            {...defaults.radioGroup}
-            {...radioGroupProps}
-            description={description}
-            isDisabled={isDisabled}
-            isInvalid={Boolean(fieldState.error)}
-            label={label}
-            name={name}
-            value={String(field.value ?? "")}
-            onBlur={field.onBlur}
-            onValueChange={(val: string) => field.onChange(val)}
-          >
-            {options.map((opt) => (
-              <Radio
-                key={String(opt.value)}
-                isDisabled={opt.disabled}
-                value={String(opt.value)}
-              >
-                {opt.label}
-              </Radio>
-            ))}
-          </RadioGroup>
-          {fieldState.error?.message ? (
-            <p className="text-tiny text-danger mt-1">
-              {fieldState.error.message}
-            </p>
-          ) : null}
-        </div>
-      )}
+      render={({ field, fieldState }) => {
+        const restProps = createFieldHandlers<
+          string,
+          Element,
+          RadioGroupPassthroughProps
+        >(radioGroupProps, field, { isDisabled, label });
+
+        return (
+          <div className={className}>
+            <RadioGroup
+              {...defaults.radioGroup}
+              {...restProps}
+              description={description}
+              isInvalid={Boolean(fieldState.error)}
+              name={name}
+              value={String(field.value ?? "")}
+            >
+              {options.map((opt) => (
+                <Radio
+                  key={String(opt.value)}
+                  isDisabled={opt.disabled}
+                  value={String(opt.value)}
+                >
+                  {opt.label}
+                </Radio>
+              ))}
+            </RadioGroup>
+            {fieldState.error?.message ? (
+              <p className="text-tiny text-danger mt-1">
+                {fieldState.error.message}
+              </p>
+            ) : null}
+          </div>
+        );
+      }}
       rules={rules}
     />
   );

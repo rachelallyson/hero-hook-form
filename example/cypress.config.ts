@@ -2,6 +2,8 @@ import { defineConfig } from "cypress";
 import installLogsPrinter from "cypress-terminal-report/src/installLogsPrinter";
 
 export default defineConfig({
+  experimentalMemoryManagement: true,
+  numTestsKeptInMemory: 5,
   e2e: {
     baseUrl: "http://localhost:3010",
     screenshotOnRunFailure: true,

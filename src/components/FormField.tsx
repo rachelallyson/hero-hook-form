@@ -69,9 +69,14 @@ function FormFieldComponent<TFieldValues extends FieldValues>({
   // Handle content fields early - they don't need conditional rendering or baseProps
   // Use type narrowing to ensure TypeScript understands this is a ContentFieldConfig
   if ("type" in fieldConfig && fieldConfig.type === "content") {
-    // TypeScript can't narrow the flexible union type, so we need to verify it's actually a ContentFieldConfig
-    // by checking for content-specific properties
-    if ("render" in fieldConfig || "content" in fieldConfig) {
+    // TypeScript can't narrow the flexible union type, so we verify content-specific properties
+    // (title/description only, or render/content for custom content)
+    if (
+      "title" in fieldConfig ||
+      "description" in fieldConfig ||
+      "render" in fieldConfig ||
+      "content" in fieldConfig
+    ) {
       return (
         <ContentField<TFieldValues>
           // @ts-expect-error - TypeScript can't verify the flexible union type is ContentFieldConfig, but we've checked the type and properties
