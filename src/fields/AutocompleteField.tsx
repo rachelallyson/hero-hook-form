@@ -185,11 +185,19 @@ export function AutocompleteField<
           { allowsCustomValue },
         );
 
+        // Merge provider defaults with rest so undefined in rest does not override provider design
+        const autocompleteMerged = { ...defaults.autocomplete };
+
+        for (const [key, value] of Object.entries(rest)) {
+          if (value !== undefined) {
+            (autocompleteMerged as Record<string, unknown>)[key] = value;
+          }
+        }
+
         return (
           <div className={className}>
             <Autocomplete<AutocompleteOption<TValue>>
-              {...defaults.autocomplete}
-              {...rest}
+              {...autocompleteMerged}
               {...(defaultItems && {
                 defaultItems: defaultItems as Iterable<
                   AutocompleteOption<TValue>

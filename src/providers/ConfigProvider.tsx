@@ -425,8 +425,16 @@ export function useHeroHookFormDefaults(): Required<
     variant: "bordered",
   };
 
+  // Autocomplete: match Input/Select by default so it follows provider design with or without provider.
+  const autocompleteBase: AutocompleteDefaults = {
+    radius: "md",
+    size: "md",
+    variant: "bordered",
+  };
+
   return {
     autocomplete: {
+      ...autocompleteBase,
       ...commonAutocomplete,
       ...(cfg.autocomplete ?? {}),
     },

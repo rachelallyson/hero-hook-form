@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.15.0] - 2026-02-02
+
+### Added
+
+- **ConfigProvider: autocomplete defaults** – `HeroHookFormDefaultsConfig` and `useHeroHookFormDefaults()` support `defaults.autocomplete`. `AutocompleteField` spreads these defaults so Autocomplete respects the same global styling (color, size, variant, radius, labelPlacement) as Input, Textarea, and Select when using `HeroHookFormProvider`.
+- **createFieldArrayCustomConfig: readOnly** – New `readOnly?: boolean` option. When true, the add button (and empty-state add block) is not rendered. `readOnly` is passed into each item’s props so custom `renderItem` / `getItemFieldConfig` can hide remove/reorder controls. Use instead of `renderAddButton: () => null` for display-only arrays.
+
+### Fixed
+
+- **ServerActionForm autocomplete options** – `AutocompleteItem` for autocomplete fields now receives `textValue={item.label ?? String(item.value)}` so options have a stable plain-text value for accessibility, type-to-select, and Cypress/automation even when using custom `renderItem`.
+
+### Changed
+
+- **AutocompleteField** – Uses `useHeroHookFormDefaults()` and spreads `defaults.autocomplete` so the control picks up provider styling (e.g. `HeroHookFormProvider` with `defaults.common` or `defaults.autocomplete`).
+- **Example: Custom Field Array Demo** – Uses `readOnly: true` instead of `renderAddButton: () => null`. E2E test added to assert “Add Item” is not shown when readOnly is true.
+
 ## [2.14.0] - 2026-01-29
 
 ### Added

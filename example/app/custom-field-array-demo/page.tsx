@@ -1,9 +1,9 @@
 "use client";
 
 import type { Path } from "react-hook-form";
+
 import React, { useState } from "react";
 import { z } from "zod";
-
 import {
   createCustomFieldConfigForItem,
   createFieldArrayCustomConfig,
@@ -67,9 +67,10 @@ export default function CustomFieldArrayDemo() {
             createFieldArrayCustomConfig<CustomFieldValuesFormData>({
               label: "Custom Fields",
               name: "customFieldValues",
-              renderAddButton: () => null,
+              readOnly: true,
               getItemFieldConfig: ({ field, index }) => {
                 const def = fieldDefs.find((f) => f.id === field.customFieldId);
+
                 if (!def) return null;
                 const { id: _id, ...rest } = def;
 

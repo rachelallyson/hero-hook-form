@@ -18,6 +18,10 @@ describe("Custom Field Array Demo", () => {
     cy.get('button[type="submit"]').should("exist");
   });
 
+  it("should not show Add Item button when readOnly is true", () => {
+    cy.contains("Add Item").should("not.exist");
+  });
+
   it("should fill custom fields and submit successfully", () => {
     cy.get('input[name="title"]').type("E2E Test");
     cy.contains("Short Text Field").parent().find("input").type("e2e short");

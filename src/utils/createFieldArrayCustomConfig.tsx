@@ -127,6 +127,8 @@ export interface FieldArrayItemRenderProps<
   onMoveUp: () => void;
   onMoveDown: () => void;
   onRemove: () => void;
+  /** When true, add/remove/reorder are hidden; use to hide your own buttons */
+  readOnly?: boolean;
 }
 
 /**
@@ -167,6 +169,8 @@ export interface CreateFieldArrayCustomConfigOptions<
   max?: number;
   /** Enable reordering of array items */
   enableReordering?: boolean;
+  /** When true, no add button is shown; readOnly is passed to renderItem/getItemFieldConfig so you can hide remove/reorder */
+  readOnly?: boolean;
   /** Optional className */
   className?: string;
 }
@@ -224,6 +228,7 @@ export function createFieldArrayCustomConfig<TFieldValues extends FieldValues>(
     max = 10,
     min = 0,
     name,
+    readOnly = false,
     renderAddButton,
     renderItem,
   } = options;
@@ -297,6 +302,7 @@ export function createFieldArrayCustomConfig<TFieldValues extends FieldValues>(
           onMoveDown: () => handleMoveDown(index),
           onMoveUp: () => handleMoveUp(index),
           onRemove: () => handleRemove(index),
+          readOnly,
         }) as FieldArrayItemRenderProps<TFieldValues, ArrayPath<TFieldValues>>;
 
       return (
@@ -325,24 +331,25 @@ export function createFieldArrayCustomConfig<TFieldValues extends FieldValues>(
               );
             })}
 
-            {fields.length === 0 && renderAddButton ? (
+            {!readOnly && fields.length === 0 && renderAddButton ? (
               <div className="text-center py-8 text-gray-500">
                 <p>No {label?.toLowerCase() || "items"} added yet.</p>
                 {renderAddButton({ canAdd, onAdd: handleAdd })}
               </div>
             ) : null}
 
-            {fields.length > 0 && renderAddButton
-              ? renderAddButton({ canAdd, onAdd: handleAdd })
-              : canAdd && (
-                  <Button
-                    variant="bordered"
-                    onPress={handleAdd}
-                    className="w-full"
-                  >
-                    Add Item
-                  </Button>
-                )}
+            {!readOnly &&
+              (fields.length > 0 && renderAddButton
+                ? renderAddButton({ canAdd, onAdd: handleAdd })
+                : canAdd && (
+                    <Button
+                      variant="bordered"
+                      onPress={handleAdd}
+                      className="w-full"
+                    >
+                      Add Item
+                    </Button>
+                  ))}
           </div>
         </div>
       );
